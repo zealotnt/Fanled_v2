@@ -1,0 +1,4 @@
+*.d
+*.o
+
+Firmware/Fanled_v2/Debug

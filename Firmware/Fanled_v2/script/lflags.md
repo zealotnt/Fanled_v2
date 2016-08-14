@@ -1,0 +1,1 @@
+--static -nostartfiles -Wl,-Map=Fanled_v2.map -Wl,--gc-sections -mthumb -mcpu=cortex-m3 -msoft-float -mfix-cortex-m3-ldrd -T ${workspace_loc:/${ProjName}/src/driver/link/stm32f103-md.ld} --entry Reset_Handler
