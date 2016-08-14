@@ -80,13 +80,6 @@
 #define MISC_CHANGE_SPEED		30
 
 /* custom sdcard library settings ****************************************/
-#define FATFS_USE_SDIO                 		0
-#define FATFS_SPI                			SPI2
-#define FATFS_SPI_PINSPACK        			SPI_PinsPack_2
-#define FATFS_CS_RCC       				 	RCC_APB2Periph_GPIOB
-#define FATFS_CS_PORT        				GPIOB
-#define FATFS_CS_PIN        				GPIO_Pin_12
-
 #define MONDAY			1
 #define TUESDAY			2
 #define WEDNESDAY		3
