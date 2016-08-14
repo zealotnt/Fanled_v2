@@ -20,12 +20,14 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include <stdarg.h>
 #include "Bluetooth/inc/bluetooth.h"
 #include "App/inc/SystemConfig.h"
 #include "UartHandler/inc/mtUartQueue.h"
 #include "UartHandler/inc/mtUartHandler.h"
 #include "Porting/inc/mtUart.h"
+
+#include <stdarg.h>
+#include <stdio.h>
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -40,9 +42,9 @@
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
 /******************************************************************************/
-#define BLUETOOTH_KEYPIN_RESET()		//GPIO_ResetBits(GPIOA, GPIO_Pin_11);
-#define BLUETOOTH_KEYPIN_SET()			//GPIO_SetBits(GPIOA, GPIO_Pin_11);
-
+#define BLUETOOTH_KEYPIN_RESET()		GPIO_ResetBits(GPIOA, GPIO_Pin_11);
+#define BLUETOOTH_KEYPIN_SET()			GPIO_SetBits(GPIOA, GPIO_Pin_11);
+#define bltPrintf(...)					printf(__VA_ARGS__)
 
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
@@ -83,32 +85,12 @@ void bltSendCharUart(char data)
 void bltSendMultiChar(char *data, uint32_t length)
 {
 	uint32_t i = 0;
-	uint32_t temp = length;
 	while(length != 0)
 	{
 		bltSendCharUart(data[i]);
 		i++;
 		length--;
 	}
-}
-
-void bltPrintf(const char * __restrict format, ...)
-{
-	char Tx_Buf[256];
-	va_list arg;
-
-	memset((void *) Tx_Buf, 0, sizeof(Tx_Buf));
-	// Start the varargs processing.
-	va_start(arg, format);
-
-	// Call vsnprintf to perform the conversion.  Use a large number for the
-	// buffer size.
-//	vsprintf((char *) Tx_Buf, format, arg);
-
-	// End the varargs processing.
-	va_end(arg);
-
-	bltSendMultiChar((char *)Tx_Buf, strlen((const char *) Tx_Buf));
 }
 
 void bltChangeBaud(uint32_t baurate)

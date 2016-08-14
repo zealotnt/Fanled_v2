@@ -22,6 +22,7 @@
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
 #include "mtInclude.h"
+#include "App/inc/mtIntHandler.h"
 #include "UartHandler/inc/mtUartHandler.h"
 #include "UartHandler/inc/mtCcidHandler.h"
 #include "UartHandler/inc/mtProtocolDriver.h"
@@ -178,9 +179,9 @@ mtErrorCode_t checkUartString(const char* strToCheck,  myqueue_uart_t *buffer)
 	}
 }
 
-void USART1_IRQHandler(void)
+void mtBluetoothRcvHandler(void)
 {
-#if STM32_PERIPH_LIB
+#if (STD_PERIPH_LIB)
 	char char_rev;
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
 	{

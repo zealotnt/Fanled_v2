@@ -45,13 +45,7 @@
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
 /******************************************************************************/
-#if (OPENCM3)
-#define mtHallSensorHandler							exti3_isr
-#define mtSystickHandler							SysTick_Handler
-#define mtFanledTimerHandler						TIM2_IRQHandler
-#else
 
-#endif
 
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
@@ -61,28 +55,19 @@
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-extern volatile uint32_t gtickDelay;
-extern volatile uint8_t g_SPI_DMA_Flag;
+uint16_t gCurrent_point = 0;
+volatile uint32_t CCR1_Val = 30000;
+volatile uint32_t CCR2_Val = 30000;
+volatile uint8_t g_SPI_DMA_Flag = 0;
+volatile uint8_t gDisplayEnable;
+
 extern Display_Type Fanled_Display;
-extern uint8_t ledPanel[36*4];
-extern uint16_t led_red[32];
-extern const uint16_t led_black[32];
-
-extern volatile uint32_t CCR1_Val;
-extern volatile uint32_t CCR2_Val;
-extern uint8_t gCircleCount;
-extern uint8_t gTimer_Overload_Count;
-extern uint16_t gCurrent_point;
-extern uint8_t gDisplayEnable;
-
-
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-static volatile uint32_t Timing_Count;
-static volatile uint32_t Scroll_Count;
 static uint16_t gtime_capture;
+static uint8_t gTimer_Overload_Count = 0;
 
 /******************************************************************************/
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
@@ -97,16 +82,22 @@ static uint16_t gtime_capture;
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-void SysTick_Handler(void)
+void mtSystickHandler(void)
 {
-	if (gtickDelay != 0) gtickDelay--;
+	static volatile uint32_t Timing_Count = 0;
+	static volatile uint32_t Scroll_Count = 0;
+
+	mtDelayClockTick();
 	TimingDelay_Decrement();
+
 	if(Scroll_Count > Fanled_Display.scroll_times && Fanled_Display.enable_flag == SCROLL_ENABLE_DISPLAY)
 	{
 		Fanled_Display.move_flag = 1;
 		Scroll_Count = 0;
 	}
-	else Scroll_Count++;		
+	else
+		Scroll_Count++;
+
 	Timing_Count++;
 	if(Timing_Count > Fanled_Display.animation_change_speed)
 	{
@@ -120,11 +111,13 @@ void SysTick_Handler(void)
 		}
 		Fanled_Display.animation_change_speed += ANIMATION_CHANGE_SPEED;
 	}
+
 	if(Timing_Count > Fanled_Display.sharingan_count)
 	{
 		Fanled_Display.sharingan_flag = ENABLE;
 		Fanled_Display.sharingan_count += SHARINGAN_CHANGE_SPEED;
 	}
+
 	if(Timing_Count > Fanled_Display.misc_count)
 	{
 		Fanled_Display.misc_flag = ENABLE;
@@ -132,19 +125,19 @@ void SysTick_Handler(void)
 	}
 }
 
-void DMA1_Channel3_IRQHandler(void)
+void mtFanledSpiTxCmplt(void)
 {
 #if STD_PERIPH_LIB
-	if (DMA_GetFlagStatus(DMA1_FLAG_TC3) != RESET)
-	{
+//	if (DMA_GetFlagStatus(DMA1_FLAG_TC3) != RESET)
+//	{
 		g_SPI_DMA_Flag = 1;
 		DMA_ClearFlag(DMA1_FLAG_TC3);
 		DMA_Cmd(DMA1_Channel3, DISABLE);   
-	}
+//	}
 #endif
 }
 
-void mtHallSensorIrq(void)
+void mtHallSensorHandler(void)
 {
 #if STD_PERIPH_LIB
 	TIM_Cmd(TIM2, DISABLE);

@@ -34,7 +34,28 @@ static BYTE FATFS_SD_CardType;			/* Card type flags */
 /* Initialize MMC interface */
 static void init_spi (void) {
 	/* Init SPI */
-	mtSPIInit();
+	GPIO_InitTypeDef GPIO_InitStruct;
+	SPI_InitTypeDef SPI_InitStruct;
+
+	//Common settings for all pins
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	//Enable clock
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	//Pinspack					MISO         	MOSI			SCK
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_15 | GPIO_Pin_13;
+	GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+	SPI_StructInit(&SPI_InitStruct);
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+	SPI_InitStruct.SPI_DataSize = 	SPI_DataSize_8b;
+	SPI_InitStruct.SPI_Direction = 	SPI_Direction_2Lines_FullDuplex;
+	SPI_InitStruct.SPI_FirstBit = 	SPI_FirstBit_MSB;
+	SPI_InitStruct.SPI_Mode = SPI_Mode_Master;
+	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft;
+	SPI_Init(FATFS_SPI, &SPI_InitStruct);
+	SPI_Cmd(FATFS_SPI, ENABLE);
 
 	/* Set CS high */
 	FATFS_CS_HIGH;

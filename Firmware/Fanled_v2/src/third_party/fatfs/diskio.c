@@ -78,7 +78,7 @@
 #define SPI_FLASH  3
 
 /* Make driver structure */
-DISKIO_LowLevelDriver_t FATFS_LowLevelDrivers[_VOLUMES] = {
+DISKIO_LowLevelDriver_t FATFS_LowLevelDrivers[] = {
 	{
 #if FATFS_USE_SDIO == 1
 		FATFS_SD_SDIO_disk_initialize,
@@ -87,11 +87,11 @@ DISKIO_LowLevelDriver_t FATFS_LowLevelDrivers[_VOLUMES] = {
 		FATFS_SD_SDIO_disk_write,
 		FATFS_SD_SDIO_disk_read
 #else
-		FATFS_SD_disk_initialize,
-		FATFS_SD_disk_status,
-		FATFS_SD_disk_ioctl,
-		FATFS_SD_disk_write,
-		FATFS_SD_disk_read
+		.disk_initialize = FATFS_SD_disk_initialize,
+		.disk_status = FATFS_SD_disk_status,
+		.disk_ioctl = FATFS_SD_disk_ioctl,
+		.disk_write = FATFS_SD_disk_write,
+		.disk_read = FATFS_SD_disk_read
 #endif
 	}
 };

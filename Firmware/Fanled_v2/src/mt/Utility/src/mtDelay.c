@@ -50,6 +50,7 @@
 static volatile uint32_t TimingDelay = 0;
 static volatile uint32_t Time = 0;
 static volatile uint32_t Time2;
+static volatile uint32_t gtickDelay;
 
 /******************************************************************************/
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
@@ -101,6 +102,23 @@ void DELAY_SetTime(volatile uint32_t time)
 void DELAY_SetTime2(volatile uint32_t time)
 {
 	Time2 = time;
+}
+
+void mtDelayClockTick()
+{
+	if (gtickDelay != 0)
+		gtickDelay--;
+}
+
+/* Delay Millisecond using Systick */
+void mtDelayMS(volatile uint32_t time_delay)
+{
+#if (OPENCM3)
+	tick_wait_ms(time_delay);
+#else
+	TimingDelay = time_delay;
+	while (TimingDelay != 0);
+#endif
 }
 
 /************************* End of File ****************************************/

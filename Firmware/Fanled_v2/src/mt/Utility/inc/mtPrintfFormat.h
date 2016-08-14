@@ -72,8 +72,8 @@ extern "C"
 /* DEFINITION OF MACROS                                                      */
 /*****************************************************************************/
 /* Header for module's debugging */
-#define BOOTLOADER_DEBUG_PRINT(...)					//printf(__VA_ARGS__)
-#define BOOTLOADER_DEBUG_ERROR_NOTIFY(...)			//printf(KRED KBOLD __VA_ARGS__); printf(KRESET "\r\n");
+#define DEBUG_INFO(...)					printf(__VA_ARGS__)
+#define DEBUG_ERROR(...)				printf(KRED KBOLD __VA_ARGS__); printf(KRESET "\r\n");
 
 
 /*****************************************************************************/

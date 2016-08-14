@@ -38,7 +38,7 @@
 #include "UartHandler/inc/mtUartHandler.h"
 #include "UartHandler/inc/mtCcidHandler.h"
 
-//#include "ff.h"
+#include "ff.h"
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
@@ -58,25 +58,14 @@
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
 // SD Card specific Variables
-//FATFS gFatFs;
-//DIR mydir;
-//FILINFO myfno;
+FATFS gFatFs;
+DIR mydir;
+FILINFO myfno;
 MediaPlayer MyPlayer;
-
-// Display Control Variables
-uint8_t gCircleCount;
-uint8_t gTimer_Overload_Count;
-uint16_t gCurrent_point;
-uint8_t gDisplayEnable = 0;
-volatile uint8_t g_SPI_DMA_Flag = 0;
-volatile uint32_t gtickDelay;
-volatile uint32_t CCR1_Val = 30000;
-volatile uint32_t CCR2_Val = 30000;
 
 // Display Buffer
 uint8_t ledPanel[36*4];
 Display_Type Fanled_Display;
-
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -106,26 +95,26 @@ void init_sreenbuffer(uint16_t *value, uint16_t val1, uint16_t val2)
 
 void sd_first_step(void)
 {
-//	FRESULT res;
-//	uint8_t count = 0;
-//	mtDelayMS(5);
-//	while((res!= FR_OK) && (count < 10)) {res = f_mount(&gFatFs, "0:", 1); count++;}
-//	if (f_mount(&gFatFs, "0:", 1) == FR_OK)
-//	{
-//	do
-//	{
-//		res = f_opendir(&mydir, "0:\\");
-//		mtDelayMS(5);
-//	}
-//	while(res != FR_OK);
-//	do
-//	{
-//		res = f_readdir(&mydir, &myfno);
-//		if (myfno.fname[0]) MyPlayer.NumOfItem++;
-//	}
-//	while(myfno.fname[0]);
-//	}
-//	MyPlayer.ChoiceNow = 0;
+	FRESULT res;
+	uint8_t count = 0;
+	mtDelayMS(5);
+	while((res!= FR_OK) && (count < 10)) {res = f_mount(&gFatFs, "0:", 1); count++;}
+	if (f_mount(&gFatFs, "0:", 1) == FR_OK)
+	{
+	do
+	{
+		res = f_opendir(&mydir, "0:\\");
+		mtDelayMS(5);
+	}
+	while(res != FR_OK);
+	do
+	{
+		res = f_readdir(&mydir, &myfno);
+		if (myfno.fname[0]) MyPlayer.NumOfItem++;
+	}
+	while(myfno.fname[0]);
+	}
+	MyPlayer.ChoiceNow = 0;
 }
 
 /******************************************************************************/
@@ -143,7 +132,7 @@ int main(void)
 {
 #if defined(FANLED_BOOTLOADER)
 	initBootloader();
-	uart_write_str("Bootloader !!!\r\n");
+	DEBUG_INFO("Bootloader !!!\r\n");
 	mtBlInitFlash();
 	while(1)
 	{

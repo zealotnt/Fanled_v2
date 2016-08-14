@@ -22,6 +22,7 @@
 /******************************************************************************/
 #include "App/inc/SystemConfig.h"
 #include "Porting/inc/mtTick.h"
+#include "Porting/inc/mtUart.h"
 
 #if (OPENCM3)
 #include <libopencm3/stm32/rcc.h>
@@ -45,10 +46,9 @@
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
 #define ISR_HALLSENSOR_PRIORITY			1		//(good value: 0)
-#define ISR_UART_RX_PRIORITY			0
 #define ISR_TIMER_PRIORITY				2
 #define ISR_RTC_PRIORITY				3
-#define BOARD_UART				USART1
+
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
 /******************************************************************************/
@@ -87,6 +87,8 @@ void mtSysTickInit(void)
 {
 #if (OPENCM3)
 	tick_init();
+#else
+	SysTick_Config(SystemCoreClock/1000);
 #endif
 }
 
@@ -155,8 +157,12 @@ void mtRCCInit(void)
 #if (STD_PERIPH_LIB)
 	GPIO_InitTypeDef GPIO_InitStruct;
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | \
-												RCC_APB2Periph_AFIO | RCC_APB2Periph_USART1 | RCC_APB2Periph_SPI1 ,ENABLE);
+	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOA |
+							RCC_APB2Periph_GPIOB |
+							RCC_APB2Periph_GPIOC |
+							RCC_APB2Periph_AFIO |
+							RCC_APB2Periph_USART1 |
+							RCC_APB2Periph_SPI1 ,ENABLE);
 
 	//SD Card enable
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
@@ -181,43 +187,8 @@ void mtRCCInit(void)
 void mtBluetoothUSARTInit(bool config)
 {
 #if STD_PERIPH_LIB
-	NVIC_InitTypeDef NVIC_InitStructure;
-	USART_InitTypeDef USARTInitStructure;
-	GPIO_InitTypeDef GPIOInitStructure;
-	
-	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
-	GPIOInitStructure.GPIO_Pin = GPIO_Pin_10; //<! PA10-Rx
-	GPIOInitStructure.GPIO_Mode = GPIO_Mode_IPU;
-	GPIO_Init(GPIOA,&GPIOInitStructure);
-	GPIOInitStructure.GPIO_Pin = GPIO_Pin_9; //<! PA9-TX
-	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIOInitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_Init(GPIOA, &GPIOInitStructure);
-	if(config == true)
-	{
-		USARTInitStructure.USART_BaudRate = 38400;
-	}
-	else
-	{
-		USARTInitStructure.USART_BaudRate = 115200;
-	}
-	USARTInitStructure.USART_WordLength= USART_WordLength_8b;
-	USARTInitStructure.USART_StopBits = USART_StopBits_1;
-	USARTInitStructure.USART_Parity =  USART_Parity_No;
-	USARTInitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USARTInitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
-	USART_Init(BOARD_UART,&USARTInitStructure);
-	USART_ITConfig(BOARD_UART, USART_IT_RXNE, ENABLE);
+	uart_init(config);
 
-	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = ISR_UART_RX_PRIORITY;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = ISR_UART_RX_PRIORITY;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
-	USART_Cmd(BOARD_UART,ENABLE);
 #elif (OPENCM3)
 	gpio_set_mode(	GPIOA,
 					GPIO_MODE_OUTPUT_50_MHZ,
@@ -244,28 +215,10 @@ void mtBluetoothUSARTInit(bool config)
 void mtBluetoothUSARTChangeBaud(uint32_t baudrate)
 {
 #if STD_PERIPH_LIB
-	USART_InitTypeDef USARTInitStructure;
-	
-	USART_Cmd(BOARD_UART,DISABLE); 
-	USARTInitStructure.USART_BaudRate = baudrate;
-	USARTInitStructure.USART_WordLength = USART_WordLength_8b;
-	USARTInitStructure.USART_StopBits = USART_StopBits_1;
-	USARTInitStructure.USART_Parity =  USART_Parity_No;
-	USARTInitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USARTInitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
-	USART_Init(BOARD_UART, &USARTInitStructure);	
-	USART_Cmd(BOARD_UART, ENABLE);
+	uart_change_baud(baudrate);
 #elif (OPENCM3)
 	USART_BRR(USART1) = (uint16_t)((24000000 << 4) / (baudrate * 16));
 
-#endif
-}
-
-/* Delay Millisecond using Systick */
-void mtDelayMS(volatile uint32_t time_delay)
-{
-#if (OPENCM3)
-	tick_wait_ms(time_delay);
 #endif
 }
 

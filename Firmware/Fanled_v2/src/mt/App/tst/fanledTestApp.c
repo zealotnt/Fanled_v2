@@ -98,7 +98,7 @@ void initBootloader(void)
 	// 1ms interval
 	mtSysTickInit();
 	mtRCCInit();
-	mtSPIInit();
+	mtFanledSPIInit();
 	blankAllLed();
 	bltInitModule(false);
 	mtInterByteTimer_Init();
@@ -110,9 +110,9 @@ void initAll(void)
 	mtSysTickInit();
 	Fanled_Display.enable_flag = STATE_FREST;
 	mtRCCInit();
+	mtFanledSPIInit();
 	mtTimerFanledDisplayInit();
 	mtHallSensorInit();
-	mtSPIInit();
 	bltInitModule(false);
 	stmInitRTC();
 }

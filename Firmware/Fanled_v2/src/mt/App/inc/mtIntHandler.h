@@ -17,8 +17,8 @@
 ** - Development
 ==============================================================================*/
 
-#ifndef MTUART_H_
-#define MTUART_H_
+#ifndef MTINTHANDLER_H_
+#define MTINTHANDLER_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -38,7 +38,18 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-
+#if (OPENCM3)
+#define mtHallSensorHandler							exti3_isr
+#define mtSystickHandler							SysTick_Handler
+#define mtFanledTimerHandler						TIM2_IRQHandler
+#else
+//#define mtFanledSpiTxCmplt							DMA1_Channel3_IRQHandler
+//#define mtHallSensorHandler							EXTI3_IRQHandler
+//#define mtSystickHandler							SysTick_Handler
+//#define mtFanledTimerHandler						TIM2_IRQHandler
+//#define mtBluetoothInterbyteTimerHandler			TIM3_IRQHandler
+//#define mtBluetoothRcvHandler						USART1_IRQHandler
+#endif
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
@@ -58,13 +69,9 @@ extern "C"
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-void uart_init(bool config);
-void uart_change_baud(uint32_t new_baudrate);
-void uart_write_char(char c);
-void uart_write_str(char *str);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MTUART_H_ */
+#endif /* MTINTHANDLER_H_ */

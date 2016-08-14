@@ -139,7 +139,7 @@ void mtUartWriteBuf(UInt8 *byte, UInt32 len)
 }
 
 /* inter-byte timer */
-void TIM3_IRQHandler(void)
+void mtBluetoothInterbyteTimerHandler(void)
 {
 	UInt8 warning[] = "TO\r\n";
 	TIM3->SR = 0;

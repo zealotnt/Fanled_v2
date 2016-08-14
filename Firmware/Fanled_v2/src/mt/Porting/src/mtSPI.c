@@ -21,7 +21,7 @@
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
 #include "Porting/inc/mtSPI.h"
-
+#include "drivers/fatfs_sd.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -65,32 +65,6 @@ DMA_InitTypeDef	g_DMA_InitStructure;
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-void mtSPIInit(void)
-{
-	GPIO_InitTypeDef GPIO_InitStruct;
-	SPI_InitTypeDef SPI_InitStruct;
-	
-	//Common settings for all pins
-	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-	//Enable clock
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-	//Pinspack				        	MISO         		MOSI				SCK
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_15 | GPIO_Pin_13;
-	GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-	SPI_StructInit(&SPI_InitStruct);
-	SPI_InitStruct.SPI_BaudRatePrescaler = SPI2_PRESCALER;
-	SPI_InitStruct.SPI_DataSize = 	SPI2_DATASIZE;
-	SPI_InitStruct.SPI_Direction = 	SPI_Direction_2Lines_FullDuplex;
-	SPI_InitStruct.SPI_FirstBit = 	SPI2_FIRSTBIT;
-	SPI_InitStruct.SPI_Mode = 			SPI2_MASTERSLAVE;
-	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft;
-	SPI_Init(SPI2, &SPI_InitStruct);
-	SPI_Cmd(SPI2, ENABLE);
-}
-
 uint8_t mtSPISend(SPI_TypeDef* SPIx, uint8_t data)
 {
 	//Fill output buffer with data
@@ -146,11 +120,12 @@ void mtFanledSPIInit(void)
 	//Enable clock for SPI1
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-	//Pinspack					 MOSI			SCK
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+	//Pinspack					 MOSI			SCK
 	GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_7 | GPIO_Pin_5;
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
-	GPIO_WriteBit(GPIOA,GPIO_Pin_4|GPIO_Pin_6,(BitAction)0);
+	GPIO_WriteBit(GPIOA, GPIO_Pin_6, (BitAction)0);
+	GPIO_WriteBit(GPIOA, GPIO_Pin_6, (BitAction)0);
 	
 	SPI_I2S_DeInit(SPI1);
 	SPI_StructInit(&SPI_InitStruct);
@@ -188,6 +163,7 @@ void mtFanledDMAInit(void)
 	g_DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
 	g_DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
 	g_DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+	g_DMA_InitStructure.DMA_BufferSize = 1;
 	DMA_Init(SPI_MASTER_Tx_DMA_Channel, &g_DMA_InitStructure);
 	DMA_ITConfig(SPI_MASTER_Tx_DMA_Channel, DMA_IT_TC, ENABLE);
 	NVIC_InitStructure.NVIC_IRQChannel = SPI_Tx_DMA_IRQ;
