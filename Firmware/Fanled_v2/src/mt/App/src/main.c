@@ -95,24 +95,30 @@ void init_sreenbuffer(uint16_t *value, uint16_t val1, uint16_t val2)
 
 void sd_first_step(void)
 {
-	FRESULT res;
+	FRESULT res = FR_DISK_ERR;
 	uint8_t count = 0;
 	mtDelayMS(5);
-	while((res!= FR_OK) && (count < 10)) {res = f_mount(&gFatFs, "0:", 1); count++;}
+	while((res!= FR_OK) && (count < 10))
+	{
+		res = f_mount(&gFatFs, "0:", 1);
+		count++;
+	}
+
 	if (f_mount(&gFatFs, "0:", 1) == FR_OK)
 	{
-	do
-	{
-		res = f_opendir(&mydir, "0:\\");
-		mtDelayMS(5);
-	}
-	while(res != FR_OK);
-	do
-	{
-		res = f_readdir(&mydir, &myfno);
-		if (myfno.fname[0]) MyPlayer.NumOfItem++;
-	}
-	while(myfno.fname[0]);
+		do
+		{
+			res = f_opendir(&mydir, "0:\\");
+			mtDelayMS(5);
+		}
+		while(res != FR_OK);
+
+		do
+		{
+			res = f_readdir(&mydir, &myfno);
+			if (myfno.fname[0]) MyPlayer.NumOfItem++;
+		}
+		while(myfno.fname[0]);
 	}
 	MyPlayer.ChoiceNow = 0;
 }
@@ -155,7 +161,7 @@ int main(void)
 
 #endif
 
-	BOOTLOADER_DEBUG_PRINT("Application !!!\r\n");	
+	DEBUG_INFO("Application !!!\r\n");
 	while(1);
 	return 0;
 }
