@@ -275,7 +275,7 @@ mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData, serialQueu
 		switch (*rcvRoutineState)
 		{
 		case RCV_IDLE:
-			mtSerialPort_InterByteTimerReload(/*&cmdRcvInterByteTimer,*/ mtSerialPort_InterByteTimerGetInverval());
+			mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
 			if (bData == SERIAL_FI_FIRSTBYTE)
 			{
 				*rcvRoutineState = RCV_IF;
@@ -290,7 +290,7 @@ mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData, serialQueu
 			break;
 
 		case RCV_IF:
-			mtSerialPort_InterByteTimerReload(/*&cmdRcvInterByteTimer,*/ mtSerialPort_InterByteTimerGetInverval());
+			mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
 			if (mtSerialCmd_CheckValidFISecondByte(bData))
 			{
 				*rcvRoutineState = RCV_LEN;
@@ -303,7 +303,7 @@ mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData, serialQueu
 			break;
 
 		case RCV_LEN:
-			mtSerialPort_InterByteTimerReload(/*&cmdRcvInterByteTimer,*/ mtSerialPort_InterByteTimerGetInverval());
+			mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
 			if(qBuff->rcvLen < SERIAL_NUM_OF_LENGTH_BYTE + sizeof(serialHeaderFI_t))
 			{
 				/* Simply receive until get enough number of bytes */
@@ -317,7 +317,7 @@ mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData, serialQueu
 				{
 					qBuff->errorFlag = RCV_SUCCESS;
 					*rcvRoutineState = RCV_DONE;
-					mtSerialPort_InterByteTimerDisable(/*&cmdRcvInterByteTimer*/);
+					mtSerialPort_InterByteTimerDisable();
 
 					// NOTE: Not use RCV_DONE state;
 					mtSerialCmd_ResetRcvStateMachine(qBuff);
@@ -338,7 +338,7 @@ mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData, serialQueu
 			break;
 
 		case RCV_DATA:
-			mtSerialPort_InterByteTimerReload(/*&cmdRcvInterByteTimer,*/ mtSerialPort_InterByteTimerGetInverval());
+			mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
 
 			/* We receive Data bytes and CRC8 byte here */
 			if (qBuff->rcvLen < (*pdwTotalDataLen + 1 + sizeof(serialHeaderFI_t) + sizeof(serialHeaderLen_t)))
@@ -355,7 +355,7 @@ mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData, serialQueu
 					qBuff->serialDataFrame.CRC8 = bData;
 					qBuff->errorFlag = RCV_SUCCESS;
 					*rcvRoutineState = RCV_DONE;
-					mtSerialPort_InterByteTimerDisable(/*&cmdRcvInterByteTimer*/);
+					mtSerialPort_InterByteTimerDisable();
 
 					// NOTE: Not use RCV_DONE state;
 					mtSerialCmd_ResetRcvStateMachine(qBuff);
@@ -377,7 +377,7 @@ mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData, serialQueu
 
 		case RCV_ERROR:
 			/* Wait until Inter-byte-timer trigger !! */
-			mtSerialPort_InterByteTimerReload(/*&cmdRcvInterByteTimer,*/ mtSerialPort_InterByteTimerGetInverval());
+			mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
 			break;
 
 		default:
@@ -519,7 +519,7 @@ Void mtSerialCmd_InterByteTimeOutHandling(Void *pParam)
 				pQueue->rcvState, pQueue->rcvLen);
 		pQueue->errorFlag = ERROR_INTER_BYTE_TIMEOUT;
 		pQueue->rcvState = RCV_ERROR;
-		mtSerialPort_InterByteTimerReload(/*&cmdRcvInterByteTimer,*/ mtSerialPort_InterByteTimerGetInverval());
+		mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
 	}
 	else if (pQueue->rcvState == RCV_ERROR)
 	{

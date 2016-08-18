@@ -2,6 +2,7 @@
 #include "../inc/mtSerialHandler.h"
 #include "../inc/mtSerialCmdParser.h"
 #include "../inc/mtSerialPorting.h"
+#include "FanledAPI/inc/mtFanledAPICode.h"
 
 #include <string.h>
 /********** Local Constant and compile switch definition section **************/
@@ -16,6 +17,7 @@
 
 static const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 {
+	{FANLED_API_CMD_CODE_BASIC,			FANLED_API_CMD_CTR_GETVERSION,		mtFanledApiGetFirmwareVersion},
 	{0, 0, Null},
 };
 #define SERIAL_APP_API_TABLE_LEN		MT_ARRAY_SIZE(gSerialReaderHandlerTable)
