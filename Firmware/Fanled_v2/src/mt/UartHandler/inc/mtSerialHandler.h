@@ -17,8 +17,8 @@
 ** - Development
 ==============================================================================*/
 
-#ifndef MTRTCDRIVER_H_
-#define MTRTCDRIVER_H_
+#ifndef _MTREADERHANDLER_H_
+#define _MTREADERHANDLER_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -28,8 +28,8 @@ extern "C"
 /*****************************************************************************/
 /* INCLUSIONS                                                                */
 /*****************************************************************************/
-#include <stdint.h>
-#include <stdbool.h>
+/********** Include section ***************************************************/
+#include "mtInclude.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -44,7 +44,19 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
 /*****************************************************************************/
+typedef mtErrorCode_t (*fnSerialCmdHandler) (UInt8 *msgIn, UInt16 msgInLen, UInt8 *msgOut, UInt16 *msgOutLen);
 
+#pragma pack(1)
+/*!
+ *	\brief basic element of ReaderHandler Table Function
+ */
+typedef struct
+{
+	UInt8 CmdCode;
+	UInt8 ControlCode;
+	fnSerialCmdHandler fnHandler;
+} mtSerialAppAPIHandler;
+#pragma pack()
 
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
@@ -59,12 +71,23 @@ extern "C"
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-bool stmConfigureRTC(uint32_t countval);
-uint32_t stmWaitForLastTask(void);
-bool stmInitRTC(void);
+/**
+ * \brief Parse Command code, control code and Process receive Command
+ *
+ * \param msgIn pointer to Command packet
+ * \param msgInLen len of Command packet
+ * \param msgOut pointer to Response packet
+ * \param msgOutLen len of Response packet
+ *
+ * \return MT_SUCCESS
+ */
+mtErrorCode_t mtSerialProcessCmdPacket(UInt8 *msgIn,
+										UInt16 msgInLen,
+										UInt8 *msgOut,
+										UInt16 *msgOutLen);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MTRTCDRIVER_H_ */
+#endif /* _MTREADERHANDLER_H_ */

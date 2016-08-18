@@ -69,7 +69,7 @@ void mtBlJumpToApp(uint32_t appOffset, uint32_t vtorOffset);
 void mtBlEraseAppFw(void);
 uint32_t retAppPage(uint32_t relativePage);
 
-int testWriteDummyDataToFlash(uint32_t startPage);
+FLASH_Status testWriteDummyDataToFlash(uint32_t startPage);
 
 
 #endif /* TEMPLATE_H_ */

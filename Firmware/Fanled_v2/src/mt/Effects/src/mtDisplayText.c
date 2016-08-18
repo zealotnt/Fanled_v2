@@ -20,7 +20,7 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "Effects/inc/mtIncludeEffects.h"
+#include "../inc/mtIncludeEffects.h"
 #include "App/inc/SystemConfig.h"
 
 /******************************************************************************/
@@ -31,6 +31,8 @@
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
 /******************************************************************************/
+#define INNER_CIRCLE			1
+#define OUTER_CIRCLE			2
 
 
 /******************************************************************************/
@@ -289,9 +291,15 @@ void fanled_putc_dual(char c, uint16_t color, Display_Type *display, unsigned ch
 	{
 		if((c >= 0x20) && (c <= 0x7f))
 		{
-			char i;
+			unsigned char i;
 			c -= 0x20;
-			for(i = 0; i < 6; i++) fanled_write_dual(ASCII[c][i], color, display->pos_now_outer, i, display, OUTER_CIRCLE);
+			for(i = 0; i < 6; i++)
+				fanled_write_dual(ASCII[(unsigned char)c][i],
+						color,
+						display->pos_now_outer,
+						i,
+						display,
+						OUTER_CIRCLE);
 			if((*display).pos_now_outer < DISPLAY_SIZE) (*display).pos_now_outer++;
 		}
 	}
@@ -299,9 +307,15 @@ void fanled_putc_dual(char c, uint16_t color, Display_Type *display, unsigned ch
 	{
 		if((c >= 0x20) && (c <= 0x7f))
 		{
-			char i;
+			unsigned char i;
 			c -= 0x20;
-			for(i = 0; i < 12; i++) fanled_write_dual(ASCII[c][i/2], color, display->pos_now_inner, i, display, INNER_CIRCLE);
+			for(i = 0; i < 12; i++)
+				fanled_write_dual(ASCII[(unsigned char)c][i/2],
+						color,
+						display->pos_now_inner,
+						i,
+						display,
+						INNER_CIRCLE);
 			fanled_write_dual(0x00, color, display->pos_now_inner, 12, display, INNER_CIRCLE);
 			fanled_write_dual(0x00, color, display->pos_now_inner, 13, display, INNER_CIRCLE);
 			if((*display).pos_now_inner < DISPLAY_SIZE) (*display).pos_now_inner++;
@@ -324,9 +338,14 @@ void fanled_putc(char c, uint16_t color, Display_Type *display)
 {
 	if((c >= 0x20) && (c <= 0x7f))
 	{
-		char i;
+		unsigned char i;
 		c -= 0x20;
-		for(i = 0; i < 6; i++) fanled_write(ASCII[c][i], color, pos_now, i, display);
+		for(i = 0; i < 6; i++)
+			fanled_write(ASCII[(unsigned char)c][i],
+					color,
+					pos_now,
+					i,
+					display);
 		pos_now++;
 	}
 }

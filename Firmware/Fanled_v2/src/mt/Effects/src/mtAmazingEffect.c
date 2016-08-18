@@ -21,7 +21,7 @@
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
 #include <math.h>
-#include "Effects/inc/mtIncludeEffects.h"
+#include "../inc/mtIncludeEffects.h"
 #include "App/inc/mtAppDef.h"
 
 /******************************************************************************/
@@ -132,9 +132,7 @@ rgb_t HSV_to_Color(int32_t H, int32_t S, int32_t V)
 		// The color wheel consists of 6 sectors.
 		// Figure out which sector you//re in.
 		sectorPos = h / 60;
-#if ABC
 		sectorNumber = (int)(floor(sectorPos));
-#endif
 		// get the fractional part of the sector.
 		// That is, how many degrees into the sector
 		// are you?
@@ -217,7 +215,7 @@ void ColorWheelPrepare(Display_Type *FanledDisplay)				//version that draw full 
 {
 	uint32_t i, j;
 	rgb_t temp_rgb;
-	rgb_t rgb_array[31];
+	rgb_t rgb_array[32];
 	for(i = 0; i < FANLED_RESOLUTION; i++)
 	{
 		temp_rgb = HSV_to_Color((int)((double)(i * 255) / FANLED_RESOLUTION), 255, 255);

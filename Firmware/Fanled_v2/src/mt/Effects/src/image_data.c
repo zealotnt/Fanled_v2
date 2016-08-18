@@ -21,7 +21,7 @@
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
 #include "App/tst/fanledTestApp.h"
-#include "Effects/inc/image_data.h"
+#include "../inc/image_data.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */

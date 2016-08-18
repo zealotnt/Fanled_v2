@@ -21,7 +21,7 @@
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
 #include "App/inc/mtAppDef.h"
-#include "Effects/inc/mtCalendar.h"
+#include "../inc/mtCalendar.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */

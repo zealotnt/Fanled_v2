@@ -20,10 +20,14 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "Bluetooth/inc/bluetooth.h"
+#include <stm32f10x.h>
+#include <stm32f10x_spi.h>
+#include <stm32f10x_dma.h>
+#include <stm32f10x_rcc.h>
+#include <stm32f10x_gpio.h>
+
+#include "../inc/bluetooth.h"
 #include "App/inc/SystemConfig.h"
-#include "UartHandler/inc/mtUartQueue.h"
-#include "UartHandler/inc/mtUartHandler.h"
 #include "Porting/inc/mtUart.h"
 
 #include <stdarg.h>
@@ -71,10 +75,12 @@
 /******************************************************************************/
 void checkResponseOK(void)
 {
+#if ABC
 	if( checkUartString("OK\r\n", &uart_buffer) ) 
 	{
 		while(1);
-	}	
+	}
+#endif
 }
 
 void bltSendCharUart(char data)
@@ -103,7 +109,6 @@ void bltInitModule(bool config)
 	// Init periph for HC05 module
 	mtBluetoothUSARTInit(config);
 	mtHC05KeyPinInit();
-	mtUartResetQueue();
 	if(config == true)
 	{
 		bltInitStandardBluetoothMode();

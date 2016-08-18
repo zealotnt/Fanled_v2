@@ -127,19 +127,16 @@ void mtSystickHandler(void)
 
 void mtFanledSpiTxCmplt(void)
 {
-#if STD_PERIPH_LIB
-//	if (DMA_GetFlagStatus(DMA1_FLAG_TC3) != RESET)
-//	{
+	if (DMA_GetFlagStatus(DMA1_FLAG_TC3) != RESET)
+	{
 		g_SPI_DMA_Flag = 1;
 		DMA_ClearFlag(DMA1_FLAG_TC3);
 		DMA_Cmd(DMA1_Channel3, DISABLE);   
-//	}
-#endif
+	}
 }
 
 void mtHallSensorHandler(void)
 {
-#if STD_PERIPH_LIB
 	TIM_Cmd(TIM2, DISABLE);
 	gtime_capture = TIM_GetCounter(TIM2);
 	CCR1_Val = (gTimer_Overload_Count*65536 + gtime_capture) / FANLED_RESOLUTION;
@@ -159,12 +156,10 @@ void mtHallSensorHandler(void)
 	TIM_ITConfig(TIM2, TIM_IT_CC1 | TIM_IT_CC2, ENABLE);
 	TIM_Cmd(TIM2, ENABLE);
 	EXTI_ClearITPendingBit(EXTI_Line3);
-#endif
 }
 
 void mtFanledTimerHandler(void)
 {
-#if STD_PERIPH_LIB
 	if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
 	{
 		//	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
@@ -208,7 +203,6 @@ void mtFanledTimerHandler(void)
 		TIM2->SR = (uint16_t)~TIM_IT_Update;
 		gTimer_Overload_Count++;
 	}
-#endif
 }
 
 /******************************************************************************/

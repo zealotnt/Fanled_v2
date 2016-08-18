@@ -25,18 +25,13 @@
 #include <math.h>
 
 #include "App/inc/SystemConfig.h"
-#include "Porting/inc/mtSPI.h"
-
-#include "Effects/inc/image_data.h"
-
-#include "Effects/inc/mtIncludeEffects.h"
 #include "App/tst/fanledTestApp.h"
+#include "Porting/inc/mtSPI.h"
+#include "Porting/inc/mtUart.h"
+#include "Effects/inc/image_data.h"
+#include "Effects/inc/mtIncludeEffects.h"
 #include "Bootloader/inc/driverBootloader.h"
 #include "RTC/inc/mtRtc.h"
-#include "Porting/inc/mtUart.h"
-
-#include "UartHandler/inc/mtUartHandler.h"
-#include "UartHandler/inc/mtCcidHandler.h"
 
 #include "ff.h"
 /******************************************************************************/
@@ -142,11 +137,6 @@ int main(void)
 	mtBlInitFlash();
 	while(1)
 	{
-		if (uart_buffer.state == CCID_UART_MSG_DONE)
-		{
-			checkCcidUARTQueue(&uart_buffer.state, &uart_buffer.queue[uart_buffer.start_of_msg], uart_buffer.msg_length + 10);
-			mtUartResetQueue();
-		}
 	}
 	mtBlJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE); //FLASH_BOOTLOADER_SIZE
 

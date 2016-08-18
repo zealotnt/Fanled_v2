@@ -20,7 +20,7 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "Effects/inc/mtFanledImages.h"
+#include "../inc/mtFanledImages.h"
 #include "App/inc/mtAppDef.h"
 
 

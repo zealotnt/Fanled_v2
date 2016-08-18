@@ -21,12 +21,14 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "RTC/inc/mtRtc.h"
-#include "std_type.h"
-
+#include <stm32f10x_rtc.h>
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+
+#include "../inc/mtRtc.h"
+#include "../inc/mtRtcDriver.h"
+#include "std_type.h"
 
 
 /******************************************************************************/
@@ -99,7 +101,7 @@ void printCurTime(void)
 *******************************************************************************/
 sytemdate_t *mtRtcGetSystemTime(void)
 {
-	uint32_t acttime;
+	time_t acttime;
 	struct tm* pLocalTime;
 
 	acttime = RTC_GetCounter();
@@ -124,7 +126,7 @@ sytemdate_t *mtRtcGetSystemTime(void)
 *******************************************************************************/
 bool mtRtcSetSystemTime(sytemdate_t *time)
 {
-	uint32_t acttime;
+	time_t acttime;
 	struct tm *pLocalTime;
 
 	acttime = RTC_GetCounter();

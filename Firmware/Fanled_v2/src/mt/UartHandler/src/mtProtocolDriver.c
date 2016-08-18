@@ -21,14 +21,22 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
+#include "misc.h"
+#include "stm32f10x.h"
+#include "stm32f10x_it.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x_dma.h"
+#include "stm32f10x_tim.h"
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_usart.h"
+#include "stm32f10x_exti.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "UartHandler/inc/mtProtocolDriver.h"
-#include "UartHandler/inc/mtUartHandler.h"
-#include "Bluetooth/inc/bluetooth.h"
-
+#include "../inc/mtProtocolDriver.h"
+#include "Porting/inc/mtUart.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -135,17 +143,13 @@ void mtInterByteTimer_Disable()
 
 void mtUartWriteBuf(UInt8 *byte, UInt32 len)
 {
-	bltSendMultiChar((char *)byte, len);
-}
-
-/* inter-byte timer */
-void mtBluetoothInterbyteTimerHandler(void)
-{
-	UInt8 warning[] = "TO\r\n";
-	TIM3->SR = 0;
-	mtInterByteTimer_Disable();
-	mtUartResetQueue();
-	mtUartWriteBuf(warning, sizeof(warning));
+	uint32_t i = 0;
+	while(len != 0)
+	{
+		uart_write_char(byte[i]);
+		i++;
+		len--;
+	}
 }
 
 /************************* End of File ****************************************/

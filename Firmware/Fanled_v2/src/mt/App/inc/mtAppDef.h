@@ -41,9 +41,6 @@
 #define DISABLE		0
 
 /* Definition constant for charatcter display*****************************/
-#define INNER_CIRCLE			1
-#define OUTER_CIRCLE			2
-
 #define SCROLL_ENABLE_COUNTING		0
 #define SCROLL_ENABLE_DISPLAY		1
 #define SCROLL_DISABLE_FINISH		101
@@ -75,20 +72,11 @@
 #define ANIMATION_CHANGE_SPEED	15000
 
 /* These definition works for Sharingan Effect*/
-#define RING_SIZE		100
+#define RING_SIZE				100
 #define SHARINGAN_CHANGE_SPEED	50
 #define MISC_CHANGE_SPEED		30
 
 /* custom sdcard library settings ****************************************/
-#define MONDAY			1
-#define TUESDAY			2
-#define WEDNESDAY		3
-#define THURSDAY		4
-#define FRIDAY			5
-#define SATURDAY		6
-#define SUNDAY			7
-
-
 #define COLOR_RED_MAX				0xf800
 #define COLOR_BLUE_MAX				0x1f
 #define COLOR_GREEN_MAX				0x7e0

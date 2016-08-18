@@ -17,6 +17,7 @@
 #include <stm32f10x_gpio.h>
 #include "Porting/inc/mtSPI.h"
 #include "App/inc/SystemConfig.h"
+#include "Utility/inc/mtDelay.h"
 
 #define FATFS_USE_SDIO                 		0
 #define FATFS_SPI                			SPI2

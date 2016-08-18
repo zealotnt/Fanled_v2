@@ -26,7 +26,6 @@
 #include "Porting/inc/mtSPI.h"
 #include "Effects/inc/mtCalendar.h"
 #include "Effects/inc/mtIncludeEffects.h"
-#include "UartHandler/inc/mtUartHandler.h"
 #include "Bluetooth/inc/bluetooth.h"
 #include "RTC/inc/mtRtc.h"
 #include "UartHandler/inc/mtProtocolDriver.h"
@@ -155,9 +154,7 @@ int mainTestColor(void)
 	uint16_t test_color = 0;
 	initAll();
 	mtHallSensorDeinit();
-#if STD_PERIPH_LIB
-	TIM_Cmd(TIM2, DISABLE);
-#endif
+	mtTimerFanledDisplayDisable();
 	while(1)
 	{
 		test_color = 0x00;

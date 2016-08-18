@@ -22,7 +22,7 @@
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
 #include <stdint.h>
-#include "Utility/inc/mtDelay.h"
+#include "../inc/mtDelay.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */

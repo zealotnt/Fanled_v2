@@ -80,38 +80,13 @@
 /* Make driver structure */
 DISKIO_LowLevelDriver_t FATFS_LowLevelDrivers[] = {
 	{
-#if FATFS_USE_SDIO == 1
-		FATFS_SD_SDIO_disk_initialize,
-		FATFS_SD_SDIO_disk_status,
-		FATFS_SD_SDIO_disk_ioctl,
-		FATFS_SD_SDIO_disk_write,
-		FATFS_SD_SDIO_disk_read
-#else
 		.disk_initialize = FATFS_SD_disk_initialize,
 		.disk_status = FATFS_SD_disk_status,
 		.disk_ioctl = FATFS_SD_disk_ioctl,
 		.disk_write = FATFS_SD_disk_write,
 		.disk_read = FATFS_SD_disk_read
-#endif
 	}
 };
-
-void FATFS_AddDriver(DISKIO_LowLevelDriver_t* Driver, FATFS_Driver_t DriverName) {
-	if (
-		DriverName != FATFS_Driver_USER1 &&
-		DriverName != FATFS_Driver_USER2
-	) {
-		/* Return */
-		return;
-	}
-	
-	/* Add to structure */
-	FATFS_LowLevelDrivers[(uint8_t) DriverName].disk_initialize = Driver->disk_initialize;
-	FATFS_LowLevelDrivers[(uint8_t) DriverName].disk_status = Driver->disk_status;
-	FATFS_LowLevelDrivers[(uint8_t) DriverName].disk_ioctl = Driver->disk_ioctl;
-	FATFS_LowLevelDrivers[(uint8_t) DriverName].disk_read = Driver->disk_read;
-	FATFS_LowLevelDrivers[(uint8_t) DriverName].disk_write = Driver->disk_write;
-}
 
 /*-----------------------------------------------------------------------*/
 /* Inidialize a Drive                                                    */
