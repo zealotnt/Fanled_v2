@@ -39,7 +39,7 @@
 
 /* Define Application Address Area */
 #define BANK1_WRITE_START_ADDR  ((uint32_t)FLASH_APP_START_ADDRESS)
-#define BANK1_WRITE_END_ADDR    ((uint32_t)FLASH_APP_END_ADDRESS) ///< BANK1_WRITE_START_ADDR + ProgramSize
+#define BANK1_WRITE_END_ADDR    ((uint32_t)FLASH_APP_END_ADDRESS)
 
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
@@ -74,7 +74,7 @@ typedef void(*pFunction)(void);
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-void mtBlInitFlash(void)
+void mtBootloaderInitFlash(void)
 {
 	/* Unlock the Flash Bank1 Program Erase controller */
 	FLASH_Unlock();
@@ -83,7 +83,7 @@ void mtBlInitFlash(void)
 	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
 }
 
-void mtBlFlashWrite(uint32_t address, uint32_t data)
+void mtBootloaderFlashWrite(uint32_t address, uint32_t data)
 {
 	FLASH_ProgramWord(address, data);
 }
@@ -93,7 +93,7 @@ void mtBlFlashWrite(uint32_t address, uint32_t data)
   * @param  None
   * @retval define jump address
   */
-void mtBlJumpToApp(uint32_t appOffset, uint32_t vtorOffset)
+void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset)
 {
 	/* Jump Parameters */
 	pFunction Jump_To_Application;	
@@ -110,7 +110,7 @@ void mtBlJumpToApp(uint32_t appOffset, uint32_t vtorOffset)
 	Jump_To_Application();
 }
 
-void mtBlEraseAppFw(void)
+void mtBootloaderEraseAppFw(void)
 {
 	volatile FLASH_Status FLASHStatus = FLASH_COMPLETE;
 	uint32_t EraseCounter = 0x00;

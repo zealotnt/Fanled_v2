@@ -53,11 +53,6 @@
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-void initBootloader(void);
-void initAll(void);
-
-void blankAllLed(void);
-
 int mainPicture(void);
 int mainAppDeveloping(void);
 int mainTestHSVCircle(void);

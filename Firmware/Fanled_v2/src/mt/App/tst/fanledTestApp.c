@@ -20,15 +20,12 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "RTC/inc/mtRtcDriver.h"
 #include "App/tst/fanledTestApp.h"
 #include "App/inc/SystemConfig.h"
-#include "Porting/inc/mtSPI.h"
 #include "Effects/inc/mtCalendar.h"
 #include "Effects/inc/mtIncludeEffects.h"
+#include "Effects/inc/mtFanledDisplay.h"
 #include "Bluetooth/inc/bluetooth.h"
-#include "RTC/inc/mtRtc.h"
-#include "UartHandler/inc/mtProtocolDriver.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -61,7 +58,6 @@
 /******************************************************************************/
 extern uint8_t gDisplayEnable;
 extern Display_Type Fanled_Display;
-extern uint8_t ledPanel[36*4];
 extern volatile uint8_t g_SPI_DMA_Flag;
 extern uint16_t gCurrent_point;
 
@@ -83,45 +79,11 @@ extern uint16_t gCurrent_point;
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-void blankAllLed(void)
-{
-	updatePanel16b(0, true);
-	mtSPIFanledSend((uint32_t)ledPanel, 36*4);
-	mtDelayMS(INTERVAL_BETWEEN_CHANGE_COLOR);
-	LED_LATCH();
-	LED_UNBLANK();
-}
-
-void initBootloader(void)
-{
-	// 1ms interval
-	mtSysTickInit();
-	mtRCCInit();
-	mtFanledSPIInit();
-	blankAllLed();
-	bltInitModule(false);
-	mtInterByteTimer_Init();
-	//mtTimerFanledDisplayInit();
-}
-
-void initAll(void)
-{
-	mtSysTickInit();
-	Fanled_Display.enable_flag = STATE_FREST;
-	mtRCCInit();
-	mtFanledSPIInit();
-	mtTimerFanledDisplayInit();
-	mtHallSensorInit();
-	bltInitModule(false);
-	stmInitRTC();
-}
 
 int mainTestHC05(void)
 {
 	initAll();
 	blankAllLed();
-	// True for first time config HC-05 module
-	// False for instant usage
 	bltInitModule(false);
 
 	return 0;
@@ -147,7 +109,6 @@ int mainTestRTC(void)
 	return 0;
 }
 
-
 int mainTestColor(void)
 {
 	uint16_t i;
@@ -161,7 +122,7 @@ int mainTestColor(void)
 		for(i = 0; i < 0x1f; i++)
 		{
 			updatePanel16b(&test_color, true);
-			mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+			mtFanledSendLineBuffer();
 			mtDelayMS(INTERVAL_BETWEEN_CHANGE_COLOR);
 			LED_LATCH();
 			LED_UNBLANK();
@@ -172,7 +133,7 @@ int mainTestColor(void)
 		for(i = 0; i < 0x3f; i++)
 		{
 			updatePanel16b(&test_color, true);
-			mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+			mtFanledSendLineBuffer();
 			mtDelayMS(INTERVAL_BETWEEN_CHANGE_COLOR);
 			LED_LATCH();
 			LED_UNBLANK();
@@ -183,7 +144,7 @@ int mainTestColor(void)
 		for(i = 0; i < 0x1f; i++)
 		{
 			updatePanel16b(&test_color, true);
-			mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+			mtFanledSendLineBuffer();
 			mtDelayMS(INTERVAL_BETWEEN_CHANGE_COLOR);
 			LED_LATCH();
 			LED_UNBLANK();
@@ -206,7 +167,7 @@ int mainPicture(void)			//Test picture
 	Fanled_Display.rtc_flag = RTC_ENBALE;
 	
 	updatePanel16b(0, true);
-	mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+	mtFanledSendLineBuffer();
 	while(g_SPI_DMA_Flag == 0);
 	LED_LATCH();
 	LED_UNBLANK();
@@ -219,7 +180,7 @@ int mainPicture(void)			//Test picture
 				LED_LATCH();
 				LED_UNBLANK();
 				updatePanel16b(Fanled_Display.dis[gCurrent_point], false);
-				mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+				mtFanledSendLineBuffer();
 			}
 			gDisplayEnable = 0;
 		}
@@ -238,7 +199,7 @@ int mainAppDeveloping(void)			// App developing
 	Fanled_Display.rtc_flag = RTC_ENBALE;
 	
 	updatePanel16b(0, true);
-	mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+	mtFanledSendLineBuffer();
 	while(g_SPI_DMA_Flag == 0);
 	LED_LATCH();
 	LED_UNBLANK();
@@ -251,7 +212,7 @@ int mainAppDeveloping(void)			// App developing
 				LED_LATCH();
 				LED_UNBLANK();
 				updatePanel16b(Fanled_Display.dis[gCurrent_point], false);
-				mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+				mtFanledSendLineBuffer();
 				
 				//Some functions here
 				switch(Fanled_Display.animation)
@@ -286,7 +247,7 @@ int mainAppDeveloping(void)			// App developing
 						{
 							Calendar_Populate(&Fanled_Display, &sys_date);
 							Fanled_Display.rtc_flag = RTC_WAIT;
-						}								
+						}
 						break;
 					case (ANIMATION_4):
 						
@@ -316,7 +277,7 @@ int mainTestHSVCircle(void)
 	Fanled_Display.rtc_flag = RTC_ENBALE;
 	
 	updatePanel16b(0, true);
-	mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+	mtFanledSendLineBuffer();
 	while(g_SPI_DMA_Flag == 0);
 	LED_LATCH();
 	LED_UNBLANK();
@@ -330,7 +291,7 @@ int mainTestHSVCircle(void)
 				LED_LATCH();
 				LED_UNBLANK();
 				updatePanel16b(Fanled_Display.dis[gCurrent_point], false);
-				mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+				mtFanledSendLineBuffer();
 				//End of functions
 			}
 			gDisplayEnable = 0;
@@ -354,7 +315,7 @@ int mainTestNarutoEffect(void)
 	Fanled_Display.rtc_flag = RTC_ENBALE;
 	
 	updatePanel16b(0, true);
-	mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+	mtFanledSendLineBuffer();
 	while(g_SPI_DMA_Flag == 0);
 	LED_LATCH();
 	LED_UNBLANK();
@@ -367,7 +328,7 @@ int mainTestNarutoEffect(void)
 				LED_LATCH();
 				LED_UNBLANK();
 				updatePanel16b(Fanled_Display.dis[gCurrent_point], false);
-				mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+				mtFanledSendLineBuffer();
 				EightLight();
 				//End of functions
 			}

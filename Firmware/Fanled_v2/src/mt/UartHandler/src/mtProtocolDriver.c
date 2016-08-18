@@ -153,4 +153,3 @@ void mtUartWriteBuf(UInt8 *byte, UInt32 len)
 }
 
 /************************* End of File ****************************************/
-

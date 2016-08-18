@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "mtInclude.h"
+#include "mtVersion.h"
 #include "App/inc/SystemConfig.h"
 #include "App/tst/fanledTestApp.h"
 #include "Porting/inc/mtSPI.h"
@@ -58,10 +60,6 @@ DIR mydir;
 FILINFO myfno;
 MediaPlayer MyPlayer;
 
-// Display Buffer
-uint8_t ledPanel[36*4];
-Display_Type Fanled_Display;
-
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
@@ -71,23 +69,10 @@ Display_Type Fanled_Display;
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
 /******************************************************************************/
 void sd_first_step(void);
-void init_sreenbuffer(uint16_t *value, uint16_t val1, uint16_t val2);
 
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
 /******************************************************************************/
-void init_sreenbuffer(uint16_t *value, uint16_t val1, uint16_t val2)
-{
-	uint8_t i, j;
-	for(i = 0; i < 32; i++)
-	{
-		for(j = val1; j < val2; j++)
-		{
-			Fanled_Display.dis[j][i] = value[i];
-		}
-	}
-}
-
 void sd_first_step(void)
 {
 	FRESULT res = FR_DISK_ERR;
@@ -133,12 +118,12 @@ int main(void)
 {
 #if defined(FANLED_BOOTLOADER)
 	initBootloader();
-	DEBUG_INFO("Bootloader !!!\r\n");
-	mtBlInitFlash();
+	DEBUG_INFO("Bootloader " FIRMWARE_VER_FULL "\r\n");
+	mtBootloaderInitFlash();
 	while(1)
 	{
 	}
-	mtBlJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE); //FLASH_BOOTLOADER_SIZE
+	mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE); //FLASH_BOOTLOADER_SIZE
 
 #elif defined(FANLED_APP)
 //	mainTestColor();

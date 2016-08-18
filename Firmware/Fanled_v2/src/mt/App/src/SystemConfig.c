@@ -20,9 +20,16 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "App/inc/SystemConfig.h"
+#include "../inc/SystemConfig.h"
+#include "../inc/mtAppDef.h"
+#include "../tst/fanledTestApp.h"
 #include "Porting/inc/mtTick.h"
 #include "Porting/inc/mtUart.h"
+#include "Porting/inc/mtSPI.h"
+#include "Effects/inc/mtFanledDisplay.h"
+#include "Bluetooth/inc/bluetooth.h"
+#include "UartHandler/inc/mtProtocolDriver.h"
+#include "RTC/inc/mtRtcDriver.h"
 
 #include "misc.h"
 #include "stm32f10x.h"
@@ -75,6 +82,29 @@ extern volatile uint32_t CCR2_Val;
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
+void initBootloader(void)
+{
+	// 1ms interval
+	mtSysTickInit();
+	mtRCCInit();
+	mtFanledSPIInit();
+	blankAllLed();
+	bltInitModule(false);
+	mtInterByteTimer_Init();
+//	mtTimerFanledDisplayInit();
+}
+
+void initAll(void)
+{
+	mtSysTickInit();
+	mtRCCInit();
+	mtFanledSPIInit();
+	mtTimerFanledDisplayInit();
+	mtHallSensorInit();
+	bltInitModule(false);
+	stmInitRTC();
+}
+
 void mtSysTickInit(void)
 {
 #if (OPENCM3)

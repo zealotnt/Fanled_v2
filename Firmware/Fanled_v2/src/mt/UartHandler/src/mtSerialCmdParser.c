@@ -549,6 +549,4 @@ Void mtSerialCmd_InterByteTimeOutHandling(Void *pParam)
 	mtMutexUnlock(&gRcvVarChangeMutex);
 }
 
-/**
- * EOF
- */
+/************************* End of File ****************************************/

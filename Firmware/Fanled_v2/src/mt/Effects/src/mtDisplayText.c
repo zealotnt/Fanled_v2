@@ -166,7 +166,8 @@ const char ASCII[][6] ={
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-void updatePanel16b(uint16_t *input_color, bool blank)					//modified for 16bit rgb color
+//modified for 16bit rgb color
+void updatePanel16b(uint16_t *input_color, bool blank)
 {
 	uint8_t i;
 	if( (input_color == 0) && (blank == true) )

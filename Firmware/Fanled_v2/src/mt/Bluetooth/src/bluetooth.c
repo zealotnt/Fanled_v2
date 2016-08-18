@@ -29,6 +29,7 @@
 #include "../inc/bluetooth.h"
 #include "App/inc/SystemConfig.h"
 #include "Porting/inc/mtUart.h"
+#include "UartHandler/inc/mtProtocolDriver.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -83,20 +84,9 @@ void checkResponseOK(void)
 #endif
 }
 
-void bltSendCharUart(char data)
-{
-	uart_write_char(data);
-}
-
 void bltSendMultiChar(char *data, uint32_t length)
 {
-	uint32_t i = 0;
-	while(length != 0)
-	{
-		bltSendCharUart(data[i]);
-		i++;
-		length--;
-	}
+	mtUartWriteBuf((UInt8 *)data, length);
 }
 
 void bltChangeBaud(uint32_t baurate)
@@ -104,9 +94,11 @@ void bltChangeBaud(uint32_t baurate)
 	mtBluetoothUSARTChangeBaud(baurate);
 }
 
+// True for first time config HC-05 module
+// False for instant usage
 void bltInitModule(bool config)
 {
-	// Init periph for HC05 module
+	// Initialize peripheral for HC05 module
 	mtBluetoothUSARTInit(config);
 	mtHC05KeyPinInit();
 	if(config == true)
@@ -142,7 +134,6 @@ void bltInitStandardBluetoothMode(void)
 	bltPrintf("AT+UART=115200,1,0\r\n");
 	mtDelayMS(300);
 	checkResponseOK();	
-	
 	
 	BLUETOOTH_KEYPIN_RESET();
 }

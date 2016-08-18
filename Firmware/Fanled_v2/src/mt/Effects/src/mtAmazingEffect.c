@@ -303,12 +303,12 @@ uint8_t Ring_set_all_mod(uint16_t color, uint32_t offset)
 void Sharingan_effect(void)			//condition to start
 {
 	static uint32_t ring_pos = 0;
-	if(Fanled_Display.sharingan_flag == ENABLE)
+	if(Fanled_Display.sharingan_flag == STATE_ENABLE)
 	{
 		if(Ring_set_all_mod(COLOR_RED_MAX, ring_pos % FANLED_RESOLUTION))
 		{
 			ring_pos -= 30;
-			Fanled_Display.sharingan_flag = DISABLE;
+			Fanled_Display.sharingan_flag = STATE_DISABLE;
 		}
 	}	
 }
@@ -396,10 +396,10 @@ void EightLightMachine(uint16_t color)
 
 void EightLight(void)
 {
-	if( Fanled_Display.misc_flag == ENABLE)
+	if( Fanled_Display.misc_flag == STATE_ENABLE)
 	{
 		EightLightMachine(COLOR_RED_MAX);
-		Fanled_Display.misc_flag = DISABLE;
+		Fanled_Display.misc_flag = STATE_DISABLE;
 	}
 }
 

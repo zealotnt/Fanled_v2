@@ -55,6 +55,11 @@
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
+void blankAllLed(void);
+
+void initBootloader();
+void initAll();
+
 void mtSysTickInit();
 void mtRCCInit();
 void mtDelayMS(uint32_t time_delay);

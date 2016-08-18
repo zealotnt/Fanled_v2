@@ -25,7 +25,7 @@
 /*****************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
-#include "App/inc/mtAppDef.h"
+#include "../inc/mtFanledDisplay.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */

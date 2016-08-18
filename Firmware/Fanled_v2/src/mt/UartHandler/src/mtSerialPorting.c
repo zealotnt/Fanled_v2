@@ -152,15 +152,6 @@ void mtBluetoothRcvHandler(void)
 	return;
 }
 /********** Global function definition section ********************************/
-
-/**
- * @Function: mtUartSerialInit
- */
-mtErrorCode_t mtUartSerialInit(Void)
-{
-	return MT_SUCCESS;
-}
-
 /**
  * @Function: mtSerialPort_Write
  */
@@ -184,6 +175,5 @@ Int32 mtSerialPort_GetRxFifo(Void)
 {
 	return 0;
 }
-/**
- * EOF
- */
+
+/************************* End of File ****************************************/
