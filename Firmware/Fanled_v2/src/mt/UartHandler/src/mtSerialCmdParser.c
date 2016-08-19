@@ -207,18 +207,18 @@ static mtErrorCode_t checkValidTerminationPacket(serialQueuePayload_t *buffer, U
 {
 	mtErrorCode_t retVal = MT_SUCCESS;
 	if (buffer->serialDataFrame.IF.FIl == SERIAL_FI_FIRSTBYTE &&
-			mtSerialCmd_CheckValidFISecondByte(buffer->serialDataFrame.IF.FIm) &&
-			buffer->serialDataFrame.Len.Lenl == 0 &&
-			buffer->serialDataFrame.Len.Lenm == 0xFF &&
-			buffer->serialDataFrame.Len.LCS == 0xFF )
+	        mtSerialCmd_CheckValidFISecondByte(buffer->serialDataFrame.IF.FIm) &&
+	        buffer->serialDataFrame.Len.Lenl == 0 &&
+	        buffer->serialDataFrame.Len.Lenm == 0xFF &&
+	        buffer->serialDataFrame.Len.LCS == 0xFF )
 	{
 		*packetType = SERIAL_PACKET_ACK;
 	}
 	else if (buffer->serialDataFrame.IF.FIl == SERIAL_FI_FIRSTBYTE &&
-			mtSerialCmd_CheckValidFISecondByte(buffer->serialDataFrame.IF.FIm) &&
-			buffer->serialDataFrame.Len.Lenl != 0 &&
-			buffer->serialDataFrame.Len.Lenm == 0xFF &&
-			buffer->serialDataFrame.Len.LCS == (buffer->serialDataFrame.Len.Lenl ^ buffer->serialDataFrame.Len.Lenm))
+	         mtSerialCmd_CheckValidFISecondByte(buffer->serialDataFrame.IF.FIm) &&
+	         buffer->serialDataFrame.Len.Lenl != 0 &&
+	         buffer->serialDataFrame.Len.Lenm == 0xFF &&
+	         buffer->serialDataFrame.Len.LCS == (buffer->serialDataFrame.Len.Lenl ^ buffer->serialDataFrame.Len.Lenm))
 	{
 		*packetType = SERIAL_PACKET_NACK;
 	}
@@ -226,7 +226,7 @@ static mtErrorCode_t checkValidTerminationPacket(serialQueuePayload_t *buffer, U
 	{
 		UInt16 pckLen = buffer->serialDataFrame.Len.Lenl + (buffer->serialDataFrame.Len.Lenm << 8);
 		if (buffer->lenMonitoring == (pckLen + 6) &&
-			buffer->serialDataFrame.Len.LCS == (buffer->serialDataFrame.Len.Lenl ^ buffer->serialDataFrame.Len.Lenm))
+		        buffer->serialDataFrame.Len.LCS == (buffer->serialDataFrame.Len.Lenl ^ buffer->serialDataFrame.Len.Lenm))
 		{
 			*packetType = SERIAL_PACKET_DATA;
 		}
@@ -247,7 +247,7 @@ static UInt8 mtSerialCmd_UtilsCRC8Calculate(Void *pBuffIn, UInt32 dwLen)
 	UInt8 bCrc = 0;
 	UInt8 *pData = (UInt8 *)pBuffIn;
 
-	while(dwLen--)
+	while (dwLen--)
 	{
 		bCrc = crc8_table[bCrc ^ *pData];
 		pData += 1;
@@ -311,114 +311,126 @@ mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData, serialQueu
 		}
 		switch (*rcvRoutineState)
 		{
-		case RCV_IDLE:
-			mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
-			if (bData == SERIAL_FI_FIRSTBYTE)
+			case RCV_IDLE:
 			{
-				*rcvRoutineState = RCV_IF;
-				qBuff->errorFlag = ERROR_NONE;
-			}
-			else
-			{
-				*rcvRoutineState = RCV_ERROR;
-				DEBUG_SERIAL_PRINT("FirstWrongChar=%2x\r\n", bData);
-				qBuff->errorFlag = ERROR_INVALID_IF1;
-			}
-			break;
-
-		case RCV_IF:
-			mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
-			if (mtSerialCmd_CheckValidFISecondByte(bData))
-			{
-				*rcvRoutineState = RCV_LEN;
-			}
-			else
-			{
-				*rcvRoutineState = RCV_ERROR;
-				qBuff->errorFlag = ERROR_INVALID_IF2;
-			}
-			break;
-
-		case RCV_LEN:
-			mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
-			if(qBuff->rcvLen < SERIAL_NUM_OF_LENGTH_BYTE + sizeof(serialHeaderFI_t))
-			{
-				/* Simply receive until get enough number of bytes */
-				break;
-			}
-			else
-			{
-				serialErrorType_t lenValid;
-				lenValid = mtSerialCmd_CheckValidLen(qBuff, pdwTotalDataLen);
-				if ((lenValid == MT_SUCCESS) && (*pdwTotalDataLen == 0))
+				mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
+				if (bData == SERIAL_FI_FIRSTBYTE)
 				{
-					qBuff->errorFlag = RCV_SUCCESS;
-					*rcvRoutineState = RCV_DONE;
-					mtSerialPort_InterByteTimerDisable();
-
-					// NOTE: Not use RCV_DONE state;
-					mtSerialCmd_ResetRcvStateMachine(qBuff);
-					/* Finish receiving packet (ACK or NACK),
-					 * push msg queue to HandlingThread */
-					retVal = ROUTINE_RET_PUSH_DATA;
-				}
-				else if (lenValid == MT_SUCCESS)
-				{
-					*rcvRoutineState = RCV_DATA;
+					*rcvRoutineState = RCV_IF;
+					qBuff->errorFlag = ERROR_NONE;
 				}
 				else
 				{
 					*rcvRoutineState = RCV_ERROR;
-					qBuff->errorFlag = lenValid;
+					DEBUG_SERIAL_PRINT("FirstWrongChar=%2x\r\n", bData);
+					qBuff->errorFlag = ERROR_INVALID_IF1;
 				}
 			}
 			break;
 
-		case RCV_DATA:
-			mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
-
-			/* We receive Data bytes and CRC8 byte here */
-			if (qBuff->rcvLen < (*pdwTotalDataLen + 1 + sizeof(serialHeaderFI_t) + sizeof(serialHeaderLen_t)))
+			case RCV_IF:
 			{
-				/* Simply receive until get enough number of bytes */
-				break;
-			}
-			else
-			{
-				mtErrorCode_t dataValid;
-				dataValid = mtSerialCmd_CheckValidData(qBuff);
-				if (dataValid == MT_SUCCESS)
+				mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
+				if (mtSerialCmd_CheckValidFISecondByte(bData))
 				{
-					qBuff->serialDataFrame.CRC8 = bData;
-					qBuff->errorFlag = RCV_SUCCESS;
-					*rcvRoutineState = RCV_DONE;
-					mtSerialPort_InterByteTimerDisable();
-
-					// NOTE: Not use RCV_DONE state;
-					mtSerialCmd_ResetRcvStateMachine(qBuff);
-					/* Finish receiving data, push message queue now */
-					retVal = ROUTINE_RET_PUSH_DATA;
+					*rcvRoutineState = RCV_LEN;
 				}
 				else
 				{
 					*rcvRoutineState = RCV_ERROR;
-					qBuff->errorFlag = ERROR_INVALID_CRC;
+					qBuff->errorFlag = ERROR_INVALID_IF2;
 				}
 			}
 			break;
 
-		case RCV_DONE:
-			/* Wait until HandlingThread finish processing Message Queue */
-			/* FIXME: should we handle incoming byte when we are staying in RCV_DONE State ?*/
+			case RCV_LEN:
+			{
+				mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
+				if (qBuff->rcvLen < SERIAL_NUM_OF_LENGTH_BYTE + sizeof(serialHeaderFI_t))
+				{
+					/* Simply receive until get enough number of bytes */
+					break;
+				}
+				else
+				{
+					serialErrorType_t lenValid;
+					lenValid = mtSerialCmd_CheckValidLen(qBuff, pdwTotalDataLen);
+					if ((lenValid == MT_SUCCESS) && (*pdwTotalDataLen == 0))
+					{
+						qBuff->errorFlag = RCV_SUCCESS;
+						*rcvRoutineState = RCV_DONE;
+						mtSerialPort_InterByteTimerDisable();
+
+						// NOTE: Not use RCV_DONE state;
+						mtSerialCmd_ResetRcvStateMachine(qBuff);
+						/* Finish receiving packet (ACK or NACK),
+						 * push msg queue to HandlingThread */
+						retVal = ROUTINE_RET_PUSH_DATA;
+					}
+					else if (lenValid == MT_SUCCESS)
+					{
+						*rcvRoutineState = RCV_DATA;
+					}
+					else
+					{
+						*rcvRoutineState = RCV_ERROR;
+						qBuff->errorFlag = lenValid;
+					}
+				}
+			}
 			break;
 
-		case RCV_ERROR:
-			/* Wait until Inter-byte-timer trigger !! */
-			mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
+			case RCV_DATA:
+			{
+				mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
+
+				/* We receive Data bytes and CRC8 byte here */
+				if (qBuff->rcvLen < (*pdwTotalDataLen + 1 + sizeof(serialHeaderFI_t) + sizeof(serialHeaderLen_t)))
+				{
+					/* Simply receive until get enough number of bytes */
+					break;
+				}
+				else
+				{
+					mtErrorCode_t dataValid;
+					dataValid = mtSerialCmd_CheckValidData(qBuff);
+					if (dataValid == MT_SUCCESS)
+					{
+						qBuff->serialDataFrame.CRC8 = bData;
+						qBuff->errorFlag = RCV_SUCCESS;
+						*rcvRoutineState = RCV_DONE;
+						mtSerialPort_InterByteTimerDisable();
+
+						// NOTE: Not use RCV_DONE state;
+						mtSerialCmd_ResetRcvStateMachine(qBuff);
+						/* Finish receiving data, push message queue now */
+						retVal = ROUTINE_RET_PUSH_DATA;
+					}
+					else
+					{
+						*rcvRoutineState = RCV_ERROR;
+						qBuff->errorFlag = ERROR_INVALID_CRC;
+					}
+				}
+			}
 			break;
 
-		default:
+			case RCV_DONE:
+			{
+				/* Wait until HandlingThread finish processing Message Queue */
+				/* FIXME: should we handle incoming byte when we are staying in RCV_DONE State ?*/
+			}
 			break;
+
+			case RCV_ERROR:
+			{
+				/* Wait until Inter-byte-timer trigger !! */
+				mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
+			}
+			break;
+
+			default:
+				break;
 		}
 	}
 	else
@@ -472,60 +484,60 @@ Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload)
 
 	switch (sQueuePayload.type)
 	{
-	case DATA_TYPE:
-	{
-		UInt16 msgOutLen = 0;
-		if (sQueuePayload.errorFlag != RCV_SUCCESS)
+		case DATA_TYPE:
 		{
-			DEBUG_SERIAL_PRINT_NOTIFY_BAD("Rcv error, code: %d \r\n", sQueuePayload.errorFlag);
-			goto exit;
-		}
-
-		if (sQueuePayload.serialDataFrame.IF.FIm != OWN_FI)
-		{
-			DEBUG_SERIAL_PRINT("This Cmd is not for me, just ignore it \r\n");
-			goto exit;
-		}
-
-		checkValidTerminationPacket(&sQueuePayload, &sPacketType);
-		switch (sPacketType)
-		{
-			case SERIAL_PACKET_DATA:
+			UInt16 msgOutLen = 0;
+			if (sQueuePayload.errorFlag != RCV_SUCCESS)
 			{
-				/* Reply ACK first */
-				mtSerialCmdSendACK(SERIAL_FI_RESP_SECONDBYTE);
-				msgInLen = sQueuePayload.serialDataFrame.Len.Lenl + (sQueuePayload.serialDataFrame.Len.Lenm << 8);
-
-				/* Process cmd */
-				mtSerialProcessCmdPacket((UInt8 *)&sQueuePayload.serialDataFrame.Data,
-						msgInLen,
-						(UInt8 *)&sResponseFrame.Data,
-						&msgOutLen);
-
-				/* Fill up necessary bytes */
-				sResponseFrame.IF.FIl = SERIAL_FI_FIRSTBYTE;
-				sResponseFrame.IF.FIm = SERIAL_FI_RESP_SECONDBYTE;
-				sResponseFrame.Len.Lenl = msgOutLen & 0xff;
-				sResponseFrame.Len.Lenm = (msgOutLen & 0xff00) >> 8;
-				sResponseFrame.Len.LCS = sResponseFrame.Len.Lenl ^ sResponseFrame.Len.Lenm;
-				sResponseFrame.CRC8 = mtSerialCmd_UtilsCRC8Calculate(&sResponseFrame.Len, msgOutLen + 3);
-				mtSerialCmdSendPacket(&sResponseFrame);
-				break;
+				DEBUG_SERIAL_PRINT_NOTIFY_BAD("Rcv error, code: %d \r\n", sQueuePayload.errorFlag);
+				goto exit;
 			}
-			case SERIAL_PACKET_NACK:
+
+			if (sQueuePayload.serialDataFrame.IF.FIm != OWN_FI)
 			{
-				/* Re-send last packet if receive any NACK packet */
-				mtSerialCmdSendPacket(&sResponseFrame);
-				break;
+				DEBUG_SERIAL_PRINT("This Cmd is not for me, just ignore it \r\n");
+				goto exit;
 			}
-			default:
-				break;
-		}
-	}
-	break;
 
-	default:
+			checkValidTerminationPacket(&sQueuePayload, &sPacketType);
+			switch (sPacketType)
+			{
+				case SERIAL_PACKET_DATA:
+				{
+					/* Reply ACK first */
+					mtSerialCmdSendACK(SERIAL_FI_RESP_SECONDBYTE);
+					msgInLen = sQueuePayload.serialDataFrame.Len.Lenl + (sQueuePayload.serialDataFrame.Len.Lenm << 8);
+
+					/* Process cmd */
+					mtSerialProcessCmdPacket((UInt8 *)&sQueuePayload.serialDataFrame.Data,
+					                         msgInLen,
+					                         (UInt8 *)&sResponseFrame.Data,
+					                         &msgOutLen);
+
+					/* Fill up necessary bytes */
+					sResponseFrame.IF.FIl = SERIAL_FI_FIRSTBYTE;
+					sResponseFrame.IF.FIm = SERIAL_FI_RESP_SECONDBYTE;
+					sResponseFrame.Len.Lenl = msgOutLen & 0xff;
+					sResponseFrame.Len.Lenm = (msgOutLen & 0xff00) >> 8;
+					sResponseFrame.Len.LCS = sResponseFrame.Len.Lenl ^ sResponseFrame.Len.Lenm;
+					sResponseFrame.CRC8 = mtSerialCmd_UtilsCRC8Calculate(&sResponseFrame.Len, msgOutLen + 3);
+					mtSerialCmdSendPacket(&sResponseFrame);
+					break;
+				}
+				case SERIAL_PACKET_NACK:
+				{
+					/* Re-send last packet if receive any NACK packet */
+					mtSerialCmdSendPacket(&sResponseFrame);
+					break;
+				}
+				default:
+					break;
+			}
+		}
 		break;
+
+		default:
+			break;
 	}
 exit:
 	return;
@@ -544,22 +556,22 @@ Void mtSerialCmd_InterByteTimeOutHandling(Void *pParam)
 		/* Timeout when receiving bytes --> wait another timeout
 		 * until Host finish sending its rubbish data */
 		DEBUG_SERIAL_PRINT_NOTIFY_BAD("\r\nError timeout !!!, curState=%d, numOfByteRcv=%d \r\n",
-				pQueue->rcvState, pQueue->rcvLen);
+		                              pQueue->rcvState, pQueue->rcvLen);
 		pQueue->errorFlag = ERROR_INTER_BYTE_TIMEOUT;
 		pQueue->rcvState = RCV_ERROR;
 		mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
 	}
 	else if (pQueue->rcvState == RCV_ERROR)
 	{
-		if(pQueue->errorFlag == ERROR_INTER_BYTE_TIMEOUT)
+		if (pQueue->errorFlag == ERROR_INTER_BYTE_TIMEOUT)
 		{
 			dwTotalByteRcv = 0;
 		}
 		/* Timeout when rcvRoutine are already in RCV_ERROR,
 		 * just PUSH error msg queue to Handling Thread */
 		DEBUG_SERIAL_PRINT_NOTIFY_BAD("\r\nTimeout when errored !!!, "
-				"errType=%d ,curState=%d, numOfByteRcv=%d \r\n",
-				pQueue->errorFlag, pQueue->rcvState, pQueue->lenMonitoring);
+		                              "errType=%d ,curState=%d, numOfByteRcv=%d \r\n",
+		                              pQueue->errorFlag, pQueue->rcvState, pQueue->lenMonitoring);
 		pQueue->type = DATA_TYPE;
 		mtSerialCmd_ResetRcvStateMachine(&gQueuePayload);
 	}

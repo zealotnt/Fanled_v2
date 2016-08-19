@@ -84,18 +84,20 @@ void mtSystickHandler(void)
 	mtDelayClockTick();
 	TimingDelay_Decrement();
 
-	if(Scroll_Count > Fanled_Display.scroll_times && Fanled_Display.enable_flag == SCROLL_ENABLE_DISPLAY)
+	if (Scroll_Count > Fanled_Display.scroll_times && Fanled_Display.enable_flag == SCROLL_ENABLE_DISPLAY)
 	{
 		Fanled_Display.move_flag = 1;
 		Scroll_Count = 0;
 	}
 	else
+	{
 		Scroll_Count++;
+	}
 
 	Timing_Count++;
-	if(Timing_Count > Fanled_Display.animation_change_speed)
+	if (Timing_Count > Fanled_Display.animation_change_speed)
 	{
-		if(Fanled_Display.animation == MAX_ANIMATION)
+		if (Fanled_Display.animation == MAX_ANIMATION)
 		{
 			Fanled_Display.animation = 1;
 		}
@@ -106,13 +108,13 @@ void mtSystickHandler(void)
 		Fanled_Display.animation_change_speed += ANIMATION_CHANGE_SPEED;
 	}
 
-	if(Timing_Count > Fanled_Display.sharingan_count)
+	if (Timing_Count > Fanled_Display.sharingan_count)
 	{
 		Fanled_Display.sharingan_flag = ENABLE;
 		Fanled_Display.sharingan_count += SHARINGAN_CHANGE_SPEED;
 	}
 
-	if(Timing_Count > Fanled_Display.misc_count)
+	if (Timing_Count > Fanled_Display.misc_count)
 	{
 		Fanled_Display.misc_flag = ENABLE;
 		Fanled_Display.misc_count += MISC_CHANGE_SPEED;
@@ -138,10 +140,10 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
-  /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Hard Fault exception occurs */
+	while (1)
+	{
+	}
 }
 
 /**
@@ -151,10 +153,10 @@ void HardFault_Handler(void)
   */
 void MemManage_Handler(void)
 {
-  /* Go to infinite loop when Memory Manage exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Memory Manage exception occurs */
+	while (1)
+	{
+	}
 }
 
 /**
@@ -164,10 +166,10 @@ void MemManage_Handler(void)
   */
 void BusFault_Handler(void)
 {
-  /* Go to infinite loop when Bus Fault exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Bus Fault exception occurs */
+	while (1)
+	{
+	}
 }
 
 /**
@@ -177,10 +179,10 @@ void BusFault_Handler(void)
   */
 void UsageFault_Handler(void)
 {
-  /* Go to infinite loop when Usage Fault exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Usage Fault exception occurs */
+	while (1)
+	{
+	}
 }
 
 /**
@@ -208,7 +210,7 @@ void DebugMon_Handler(void)
   */
 void PendSV_Handler(void)
 {
-	
+
 }
 
 /******************************************************************************/

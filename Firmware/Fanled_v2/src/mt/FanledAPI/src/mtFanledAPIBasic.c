@@ -64,14 +64,14 @@
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
 mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
-											UInt16 msgInLen,
-											UInt8 *msgOut,
-											UInt16 *msgOutLen)
+        UInt16 msgInLen,
+        UInt8 *msgOut,
+        UInt16 *msgOutLen)
 {
 	mtErrorCode_t retVal = MT_SUCCESS;
 	UInt32 dwVersion;
 
-	dwVersion = FIRMWARE_VERSION_MAJOR*10000 + FIRMWARE_VERSION_MINOR*100 + FIRMWARE_REVISION;
+	dwVersion = FIRMWARE_VERSION_MAJOR * 10000 + FIRMWARE_VERSION_MINOR * 100 + FIRMWARE_REVISION;
 
 	msgOut[6] = 3;		/* Firmware ID = 3 --> RF Processor Firmware */
 	msgOut[3] = (dwVersion & 0xFF);
@@ -83,9 +83,9 @@ mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
 }
 
 mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
-								   UInt16 msgInLen,
-								   UInt8 *msgOut,
-								   UInt16 *msgOutLen)
+                                      UInt16 msgInLen,
+                                      UInt8 *msgOut,
+                                      UInt16 *msgOutLen)
 {
 	UInt32 i;
 

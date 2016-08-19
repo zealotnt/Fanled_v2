@@ -87,9 +87,9 @@ char *getMonthStr(uint8_t month)
 
 void printCurTime(void)
 {
-	printf("Current time: %2dh, %2dm, %2ds, %d %s %d\r\n", 
-	sys_date.hh, sys_date.mm, sys_date.ss, 
-	sys_date.day, getMonthStr(sys_date.month), sys_date.year); 
+	printf("Current time: %2dh, %2dm, %2ds, %d %s %d\r\n",
+	       sys_date.hh, sys_date.mm, sys_date.ss,
+	       sys_date.day, getMonthStr(sys_date.month), sys_date.year);
 }
 
 /*******************************************************************************
@@ -135,7 +135,7 @@ bool mtRtcSetSystemTime(sytemdate_t *time)
 	pLocalTime->tm_hour = (int)(time->hh);     		/* hours since midnight (0,23)      */
 	pLocalTime->tm_min = (int)(time->mm);      		/* minutes after the hour (0,59)    */
 	pLocalTime->tm_sec = (int)(time->ss);      		/* seconds after the minute (0,61)  */
-	pLocalTime->tm_year = (int)(time->year-1900); 	/* years since 1900 */
+	pLocalTime->tm_year = (int)(time->year - 1900); 	/* years since 1900 */
 	pLocalTime->tm_mon = (int)(time->month - 1);  	/* months since January (0,11)      */
 	pLocalTime->tm_mday = (int)(time->day);     	/* day of the month (1,31)          */
 	pLocalTime->tm_wday  = (int)(time->weekday);    /* days since Sunday (0,6)          */
@@ -147,7 +147,9 @@ bool mtRtcSetSystemTime(sytemdate_t *time)
 
 	/* Wait until last write operation on RTC registers has finished */
 	if (stmWaitForLastTask() == 0)
-	  return false;
+	{
+		return false;
+	}
 
 	/* Change the current time */
 	memcpy(&sys_date, time, sizeof(sytemdate_t));

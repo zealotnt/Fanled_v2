@@ -110,7 +110,7 @@ void mtSysTickInit(void)
 #if (OPENCM3)
 	tick_init();
 #else
-	SysTick_Config(SystemCoreClock/1000);
+	SysTick_Config(SystemCoreClock / 1000);
 #endif
 }
 
@@ -123,7 +123,7 @@ void mtHallSensorInit(void)
 	GPIOInitStructure.GPIO_Pin = GPIO_Pin_3;
 	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_Init(GPIOB, &GPIOInitStructure);	
+	GPIO_Init(GPIOB, &GPIOInitStructure);
 	/* Config EXTI */
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource3);
 	EXTI_InitStructure.EXTI_Line = EXTI_Line3;
@@ -148,7 +148,7 @@ void mtHallSensorDeinit(void)
 	GPIOInitStructure.GPIO_Pin = GPIO_Pin_3;
 	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_IPD;
-	GPIO_Init(GPIOB, &GPIOInitStructure);	
+	GPIO_Init(GPIOB, &GPIOInitStructure);
 	/* Config EXTI */
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource3);
 	EXTI_InitStructure.EXTI_Line = EXTI_Line3;
@@ -168,19 +168,19 @@ void mtRCCInit(void)
 	GPIO_InitTypeDef GPIO_InitStruct;
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOA |
-							RCC_APB2Periph_GPIOB |
-							RCC_APB2Periph_GPIOC |
-							RCC_APB2Periph_AFIO |
-							RCC_APB2Periph_USART1 |
-							RCC_APB2Periph_SPI1 ,ENABLE);
+	                        RCC_APB2Periph_GPIOB |
+	                        RCC_APB2Periph_GPIOC |
+	                        RCC_APB2Periph_AFIO |
+	                        RCC_APB2Periph_USART1 |
+	                        RCC_APB2Periph_SPI1 , ENABLE);
 
 	//SD Card enable
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOA,&GPIO_InitStruct);		
-	GPIO_WriteBit(GPIOA,GPIO_Pin_8,(BitAction)1);
+	GPIO_Init(GPIOA, &GPIO_InitStruct);
+	GPIO_WriteBit(GPIOA, GPIO_Pin_8, (BitAction)1);
 }
 
 void mtBluetoothUSARTInit(bool config)
@@ -210,9 +210,9 @@ void mtTimerFanledDisplayInit(void)
 	uint16_t PrescalerValue = 0;
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
-	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 ,ENABLE);
-	RCC_PCLK1Config(RCC_HCLK_Div1);	
+
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
+	RCC_PCLK1Config(RCC_HCLK_Div1);
 
 	/* Compute the prescaler value */
 	PrescalerValue = (uint16_t) (SystemCoreClock / 36000000) - 1;
@@ -243,7 +243,7 @@ void mtTimerFanledDisplayInit(void)
 
 	TIM_OC2Init(TIM2, &TIM_OCInitStructure);
 
-	TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Disable);	
+	TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Disable);
 
 	/* TIM IT enable */
 	TIM_ITConfig(TIM2, TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_Update, ENABLE);

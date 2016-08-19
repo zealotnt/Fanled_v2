@@ -72,11 +72,12 @@
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
 /*****************************************************************************/
-typedef enum __flags {
-    FLAG_TX_COMPLETED   = 1<<1,
-    FLAG_RX_COMPLETED   = 1<<2,
-    FLAG_READ_COMPLETED = 1<<3,
-    FLAG_WRITE_COMPLETED = 1<<4,
+typedef enum __flags
+{
+	FLAG_TX_COMPLETED   = 1 << 1,
+	FLAG_RX_COMPLETED   = 1 << 2,
+	FLAG_READ_COMPLETED = 1 << 3,
+	FLAG_WRITE_COMPLETED = 1 << 4,
 } flags_t;
 
 typedef struct

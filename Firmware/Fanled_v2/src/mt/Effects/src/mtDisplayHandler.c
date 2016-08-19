@@ -95,11 +95,11 @@ void mtHallSensorHandler(void)
 {
 	TIM_Cmd(TIM2, DISABLE);
 	gtime_capture = TIM_GetCounter(TIM2);
-	CCR1_Val = (gTimer_Overload_Count*65536 + gtime_capture) / FANLED_RESOLUTION;
-	CCR2_Val = CCR1_Val/2;
+	CCR1_Val = (gTimer_Overload_Count * 65536 + gtime_capture) / FANLED_RESOLUTION;
+	CCR2_Val = CCR1_Val / 2;
 
 	gCurrent_point = 0;
- 	gTimer_Overload_Count = 0;
+	gTimer_Overload_Count = 0;
 	gDisplayEnable = 1;
 
 	// reset the timer
@@ -120,7 +120,7 @@ void mtFanledTimerHandler(void)
 	{
 		//	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
 		TIM2->SR = (uint16_t)~TIM_IT_CC1;
-		if(gCurrent_point < FANLED_RESOLUTION)
+		if (gCurrent_point < FANLED_RESOLUTION)
 		{
 			//	capture = TIM_GetCapture1(TIM2);
 			gtime_capture = TIM2->CCR1;
@@ -153,7 +153,7 @@ void mtFanledTimerHandler(void)
 		LED_BLANK();
 	}
 	// overflow timer
-	else if(TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
+	else if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
 	{
 		// TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 		TIM2->SR = (uint16_t)~TIM_IT_Update;

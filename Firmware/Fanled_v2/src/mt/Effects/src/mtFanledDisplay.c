@@ -12,11 +12,11 @@
 #include <stdint.h>
 
 Display_Type Fanled_Display;
-uint8_t ledPanel[36*4];
+uint8_t ledPanel[36 * 4];
 
 void mtFanledSendLineBuffer()
 {
-	mtSPIFanledSend((uint32_t)ledPanel, 36*4);
+	mtSPIFanledSend((uint32_t)ledPanel, 36 * 4);
 }
 
 void blankAllLed(void)

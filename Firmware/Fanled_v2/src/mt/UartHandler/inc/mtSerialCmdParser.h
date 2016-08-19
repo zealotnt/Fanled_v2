@@ -191,9 +191,9 @@ typedef struct
  */
 typedef struct
 {
-    UInt8 RspCode;									/*!< Response Command Code byte 		*/
-    UInt8 RspControlCode;							/*!< Response Control Code byte 		*/
-    UInt8 Dt[MAX_SERIAL_DATA_EXCEPT_CMD - 2];		/*!< Data packet frame byte 	 		*/
+	UInt8 RspCode;									/*!< Response Command Code byte 		*/
+	UInt8 RspControlCode;							/*!< Response Control Code byte 		*/
+	UInt8 Dt[MAX_SERIAL_DATA_EXCEPT_CMD - 2];		/*!< Data packet frame byte 	 		*/
 } serialRspHeaderData_t;
 
 /*!

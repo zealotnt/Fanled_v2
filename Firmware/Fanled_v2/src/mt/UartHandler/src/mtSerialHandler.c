@@ -63,10 +63,10 @@ static const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
 /******************************************************************************/
 static UInt32 mtSerial_FindTableItem(
-							Const mtSerialAppAPIHandler table[],
-							UInt32 dwTableLen,
-							UInt8 bCmd,
-							UInt8 bControl);
+    Const mtSerialAppAPIHandler table[],
+    UInt32 dwTableLen,
+    UInt8 bCmd,
+    UInt8 bControl);
 
 
 /******************************************************************************/
@@ -76,10 +76,10 @@ static UInt32 mtSerial_FindTableItem(
  * @Function: mtSerial_FindTableItem
  */
 static UInt32 mtSerial_FindTableItem(
-							Const mtSerialAppAPIHandler table[],
-							UInt32 dwTableLen,
-							UInt8 bCmd,
-							UInt8 bControl)
+    Const mtSerialAppAPIHandler table[],
+    UInt32 dwTableLen,
+    UInt8 bCmd,
+    UInt8 bControl)
 {
 	UInt32 dwIdx;
 	Bool bFoundCmdCode = False;
@@ -128,9 +128,9 @@ mtErrorCode_t mtSerialProcessCmdPacket(UInt8 *pMsgIn, UInt16 wMsgInLen, UInt8 *p
 	UInt32 dwCmdIdx = 0;
 
 	dwCmdIdx = mtSerial_FindTableItem(gSerialReaderHandlerTable, SERIAL_APP_API_TABLE_LEN,
-							pDat->CmdCode, pDat->ControlCode);
+	                                  pDat->CmdCode, pDat->ControlCode);
 
-	switch(dwCmdIdx)
+	switch (dwCmdIdx)
 	{
 		/* Control not supported by CTRU application */
 		case 0xffff:

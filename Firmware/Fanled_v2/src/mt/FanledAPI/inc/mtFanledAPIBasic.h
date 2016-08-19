@@ -59,14 +59,14 @@ extern "C"
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
 mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
-											UInt16 msgInLen,
-											UInt8 *msgOut,
-											UInt16 *msgOutLen);
+        UInt16 msgInLen,
+        UInt8 *msgOut,
+        UInt16 *msgOutLen);
 
 mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
-								   UInt16 msgInLen,
-								   UInt8 *msgOut,
-								   UInt16 *msgOutLen);
+                                      UInt16 msgInLen,
+                                      UInt8 *msgOut,
+                                      UInt16 *msgOutLen);
 
 #ifdef __cplusplus
 }

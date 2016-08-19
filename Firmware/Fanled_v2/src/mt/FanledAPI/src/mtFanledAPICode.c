@@ -66,7 +66,7 @@ Void mtFanledApiSetResponseCode(UInt8 *pInBuf, UInt8 *pOutBuf, UInt16 *pOutBufLe
 {
 	*pOutBufLen = MT_DATA_RES_LEN_MIN;			/*Initialize length of message response*/
 	pOutBuf[0] = CMD_CODE(pInBuf);				/*Response code*/
-	pOutBuf[1] = CTR_CODE(pInBuf)+1;			/*Response control code*/
+	pOutBuf[1] = CTR_CODE(pInBuf) + 1;			/*Response control code*/
 	pOutBuf[2] = API_COMMAND_EXECUTE_SUCCESS;	/*Result code*/
 }
 

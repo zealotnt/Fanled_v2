@@ -116,13 +116,17 @@ bool stmConfigureRTC(uint32_t countval)
 	RCC_LSEConfig(RCC_LSE_ON);
 	/* Wait till LSE is ready */
 	while ((RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) && nRTCdel)
+	{
 		nRTCdel--;
+	}
 #else
 	/* Enable the LSI OSC */
 	RCC_LSICmd(ENABLE);
 	/* Wait till LSI is ready */
 	while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) && nRTCdel)
+	{
 		nRTCdel--;
+	}
 #endif
 
 	if (nRTCdel)
@@ -139,15 +143,21 @@ bool stmConfigureRTC(uint32_t countval)
 		RCC_RTCCLKCmd(ENABLE);
 		/* Wait for RTC registers synchronization */
 		if (stmWaitForSynchro() == 0)
+		{
 			return false;
+		}
 		/* Wait until last write operation on RTC registers has finished */
 		if (stmWaitForLastTask() == 0)
+		{
 			return false;
+		}
 		/* Enable the RTC Second */
 		RTC_ITConfig(RTC_IT_SEC, ENABLE);
 		/* Wait until last write operation on RTC registers has finished */
 		if (stmWaitForLastTask() == 0)
+		{
 			return false;
+		}
 		/* Set RTC prescaler: set RTC period to 1sec */
 #ifdef  DEVICE_USE_EXTOSC_32KHZ
 		RTC_SetPrescaler(32767); /* RTC period = RTCCLK/RTC_PR = (32.768 KHz)/(32767+1) */
@@ -157,7 +167,9 @@ bool stmConfigureRTC(uint32_t countval)
 #endif
 		/* Wait until last write operation on RTC registers has finished */
 		if (stmWaitForLastTask() == 0)
+		{
 			return false;
+		}
 		/* Set time registers to 00:00:00; configuration done via gui */
 		if (BKP_ReadBackupRegister(BKP_DR1) != 0x5A5A)
 		{
@@ -166,7 +178,9 @@ bool stmConfigureRTC(uint32_t countval)
 
 		/* Wait until last write operation on RTC registers has finished */
 		if (stmWaitForLastTask() == 0)
+		{
 			return false;
+		}
 		/* Write RTC flag in backup register */
 		BKP_WriteBackupRegister(BKP_DR1, 0x5A5A);
 		return true;
@@ -253,22 +267,30 @@ bool stmInitRTC(void)
 			RCC_LSICmd(ENABLE);
 			/* Wait till LSI is ready */
 			while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) && nRTCdel)
+			{
 				nRTCdel--;
+			}
 			/* Select LSI as RTC Clock Source */
 			RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
 			/* Enable RTC Clock */
 			RCC_RTCCLKCmd(ENABLE);
 			/* Wait for RTC registers synchronization */
 			if (stmWaitForSynchro() == 0)
+			{
 				return false;
+			}
 			/* Wait until last write operation on RTC registers has finished */
 			if (stmWaitForLastTask() == 0)
+			{
 				return false;
+			}
 			/* Enable the RTC Second */
 			RTC_ITConfig(RTC_IT_SEC, ENABLE);
 			/* Wait until last write operation on RTC registers has finished */
 			if (stmWaitForLastTask() == 0)
+			{
 				return false;
+			}
 			/* Set RTC prescaler: set RTC period to 1sec */
 			RTC_SetPrescaler(40000);
 			return true;
@@ -287,7 +309,9 @@ bool stmInitRTC(void)
 	tLocalTime.tm_isdst = 0;    /* Daylight Saving Time flag        */
 	/* RTC Configuration, reset everything and set the local time */
 	if (!stmConfigureRTC(mktime(&tLocalTime)))
+	{
 		return false;
+	}
 
 	/* Clear reset flags */
 	RCC_ClearFlag();

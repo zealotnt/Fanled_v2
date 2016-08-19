@@ -78,7 +78,7 @@ void sd_first_step(void)
 	FRESULT res = FR_DISK_ERR;
 	uint8_t count = 0;
 	mtDelayMS(5);
-	while((res!= FR_OK) && (count < 10))
+	while ((res != FR_OK) && (count < 10))
 	{
 		res = f_mount(&gFatFs, "0:", 1);
 		count++;
@@ -91,14 +91,14 @@ void sd_first_step(void)
 			res = f_opendir(&mydir, "0:\\");
 			mtDelayMS(5);
 		}
-		while(res != FR_OK);
+		while (res != FR_OK);
 
 		do
 		{
 			res = f_readdir(&mydir, &myfno);
-			if (myfno.fname[0]) MyPlayer.NumOfItem++;
+			if (myfno.fname[0]) { MyPlayer.NumOfItem++; }
 		}
-		while(myfno.fname[0]);
+		while (myfno.fname[0]);
 	}
 	MyPlayer.ChoiceNow = 0;
 }
@@ -120,7 +120,7 @@ int main(void)
 	initBootloader();
 	DEBUG_INFO("Bootloader " FIRMWARE_VER_FULL "\r\n");
 	mtBootloaderInitFlash();
-	while(1)
+	while (1)
 	{
 	}
 	mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE); //FLASH_BOOTLOADER_SIZE
@@ -137,7 +137,7 @@ int main(void)
 #endif
 
 	DEBUG_INFO("Application !!!\r\n");
-	while(1);
+	while (1);
 	return 0;
 }
 

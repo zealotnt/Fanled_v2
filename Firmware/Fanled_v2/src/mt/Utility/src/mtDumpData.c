@@ -19,7 +19,7 @@ Void mtSerialCmdDumpBufferDataRaw(char *printStr, Void *pBuff, UInt16 wMsgLen)
 	/* msgLen = 0 --> Cause Segmentation fault */
 	if (wMsgLen != 0)
 	{
-		for(i = 0; i < wMsgLen; i++)
+		for (i = 0; i < wMsgLen; i++)
 		{
 			DEBUG_SERIAL_PRINT(" %2x", pDat[i]);
 		}
@@ -46,7 +46,7 @@ Void mtSerialCmdDumpBufferData(char *printStr, Void *pBuff, UInt16 wMsgLen)
 	/* msgLen = 0 --> Cause Segmentation fault */
 	if (wMsgLen != 0)
 	{
-		for(i = 0; i < wMsgLen - 1; i++)
+		for (i = 0; i < wMsgLen - 1; i++)
 		{
 			DEBUG_SERIAL_PRINT(" %2x", pDat[i]);
 		}

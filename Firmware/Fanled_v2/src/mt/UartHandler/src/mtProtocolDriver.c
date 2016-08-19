@@ -84,7 +84,7 @@ void mtInterByteTimer_Init(void)
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 ,ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 , ENABLE);
 	RCC_PCLK1Config(RCC_HCLK_Div1);
 
 	/* Compute the prescaler value */
@@ -127,7 +127,7 @@ void mtInterByteTimer_Init(void)
 void mtInterByteTimer_Reload(UInt32 timeout_ms)
 {
 	UInt32 timerVal;
-	timerVal = 65535/1000*timeout_ms;
+	timerVal = 65535 / 1000 * timeout_ms;
 	// reset the timer
 	TIM_SetCounter(TIM3, 0);
 	TIM_SetCompare1(TIM3, timerVal);
@@ -144,7 +144,7 @@ void mtInterByteTimer_Disable()
 void mtUartWriteBuf(UInt8 *byte, UInt32 len)
 {
 	uint32_t i = 0;
-	while(len != 0)
+	while (len != 0)
 	{
 		uart_write_char(byte[i]);
 		i++;

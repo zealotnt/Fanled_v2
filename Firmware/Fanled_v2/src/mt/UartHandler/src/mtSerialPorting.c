@@ -179,7 +179,7 @@ void mtBluetoothRcvHandler(void)
 	static UInt32 dwTotalDataLen = 0;
 	UInt8 bCharRev;
 
-	if(USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
+	if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
 	{
 		bCharRev = USART_ReceiveData(USART1);
 		USART_ClearFlag(USART1, USART_FLAG_RXNE);
@@ -191,7 +191,7 @@ void mtBluetoothRcvHandler(void)
 		}
 	}
 
-	if(USART_GetITStatus(USART1, USART_IT_ORE) == SET)
+	if (USART_GetITStatus(USART1, USART_IT_ORE) == SET)
 	{
 		USART_ClearFlag(USART1, USART_IT_ORE);
 	}

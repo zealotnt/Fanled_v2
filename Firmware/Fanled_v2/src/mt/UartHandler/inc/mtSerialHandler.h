@@ -82,9 +82,9 @@ typedef struct
  * \return MT_SUCCESS
  */
 mtErrorCode_t mtSerialProcessCmdPacket(UInt8 *msgIn,
-										UInt16 msgInLen,
-										UInt8 *msgOut,
-										UInt16 *msgOutLen);
+                                       UInt16 msgInLen,
+                                       UInt8 *msgOut,
+                                       UInt16 *msgOutLen);
 
 #ifdef __cplusplus
 }

@@ -82,7 +82,7 @@ uint8_t mtSPISend(SPI_TypeDef* SPIx, uint8_t data)
 void mtSPISendMulti(SPI_TypeDef* SPIx, uint8_t *dataOut, uint8_t *dataIn, uint16_t count)
 {
 	uint8_t i;
-	for (i = 0; i < count; i++) 
+	for (i = 0; i < count; i++)
 	{
 		dataIn[i] = mtSPISend(SPIx, dataOut[i]);
 	}
@@ -91,7 +91,7 @@ void mtSPISendMulti(SPI_TypeDef* SPIx, uint8_t *dataOut, uint8_t *dataIn, uint16
 void mtSPIWriteMulti(SPI_TypeDef* SPIx, uint8_t *dataOut, uint16_t count)
 {
 	uint16_t i;
-	for (i = 0; i < count; i++) 
+	for (i = 0; i < count; i++)
 	{
 		mtSPISend(SPIx, dataOut[i]);
 	}
@@ -100,7 +100,7 @@ void mtSPIWriteMulti(SPI_TypeDef* SPIx, uint8_t *dataOut, uint16_t count)
 void mtSPIReadMulti(SPI_TypeDef* SPIx, uint8_t *dataIn, uint8_t dummy, uint16_t count)
 {
 	uint16_t i;
-	for (i = 0; i < count; i++) 
+	for (i = 0; i < count; i++)
 	{
 		dataIn[i] = mtSPISend(SPIx, dummy);
 	}
@@ -116,7 +116,7 @@ void mtFanledSPIInit(void)
 	//Config Output for 		BLANK			LATCH
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_6;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOA,&GPIO_InitStruct);	
+	GPIO_Init(GPIOA, &GPIO_InitStruct);
 	//Enable clock for SPI1
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
@@ -126,7 +126,7 @@ void mtFanledSPIInit(void)
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 	GPIO_WriteBit(GPIOA, GPIO_Pin_6, (BitAction)0);
 	GPIO_WriteBit(GPIOA, GPIO_Pin_6, (BitAction)0);
-	
+
 	SPI_I2S_DeInit(SPI1);
 	SPI_StructInit(&SPI_InitStruct);
 	SPI_InitStruct.SPI_Direction = SPI_Direction_1Line_Tx;
@@ -138,7 +138,7 @@ void mtFanledSPIInit(void)
 	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;
 	SPI_Init(SPI1, &SPI_InitStruct);
-	SPI_Cmd(SPI1, ENABLE);	
+	SPI_Cmd(SPI1, ENABLE);
 	mtFanledDMAInit();
 }
 
@@ -149,13 +149,13 @@ void mtFanledDMAInit(void)
 	DMA_Cmd(SPI_MASTER_Tx_DMA_Channel, DISABLE);
 	DMA_DeInit(SPI_MASTER_Tx_DMA_Channel);
 	g_DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&SPI1->DR;
-	
+
 	//This field will be configured in transmit function
-	g_DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)0;    
+	g_DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)0;
 	//This field will be configured in transmit function
-	g_DMA_InitStructure.DMA_BufferSize = (uint32_t)0;    
-  	
-	g_DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;  		
+	g_DMA_InitStructure.DMA_BufferSize = (uint32_t)0;
+
+	g_DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
 	g_DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
 	g_DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 	g_DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
@@ -168,11 +168,11 @@ void mtFanledDMAInit(void)
 	DMA_ITConfig(SPI_MASTER_Tx_DMA_Channel, DMA_IT_TC, ENABLE);
 	NVIC_InitStructure.NVIC_IRQChannel = SPI_Tx_DMA_IRQ;
 	// 0 is the highest
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;			
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
-	
+
 	DMA_Cmd(SPI_MASTER_Tx_DMA_Channel, DISABLE);
 	SPI_Cmd(SPI1, ENABLE);
 	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
@@ -186,7 +186,7 @@ void mtSPIFanledSend(uint32_t Addr, uint32_t Size)
 	/* Configure the DMA Stream with the new parameters */
 	DMA_Init(SPI_MASTER_Tx_DMA_Channel, &g_DMA_InitStructure);
 	/* Enable the I2S DMA Stream*/
-	DMA_Cmd(SPI_MASTER_Tx_DMA_Channel, ENABLE); 
+	DMA_Cmd(SPI_MASTER_Tx_DMA_Channel, ENABLE);
 	SPI_Cmd(SPI1, ENABLE);
 	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
 }

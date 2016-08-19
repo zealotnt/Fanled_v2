@@ -71,25 +71,25 @@ void Delay(volatile uint32_t nTime)
 	while (TimingDelay != 0);
 }
 
-void TimingDelay_Decrement(void) 
+void TimingDelay_Decrement(void)
 {
 	Time++;
-	if (Time2 != 0x00) 
+	if (Time2 != 0x00)
 	{
 		Time2--;
 	}
-	if (TimingDelay != 0x00) 
+	if (TimingDelay != 0x00)
 	{
 		TimingDelay--;
 	}
 }
 
-uint32_t DELAY_Time(void) 
+uint32_t DELAY_Time(void)
 {
 	return Time;
 }
 
-uint32_t DELAY_Time2(void) 
+uint32_t DELAY_Time2(void)
 {
 	return Time2;
 }
@@ -107,7 +107,9 @@ void DELAY_SetTime2(volatile uint32_t time)
 void mtDelayClockTick()
 {
 	if (gtickDelay != 0)
+	{
 		gtickDelay--;
+	}
 }
 
 /* Delay Millisecond using Systick */

@@ -77,9 +77,9 @@
 void checkResponseOK(void)
 {
 #if ABC
-	if( checkUartString("OK\r\n", &uart_buffer) ) 
+	if ( checkUartString("OK\r\n", &uart_buffer) )
 	{
-		while(1);
+		while (1);
 	}
 #endif
 }
@@ -101,7 +101,7 @@ void bltInitModule(bool config)
 	// Initialize peripheral for HC05 module
 	mtBluetoothUSARTInit(config);
 	mtHC05KeyPinInit();
-	if(config == true)
+	if (config == true)
 	{
 		bltInitStandardBluetoothMode();
 	}
@@ -118,23 +118,23 @@ void bltInitStandardBluetoothMode(void)
 	bltPrintf("AT\r\n");
 	mtDelayMS(300);
 	checkResponseOK();
-	
+
 	bltPrintf("AT+NAME=\"ZEALOT-HC\"\r\n");
 	mtDelayMS(300);
 	checkResponseOK();
-	
+
 	bltPrintf("AT+PSWD=\"1234\"\r\n");
 	mtDelayMS(300);
 	checkResponseOK();
-	
+
 	bltPrintf("AT+ROLE=0\r\n");
 	mtDelayMS(300);
 	checkResponseOK();
-	
+
 	bltPrintf("AT+UART=115200,1,0\r\n");
 	mtDelayMS(300);
-	checkResponseOK();	
-	
+	checkResponseOK();
+
 	BLUETOOTH_KEYPIN_RESET();
 }
 

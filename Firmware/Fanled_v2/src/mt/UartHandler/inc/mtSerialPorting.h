@@ -170,7 +170,7 @@ mtErrorCode_t mtSerialPort_InterByteTimerReload(/*mlsTimerID_t *timerId,*/ UInt3
  * \return MT_ERROR (register failed)
  */
 mtErrorCode_t mtSerialPort_InterByteTimerRegister(pTimerTimeoutHandler *timer,
-										 pTimerTimeoutHandler fncHandler);
+        pTimerTimeoutHandler fncHandler);
 
 /**
  * \brief Get inter-byte interval value base on current baudrate

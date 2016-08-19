@@ -38,18 +38,7 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-#if (OPENCM3)
-#define mtHallSensorHandler							exti3_isr
-#define mtSystickHandler							SysTick_Handler
-#define mtFanledTimerHandler						TIM2_IRQHandler
-#else
-//#define mtFanledSpiTxCmplt							DMA1_Channel3_IRQHandler
-//#define mtHallSensorHandler							EXTI3_IRQHandler
-//#define mtSystickHandler							SysTick_Handler
-//#define mtFanledTimerHandler						TIM2_IRQHandler
-//#define mtBluetoothInterbyteTimerHandler			TIM3_IRQHandler
-//#define mtBluetoothRcvHandler						USART1_IRQHandler
-#endif
+
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */

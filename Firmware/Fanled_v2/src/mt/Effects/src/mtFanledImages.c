@@ -65,10 +65,10 @@ extern Display_Type Fanled_Display;
 /******************************************************************************/
 void load_image(const uint16_t image[][32])
 {
-	uint16_t i,j;
-	for(i = 0; i < FANLED_RESOLUTION; i++)
+	uint16_t i, j;
+	for (i = 0; i < FANLED_RESOLUTION; i++)
 	{
-		for(j = 0; j <32; j++)
+		for (j = 0; j < 32; j++)
 		{
 			Fanled_Display.dis[i][j] = image[i][j];
 		}

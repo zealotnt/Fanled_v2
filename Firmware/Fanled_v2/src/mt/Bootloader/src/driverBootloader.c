@@ -78,7 +78,7 @@ void mtBootloaderInitFlash(void)
 {
 	/* Unlock the Flash Bank1 Program Erase controller */
 	FLASH_Unlock();
-	
+
 	/* Clear All pending flags */
 	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
 }
@@ -89,21 +89,21 @@ void mtBootloaderFlashWrite(uint32_t address, uint32_t data)
 }
 
 /**
-  * @brief  Jump to a given address and execute it 
+  * @brief  Jump to a given address and execute it
   * @param  None
   * @retval define jump address
   */
 void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset)
 {
 	/* Jump Parameters */
-	pFunction Jump_To_Application;	
+	pFunction Jump_To_Application;
 	uint32_t JumpAddress;
-	
+
 	/* TODO: Should disable all IRQ */
-	
+
 	/* Set system control register SCR->VTOR  */
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, vtorOffset);
-	
+
 	JumpAddress = *(uint32_t*) (appOffset + 4);
 	Jump_To_Application = (pFunction) JumpAddress;
 	__set_MSP(*(uint32_t*) appOffset);
@@ -115,12 +115,12 @@ void mtBootloaderEraseAppFw(void)
 	volatile FLASH_Status FLASHStatus = FLASH_COMPLETE;
 	uint32_t EraseCounter = 0x00;
 	uint32_t NbrOfPage = 0x00;
-	
+
 	/* Define the number of page to be erased */
 	NbrOfPage = (BANK1_WRITE_END_ADDR - BANK1_WRITE_START_ADDR) / FLASH_PAGE_SIZE;
-	
+
 	/* Erase the FLASH pages */
-	for(EraseCounter = 0; (EraseCounter < NbrOfPage) && (FLASHStatus == FLASH_COMPLETE); EraseCounter++)
+	for (EraseCounter = 0; (EraseCounter < NbrOfPage) && (FLASHStatus == FLASH_COMPLETE); EraseCounter++)
 	{
 		DEBUG_INFO("Erasing page from address: 0x%lx\r\n", BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * EraseCounter));
 		FLASHStatus = FLASH_ErasePage(BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * EraseCounter));
@@ -147,7 +147,7 @@ FLASH_Status testWriteDummyDataToFlash(uint32_t startPage)
 	uint32_t i;
 	uint32_t Address = 0;
 
-	if (startPage > (FLASH_TOTAL_SIZE/FLASH_PAGE_SIZE - 1) || (startPage < (FLASH_BOOTLOADER_SIZE/FLASH_PAGE_SIZE)))
+	if (startPage > (FLASH_TOTAL_SIZE / FLASH_PAGE_SIZE - 1) || (startPage < (FLASH_BOOTLOADER_SIZE / FLASH_PAGE_SIZE)))
 	{
 		DEBUG_ERROR("Invalid startPage number");
 		return -1;
@@ -156,9 +156,9 @@ FLASH_Status testWriteDummyDataToFlash(uint32_t startPage)
 	FLASHStatus = FLASH_ErasePage(BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * startPage));
 	Address = BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * startPage);
 
-	for (i = 0; i <  FLASH_PAGE_SIZE/4; i++)
+	for (i = 0; i <  FLASH_PAGE_SIZE / 4; i++)
 	{
-		FLASHStatus = FLASH_ProgramWord(Address, pattern[i%4]);
+		FLASHStatus = FLASH_ProgramWord(Address, pattern[i % 4]);
 		Address += 4;
 	}
 
