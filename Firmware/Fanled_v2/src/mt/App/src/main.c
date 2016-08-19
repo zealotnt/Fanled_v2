@@ -107,7 +107,6 @@ void sd_first_step(void)
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-#define FANLED_BOOTLOADER
 void assert_failed(uint8_t* file, uint32_t line)
 {
 	/* Infinite loop */
@@ -121,6 +120,8 @@ int main(void)
 	initBootloader();
 	DEBUG_INFO("Bootloader " FIRMWARE_VER_FULL "\r\n");
 	mtBootloaderInitFlash();
+	DEBUG_INFO("Jump to app \r\n");
+	mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE);
 	while (1)
 	{
 		if (True == gQueuePayload.Done)
@@ -132,6 +133,16 @@ int main(void)
 	mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE); //FLASH_BOOTLOADER_SIZE
 
 #elif defined(FANLED_APP)
+	initBootloader();
+	DEBUG_INFO("App " FIRMWARE_VER_FULL "\r\n");
+	while (1)
+	{
+		if (True == gQueuePayload.Done)
+		{
+			mtSerialCmdDataLinkHandlingThread(gQueuePayload);
+			gQueuePayload.Done = False;
+		}
+	}
 //	mainTestColor();
 //	mainTestHC05();
 //	mainTestRTC();

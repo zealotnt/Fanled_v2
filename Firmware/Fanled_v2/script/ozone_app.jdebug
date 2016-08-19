@@ -16,7 +16,7 @@ void OnProjectLoad (void) {
   Project.SetTIFSpeed ("1 MHz");
   Project.AddSvdFile ("Cortex-M3.svd");
   Project.AddSvdFile ("/opt/SEGGER/ozone/2.18.2/Config/Peripherals/STM32F103xx.svd");
-  File.Open ("/home/zealot/workspace_NotCategorized/Fanled_v2/Firmware/Fanled_v2/Debug/Fanled_v2");
+  File.Open ("/home/zealot/workspace_NotCategorized/Fanled_v2/Firmware/Fanled_v2/Build-App/Fanled_v2");
 }
 
 /*********************************************************************
