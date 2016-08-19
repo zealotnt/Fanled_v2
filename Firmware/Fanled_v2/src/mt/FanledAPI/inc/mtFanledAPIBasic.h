@@ -63,6 +63,11 @@ mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
 											UInt8 *msgOut,
 											UInt16 *msgOutLen);
 
+mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
+								   UInt16 msgInLen,
+								   UInt8 *msgOut,
+								   UInt16 *msgOutLen);
+
 #ifdef __cplusplus
 }
 #endif

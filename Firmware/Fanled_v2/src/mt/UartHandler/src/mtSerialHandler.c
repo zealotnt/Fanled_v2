@@ -53,7 +53,8 @@
 /******************************************************************************/
 static const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 {
-	{FANLED_API_CMD_CODE_BASIC,			FANLED_API_CMD_CTR_GETVERSION,		mtFanledApiGetFirmwareVersion},
+	{CMD_CODE_BASIC,	CTR_CODE_GETVERSION,		mtFanledApiGetFirmwareVersion},
+	{CMD_CODE_BASIC, 	CTR_CODE_PROTOCOL_TEST, 	mtFanledApiProtocolTest},
 	{0, 0, Null},
 };
 #define SERIAL_APP_API_TABLE_LEN		MT_ARRAY_SIZE(gSerialReaderHandlerTable)

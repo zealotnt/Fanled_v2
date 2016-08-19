@@ -82,4 +82,23 @@ mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
 	return retVal;
 }
 
+mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
+								   UInt16 msgInLen,
+								   UInt8 *msgOut,
+								   UInt16 *msgOutLen)
+{
+	UInt32 i;
+
+	*msgOutLen = (UInt16)(*(UInt16 *)(&msgIn[6]));
+
+	/* Copy count value */
+	memcpy(&msgOut[2], &msgIn[2], 4);
+
+	for (i = 6; i < *msgOutLen; i++)
+	{
+		msgOut[i] = i;
+	}
+
+	return MT_SUCCESS;
+}
 /************************* End of File ****************************************/

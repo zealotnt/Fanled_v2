@@ -41,9 +41,10 @@ extern "C"
 /*****************************************************************************/
 #define MT_DATA_RES_LEN_MIN				3
 
-#define FANLED_API_CMD_CODE_BASIC		0x8B
+#define CMD_CODE_BASIC				0x8B
 
-#define FANLED_API_CMD_CTR_GETVERSION	0x00
+#define CTR_CODE_GETVERSION			0x00
+#define CTR_CODE_PROTOCOL_TEST		0x70
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
