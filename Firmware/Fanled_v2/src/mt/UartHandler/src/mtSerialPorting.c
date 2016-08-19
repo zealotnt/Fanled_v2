@@ -187,7 +187,7 @@ void mtBluetoothRcvHandler(void)
 		if (mtSerialCmdRcvStateHandling((UInt8)bCharRev, &gQueuePayload, &dwTotalDataLen) != ROUTINE_RET_NO_CHANGE)
 		{
 			gQueuePayload.type = DATA_TYPE;
-			mtSerialCmdDataLinkHandlingThread(gQueuePayload);
+			gQueuePayload.Done = True;
 		}
 	}
 

@@ -37,10 +37,6 @@
 #	define FLASH_PAGE_SIZE    ((uint16_t)0x400)
 #endif
 
-/* Define Application Address Area */
-#define BANK1_WRITE_START_ADDR  ((uint32_t)FLASH_APP_START_ADDRESS)
-#define BANK1_WRITE_END_ADDR    ((uint32_t)FLASH_APP_END_ADDRESS)
-
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
 /******************************************************************************/
@@ -83,11 +79,27 @@ void mtBootloaderInitFlash(void)
 	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
 }
 
-void mtBootloaderFlashWrite(uint32_t address, uint32_t data)
+mtErrorCode_t mtBootloaderFlashWrite(uint32_t address, uint32_t data)
 {
-	FLASH_ProgramWord(address, data);
+	if (FLASH_COMPLETE != FLASH_ProgramWord(address, data))
+	{
+		return MT_ERROR;
+	}
+	return MT_SUCCESS;
 }
 
+mtErrorCode_t mtBootloaderFlashWriteBuff(uint32_t address, uint32_t buff[], uint32_t len)
+{
+	while(len)
+	{
+		if (MT_SUCCESS != mtBootloaderFlashWrite(address + len * 4, buff[len]))
+		{
+			return MT_ERROR;
+		}
+		len --;
+	}
+	return MT_SUCCESS;
+}
 /**
   * @brief  Jump to a given address and execute it
   * @param  None
@@ -99,7 +111,8 @@ void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset)
 	pFunction Jump_To_Application;
 	uint32_t JumpAddress;
 
-	/* TODO: Should disable all IRQ */
+	/* Disable all IRQ */
+	cpsid();
 
 	/* Set system control register SCR->VTOR  */
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, vtorOffset);
@@ -117,13 +130,13 @@ void mtBootloaderEraseAppFw(void)
 	uint32_t NbrOfPage = 0x00;
 
 	/* Define the number of page to be erased */
-	NbrOfPage = (BANK1_WRITE_END_ADDR - BANK1_WRITE_START_ADDR) / FLASH_PAGE_SIZE;
+	NbrOfPage = (FLASH_APP_END_ADDRESS - FLASH_APP_START_ADDRESS) / FLASH_PAGE_SIZE;
 
 	/* Erase the FLASH pages */
 	for (EraseCounter = 0; (EraseCounter < NbrOfPage) && (FLASHStatus == FLASH_COMPLETE); EraseCounter++)
 	{
-		DEBUG_INFO("Erasing page from address: 0x%lx\r\n", BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * EraseCounter));
-		FLASHStatus = FLASH_ErasePage(BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * EraseCounter));
+		DEBUG_INFO("Erasing page from address: 0x%lx\r\n", FLASH_APP_START_ADDRESS + (FLASH_PAGE_SIZE * EraseCounter));
+		FLASHStatus = FLASH_ErasePage(FLASH_APP_START_ADDRESS + (FLASH_PAGE_SIZE * EraseCounter));
 	}
 }
 
@@ -153,8 +166,8 @@ FLASH_Status testWriteDummyDataToFlash(uint32_t startPage)
 		return -1;
 	}
 
-	FLASHStatus = FLASH_ErasePage(BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * startPage));
-	Address = BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * startPage);
+	FLASHStatus = FLASH_ErasePage(FLASH_APP_START_ADDRESS + (FLASH_PAGE_SIZE * startPage));
+	Address = FLASH_APP_START_ADDRESS + (FLASH_PAGE_SIZE * startPage);
 
 	for (i = 0; i <  FLASH_PAGE_SIZE / 4; i++)
 	{

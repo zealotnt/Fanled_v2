@@ -34,6 +34,7 @@
 #include "Effects/inc/mtIncludeEffects.h"
 #include "Bootloader/inc/driverBootloader.h"
 #include "RTC/inc/mtRtc.h"
+#include "UartHandler/inc/mtSerialCmdParser.h"
 
 #include "ff.h"
 /******************************************************************************/
@@ -49,7 +50,7 @@
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
 /******************************************************************************/
-
+extern serialQueuePayload_t gQueuePayload;
 
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
@@ -122,6 +123,11 @@ int main(void)
 	mtBootloaderInitFlash();
 	while (1)
 	{
+		if (True == gQueuePayload.Done)
+		{
+			mtSerialCmdDataLinkHandlingThread(gQueuePayload);
+			gQueuePayload.Done = False;
+		}
 	}
 	mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE); //FLASH_BOOTLOADER_SIZE
 
