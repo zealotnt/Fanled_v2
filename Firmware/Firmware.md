@@ -13,4 +13,4 @@ Fig. Jlink-JTAG pinout
 | UART1-TXD     | PA9               |HC05                |
 
 # Read more
-+ Fanled firmware's [README.md](.\Keil_Prj\README.md)
++ Fanled firmware's [README.md](Fanled_v2/Fanled_v2.md)

@@ -1,23 +1,59 @@
-/********** Include section ***************************************************/
+/*==============================================================================
+**
+**                      Proprietary - Copyright (C) 2016
+**------------------------------------------------------------------------------
+** Supported MCUs      : STM32F
+** Supported Compilers : GCC
+**------------------------------------------------------------------------------
+** File name         : template.c
+**
+** Module name       : template
+**
+**
+** Summary:
+**
+**= History ====================================================================
+** @date 	Feb 23, 2016
+** @author	zealot
+** - Development
+==============================================================================*/
+
+/******************************************************************************/
+/* INCLUSIONS                                                                 */
+/******************************************************************************/
 #include "../inc/mtSerialCmdParser.h"
 #include "../inc/mtSerialHandler.h"
 #include "../inc/mtSerialPorting.h"
 
+/******************************************************************************/
+/* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
+/******************************************************************************/
 #ifndef SUPPORT_DUMP_DEBUG_DATA
 #define SUPPORT_DUMP_DEBUG_DATA		0
 #endif
-/********** Local Constant and compile switch definition section **************/
+
 #define SERIAL_FI_RESP_SECONDBYTE	SERIAL_FI_RF_PROCESSOR_TO_DEVICE
 #define OWN_FI						SERIAL_FI_DEVICE_TO_RF_PROCESSOR
 
-/********** Local Type definition section *************************************/
+/******************************************************************************/
+/* LOCAL TYPE DEFINITION SECTION                                              */
+/******************************************************************************/
 
-/********** Local Macro definition section ************************************/
 
-/********** Local (static) variable definition section ************************/
+/******************************************************************************/
+/* LOCAL MACRO DEFINITION SECTION                                             */
+/******************************************************************************/
+
+
+/******************************************************************************/
+/* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
+/******************************************************************************/
 serialQueuePayload_t gQueuePayload;
-static UInt32 dwTotalByteRcv = 0;
 
+/******************************************************************************/
+/* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
+/******************************************************************************/
+static UInt32 dwTotalByteRcv = 0;
 /* 8-bit CRC with polynomial x^8+x^6+x^3+x^2+1, 0x14D.
    Chosen based on Koopman, et al. (0xA6 in his notation = 0x14D >> 1):
    http://www.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf
@@ -60,7 +96,9 @@ const static UInt8 crc8_table[256] =
 	0xE6, 0xE1, 0xE8, 0xEF, 0xFA, 0xFD, 0xF4, 0xF3
 };
 
-/********** Local (static) function declaration section ***********************/
+/******************************************************************************/
+/* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
+/******************************************************************************/
 static Void mtSerialCmd_ResetRcvStateMachine(serialQueuePayload_t *qBuff);
 
 static int mtSerialCmd_CheckValidFISecondByte(UInt8 bByte);
@@ -73,13 +111,11 @@ static mtErrorCode_t checkValidTerminationPacket(serialQueuePayload_t *pBuffer, 
 
 static UInt8 mtSerialCmd_UtilsCRC8Calculate(Void *pBuffIn, UInt32 dwLen);
 
-Void mtSerialCmd_InterByteTimeOutHandling(Void *pParam);
+static mtErrorCode_t mtSerialCmdSendACK(UInt8 bTarget);
 
-/********** Global variable declaration section ***********************/
-Bool gFlagForwarding = False;
-Bool gFirstSerialCmdRcv = False;
-
-/********** Local function definition section *********************************/
+/******************************************************************************/
+/* LOCAL FUNCTION DEFINITION SECTION                                          */
+/******************************************************************************/
 /**
  * @Function: mtSerialCmd_ResetRcvStateMachine
  */
@@ -96,7 +132,7 @@ static Void mtSerialCmd_ResetRcvStateMachine(serialQueuePayload_t *qBuff)
  */
 static int mtSerialCmd_CheckValidFISecondByte(UInt8 byte)
 {
-	return (byte == SERIAL_FI_DEVICE_TO_APP_PROCESSOR || byte == SERIAL_FI_DEVICE_TO_RF_PROCESSOR) ? 1 : 0;
+	return (byte == SERIAL_FI_DEVICE_TO_RF_PROCESSOR) ? 1 : 0;
 }
 
 /**
@@ -223,7 +259,7 @@ static UInt8 mtSerialCmd_UtilsCRC8Calculate(Void *pBuffIn, UInt32 dwLen)
 /**
  * @Function: mtSerialCmdSendACK
  */
-mtErrorCode_t mtSerialCmdSendACK(UInt8 bTarget)
+static mtErrorCode_t mtSerialCmdSendACK(UInt8 bTarget)
 {
 	mtErrorCode_t retVal = MT_SUCCESS;
 	serialHeaderFI_t ackIF;
@@ -240,8 +276,9 @@ mtErrorCode_t mtSerialCmdSendACK(UInt8 bTarget)
 
 	return retVal;
 }
-
-/********** Global function definition section ********************************/
+/******************************************************************************/
+/* GLOBAL FUNCTION DEFINITION SECTION                                         */
+/******************************************************************************/
 /**
  * @Function: mtSerialCmdRcvStateHandling
  */
@@ -427,17 +464,6 @@ Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload)
 	static serialRcvFrame_t sResponseFrame;
 	UInt8 sPacketType = SERIAL_PACKET_UNKNOWN;
 	UInt16 msgInLen;
-
-	if (sQueuePayload.type == DATA_TYPE || sQueuePayload.type == DATA_FORWARDING_TYPE)
-	{
-		mtGetCurrentTime(&timingLastRcvByte);
-
-		/* Don't care success or not, set the flag means Serial Command has been received*/
-		if(gFirstSerialCmdRcv == False && sQueuePayload.errorFlag == RCV_SUCCESS)
-		{
-			gFirstSerialCmdRcv = True;
-		}
-	}
 
 	if (sQueuePayload.errorFlag != RCV_SUCCESS)
 	{

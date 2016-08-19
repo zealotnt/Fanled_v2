@@ -1,20 +1,56 @@
-/********** Include section ***************************************************/
+/*==============================================================================
+**
+**                      Proprietary - Copyright (C) 2016
+**------------------------------------------------------------------------------
+** Supported MCUs      : STM32F
+** Supported Compilers : GCC
+**------------------------------------------------------------------------------
+** File name         : template.c
+**
+** Module name       : template
+**
+**
+** Summary:
+**
+**= History ====================================================================
+** @date 	Feb 23, 2016
+** @author	zealot
+** - Development
+==============================================================================*/
+
+/******************************************************************************/
+/* INCLUSIONS                                                                 */
+/******************************************************************************/
 #include "../inc/mtSerialHandler.h"
 #include "../inc/mtSerialCmdParser.h"
 #include "../inc/mtSerialPorting.h"
 #include "FanledAPI/inc/mtFanledAPICode.h"
 
 #include <string.h>
-/********** Local Constant and compile switch definition section **************/
 
-/********** Local Type definition section *************************************/
+/******************************************************************************/
+/* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
+/******************************************************************************/
 
-/********** Local Macro definition section ************************************/
-#define DEBUG_READERAPI_HANDLER_PRINT(...)			printf(__VA_ARGS__)
-#define DEBUG_READERAPI_HANDLER_NOTIFY_BAD(...)		DEBUG_SERIAL_PRINT_NOTIFY_BAD(__VA_ARGS__)
 
-/********** Local (static) variable definition section ************************/
+/******************************************************************************/
+/* LOCAL TYPE DEFINITION SECTION                                              */
+/******************************************************************************/
 
+
+/******************************************************************************/
+/* LOCAL MACRO DEFINITION SECTION                                             */
+/******************************************************************************/
+
+
+/******************************************************************************/
+/* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
+/******************************************************************************/
+
+
+/******************************************************************************/
+/* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
+/******************************************************************************/
 static const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 {
 	{FANLED_API_CMD_CODE_BASIC,			FANLED_API_CMD_CTR_GETVERSION,		mtFanledApiGetFirmwareVersion},
@@ -22,17 +58,19 @@ static const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 };
 #define SERIAL_APP_API_TABLE_LEN		MT_ARRAY_SIZE(gSerialReaderHandlerTable)
 
-static mtSerialAppAPIHandler *pReaderUsingTable = (mtSerialAppAPIHandler *)&gSerialReaderHandlerTable;
-
-/********** Local (static) function declaration section ***********************/
+/******************************************************************************/
+/* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
+/******************************************************************************/
 static UInt32 mtSerial_FindTableItem(
 							Const mtSerialAppAPIHandler table[],
 							UInt32 dwTableLen,
 							UInt8 bCmd,
 							UInt8 bControl);
 
-/********** Local function definition section *********************************/
 
+/******************************************************************************/
+/* LOCAL FUNCTION DEFINITION SECTION                                          */
+/******************************************************************************/
 /**
  * @Function: mtSerial_FindTableItem
  */
@@ -76,7 +114,9 @@ static UInt32 mtSerial_FindTableItem(
 	return dwIdx;
 }
 
-/********** Global function definition section ********************************/
+/******************************************************************************/
+/* GLOBAL FUNCTION DEFINITION SECTION                                         */
+/******************************************************************************/
 /**
  * @Function: mtSerialProcessCmdPacket
  */
@@ -86,7 +126,7 @@ mtErrorCode_t mtSerialProcessCmdPacket(UInt8 *pMsgIn, UInt16 wMsgInLen, UInt8 *p
 	serialCmdData_t *pDat = (serialCmdData_t *)pMsgIn;
 	UInt32 dwCmdIdx = 0;
 
-	dwCmdIdx = mtSerial_FindTableItem(pReaderUsingTable, SERIAL_APP_API_TABLE_LEN,
+	dwCmdIdx = mtSerial_FindTableItem(gSerialReaderHandlerTable, SERIAL_APP_API_TABLE_LEN,
 							pDat->CmdCode, pDat->ControlCode);
 
 	switch(dwCmdIdx)

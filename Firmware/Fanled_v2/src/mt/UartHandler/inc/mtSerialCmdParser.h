@@ -38,15 +38,6 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-/*! \def SERIAL_FI_DEVICE_TO_APP_PROCESSOR
-	Second FI byte use when transfer Command from Host to App processor
-*/
-#define SERIAL_FI_DEVICE_TO_APP_PROCESSOR				0xC5
-
-/*! \def SERIAL_FI_APP_PROCESSOR_TO_DEVICE
-	Second FI byte use when transfer Response from App processor to Host
-*/
-#define SERIAL_FI_APP_PROCESSOR_TO_DEVICE				0xCA
 
 /*! \def SERIAL_FI_DEVICE_TO_RF_PROCESSOR
 	Second FI byte use when transfer Command from Host to RF processor
@@ -78,21 +69,6 @@ extern "C"
 */
 #define MAX_SERIAL_DEBUG_MSG_LEN						512
 
-/*! \def SERIAL_MAX_INTER_FRAME_TIMEOUT
-	Maximum value of Interframe-timeout
-*/
-#define SERIAL_MAX_INTER_FRAME_TIMEOUT					300
-
-/*! \def SERIAL_MAX_TIME_WAIT_FOR_TRASH
-	Maximum value of time in millisecond Host will wait until App/RF processor send its previous message
-*/
-#define SERIAL_MAX_TIME_WAIT_FOR_TRASH					10
-
-/*! \def SERIAL_MAX_INTER_BYTE_TIMEOUT_FOR_DBG_MSG
-	Maximum value of time in millisecond Host will wait until RF processor finish sending its debug message
-*/
-#define SERIAL_MAX_INTER_BYTE_TIMEOUT_FOR_DBG_MSG		4
-
 /*! \def SERIAL_PACKET_UNKNOWN
 	Unknown packet format
 */
@@ -113,11 +89,6 @@ extern "C"
 */
 #define SERIAL_PACKET_DATA								(UInt8)(3)
 
-/*! \def MAX_SERIAL_DBG_MSG_FROM_RF_BUFFER
-	Maximum buffer size that contain serial debug message from RF
-*/
-#define MAX_SERIAL_DBG_MSG_FROM_RF_BUFFER			(sizeof(serialQueueDbgPayload_t) - sizeof(UInt16) - sizeof(UInt16))
-
 /*! \def MAX_SERIAL_MSG_QUEUE_SIZE
 	Maximum BluefinSerial message queue size
 */
@@ -127,12 +98,6 @@ extern "C"
 	Size of BluefinSerial frame
 */
 #define MAX_SERIAL_DATAPAYLOAD_IN_PACKET_SIZE		sizeof(serialRcvFrame_t) /* 2FI + 3LEN + 512DATA + 1CRC = 518 */
-
-/*! \def MAX_SERIAL_DBG_MSG_QUEUE_SIZE
-	Maximum value of Debug message queue
-*/
-#define MAX_SERIAL_DBG_MSG_QUEUE_SIZE				sizeof(serialQueueDbgPayload_t)
-
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
@@ -256,35 +221,6 @@ typedef struct
 	receiveRoutineState_t	rcvState;			/*!< receive state (feed to mtSerialRcvStateHandling) */
 	Bool					Done;
 } serialQueuePayload_t;
-
-/*!
- *	\brief Message queue frame that contain Debug message to Host's USB port
- */
-typedef struct
-{
-	UInt16					msgCount;							/*!< For counting when receiving continuously, reset to 0 before enqueue */
-	UInt16					msgSendLen;							/*!< For dequeue thread know which size to print */
-
-	UInt8					buff[sizeof(serialQueuePayload_t) -
-	     					     sizeof(UInt16) -
-	     					     sizeof(UInt16)]; 				/*!< For contain debug message */
-} serialQueueDbgPayload_t;
-
-/*!
- *	\brief Message queue frame that contain Command/Response packet,
- *	this queue is used by Qt's Thread to update Transmitted/Received bytes
- */
-typedef struct
-{
-	mtErrorCode_t			errCode;								/*!< error code pass to Qt */
-    UInt8                   id;										/*!< id (1 for Command , 2 for Response) */
-	UInt16					buffLen;								/*!< len of packet */
-    UInt8					buff[sizeof(serialQueuePayload_t) -
-         					     sizeof(UInt8) -
-         					     sizeof(UInt16) -
-         					     sizeof(mtErrorCode_t)];			/*!< data of packet */
-} serialQueueQtDbgMsgPayload_t;
-
 #pragma pack()
 
 /*****************************************************************************/
@@ -317,23 +253,6 @@ Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload);
  * \return ROUTINE_RET_PUSH_DATA (state machine output a result).
  */
 mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 data, serialQueuePayload_t *buffer, UInt32 *TotalDataLen);
-
-/*!
- * \brief Send package to Host/Target board
- * \param packet that will be sent
- *
- * \return MT_SUCCESS (send successfully).
- * \return MT_ERROR (send packet error).
- */
-mtErrorCode_t mlsSerialCmdSendPacket(serialRcvFrame_t *packet);
-
-/*!
- * \brief Send ACK packet
- * \param target target to send ACK to
- *
- * \return MT_SUCCESS
- */
-mtErrorCode_t mlsSerialCmdSendACK(UInt8 target);
 
 Void mtSerialCmd_InterByteTimeOutHandling(Void *pParam);
 
