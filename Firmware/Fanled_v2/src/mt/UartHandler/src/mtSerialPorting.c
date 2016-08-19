@@ -26,18 +26,6 @@
 /********** Local (static) function declaration section ***********************/
 
 /********** Global variable definition section ********************************/
-const mtBaudTimerIntervalTable_t mtCommBaudTimerLookUpTable[] =
-{
-	{ BR_9600,		50 	},
-	{ BR_19200,		40	},
-	{ BR_115200,	30	},
-	{ BR_230400,	20	},
-	{ BR_460800,	20	},
-};
-
-#define NUM_OF_BAUD_AVAIL		sizeof(mtCommBaudTimerLookUpTable)	\
-								/ sizeof(mtBaudTimerIntervalTable_t)
-
 extern serialQueuePayload_t gQueuePayload;
 
 /********** Local function definition section *********************************/
@@ -106,24 +94,38 @@ mtBaudrate_t mtSerialPort_GetBaurate(Void)
  */
 UInt32 mtSerialPort_InterByteTimerGetInverval(Void)
 {
-	UInt32 dwIdx;
-	mtBaudrate_t curBaud = mtSerialPort_GetBaurate();
-
-	for(dwIdx = 0; dwIdx < NUM_OF_BAUD_AVAIL; dwIdx++)
-	{
-		if(curBaud == mtCommBaudTimerLookUpTable[dwIdx].baud)
-		{
-			return mtCommBaudTimerLookUpTable[dwIdx].inteval;
-		}
-	}
-	/* In case can't find anything, just set the interval as minimum */
+	/* In case can't find anything, just set the interval as default */
 	return DEFAULT_INTER_BYTE_INTERVAL;
 }
 
+/**
+ * @Function: mtSerialPort_Write
+ */
+mtErrorCode_t mtSerialPort_Write(UInt8 *pData, UInt16 wLenToWrite)
+{
+	mtUartWriteBuf(pData, wLenToWrite);
+	return MT_SUCCESS;
+}
+
+/**
+ * @Function: mtSerialPort_FlushRxData
+ */
+Void mtSerialPort_FlushRxData(Void)
+{
+	/* Call this function to fix bug: when trying to send packet with wrong baud rate
+	 * --> There still bytes in RX FIFO
+	 * --> Can't reiceive full packet in next "right" baud rate packet */
+}
+
+Int32 mtSerialPort_GetRxFifo(Void)
+{
+	return 0;
+}
+
+/********** Global function definition section ********************************/
 /* inter-byte timer */
 void mtBluetoothInterbyteTimerHandler(void)
 {
-	TIM3->SR = 0;
 	mtInterByteTimer_Disable();
 	mtSerialCmd_InterByteTimeOutHandling(&gQueuePayload);
 }
@@ -148,32 +150,13 @@ void mtBluetoothRcvHandler(void)
 		}
 	}
 
+	if(USART_GetITStatus(USART1, USART_IT_ORE) == SET)
+	{
+		USART_ClearFlag(USART1, USART_IT_ORE);
+	}
+
 	/** We're done */
 	return;
-}
-/********** Global function definition section ********************************/
-/**
- * @Function: mtSerialPort_Write
- */
-mtErrorCode_t mtSerialPort_Write(UInt8 *pData, UInt16 wLenToWrite)
-{
-	mtUartWriteBuf(pData, wLenToWrite);
-	return MT_SUCCESS;
-}
-
-/**
- * @Function: mtSerialPort_FlushRxData
- */
-Void mtSerialPort_FlushRxData(Void)
-{
-	/* Call this function to fix bug: when trying to send packet with wrong baud rate
-	 * --> There still bytes in RX FIFO
-	 * --> Can't reiceive full packet in next "right" baud rate packet */
-}
-
-Int32 mtSerialPort_GetRxFifo(Void)
-{
-	return 0;
 }
 
 /************************* End of File ****************************************/

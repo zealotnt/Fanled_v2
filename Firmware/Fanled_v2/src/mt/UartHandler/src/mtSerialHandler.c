@@ -112,6 +112,7 @@ mtErrorCode_t mtSerialProcessCmdPacket(UInt8 *pMsgIn, UInt16 wMsgInLen, UInt8 *p
 			goto exit;
 		}
 		default:
+			mtFanledApiSetResponseCode(pMsgIn, pMsgOut, pwMsgOutLen);
 			gSerialReaderHandlerTable[dwCmdIdx].fnHandler(pMsgIn, wMsgInLen, pMsgOut, pwMsgOutLen);
 			break;
 	}

@@ -484,11 +484,13 @@ Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload)
 				sResponseFrame.Len.LCS = sResponseFrame.Len.Lenl ^ sResponseFrame.Len.Lenm;
 				sResponseFrame.CRC8 = mtSerialCmd_UtilsCRC8Calculate(&sResponseFrame.Len, msgOutLen + 3);
 				mtSerialCmdSendPacket(&sResponseFrame);
+				break;
 			}
 			case SERIAL_PACKET_NACK:
 			{
 				/* Re-send last packet if receive any NACK packet */
 				mtSerialCmdSendPacket(&sResponseFrame);
+				break;
 			}
 			default:
 				break;

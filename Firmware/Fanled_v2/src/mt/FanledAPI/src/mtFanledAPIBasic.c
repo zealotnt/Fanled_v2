@@ -23,6 +23,7 @@
 /******************************************************************************/
 #include "mtInclude.h"
 #include "mtVersion.h"
+#include "../inc/mtFanledAPICode.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
