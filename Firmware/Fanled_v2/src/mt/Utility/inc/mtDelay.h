@@ -64,6 +64,8 @@ uint32_t DELAY_Time(void);
 uint32_t DELAY_Time2(void);
 void DELAY_SetTime(volatile uint32_t time);
 void DELAY_SetTime2(volatile uint32_t time);
+void mtDelayClockTick();
+void mtDelayMS(volatile uint32_t time_delay);
 
 #ifdef __cplusplus
 }

@@ -58,6 +58,8 @@ extern "C"
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
+void uart_init(bool config);
+void uart_change_baud(uint32_t new_baudrate);
 void uart_write_char(char c);
 void uart_write_str(char *str);
 

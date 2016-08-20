@@ -25,7 +25,7 @@
 /*****************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
-#include "App/inc/mtAppDef.h"
+#include "../inc/mtFanledDisplay.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -58,7 +58,7 @@
 void updatePanel16b(uint16_t *input_color, bool blank);
 void assignLed16b(uint16_t input, uint8_t num);
 
-void fanled_puts(char *s, uint16_t color,Display_Type *display);
+void fanled_puts(char *s, uint16_t color, Display_Type *display);
 void fanled_puts_dual(char *s, uint16_t color, Display_Type *display, unsigned char row);
 void fanled_puts_scroll(char *s, uint16_t color, Display_Type *display, uint32_t speed);
 void fanled_date_scroll(char *s, uint16_t color, Display_Type *display, uint32_t speed);

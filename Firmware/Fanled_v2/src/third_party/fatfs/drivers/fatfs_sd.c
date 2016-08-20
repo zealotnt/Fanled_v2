@@ -34,7 +34,28 @@ static BYTE FATFS_SD_CardType;			/* Card type flags */
 /* Initialize MMC interface */
 static void init_spi (void) {
 	/* Init SPI */
-	mtSPIInit();
+	GPIO_InitTypeDef GPIO_InitStruct;
+	SPI_InitTypeDef SPI_InitStruct;
+
+	//Common settings for all pins
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	//Enable clock
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	//Pinspack					MISO         	MOSI			SCK
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_15 | GPIO_Pin_13;
+	GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+	SPI_StructInit(&SPI_InitStruct);
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+	SPI_InitStruct.SPI_DataSize = 	SPI_DataSize_8b;
+	SPI_InitStruct.SPI_Direction = 	SPI_Direction_2Lines_FullDuplex;
+	SPI_InitStruct.SPI_FirstBit = 	SPI_FirstBit_MSB;
+	SPI_InitStruct.SPI_Mode = SPI_Mode_Master;
+	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft;
+	SPI_Init(FATFS_SPI, &SPI_InitStruct);
+	SPI_Cmd(FATFS_SPI, ENABLE);
 
 	/* Set CS high */
 	FATFS_CS_HIGH;
@@ -108,7 +129,7 @@ static int wait_ready (	/* 1:Ready, 0:Timeout */
 static void deselect (void)
 {
 	FATFS_CS_HIGH;			/* CS = H */
-	SPI_Send(FATFS_SPI, 0xFF);			/* Dummy clock (force DO hi-z for multiple slave SPI) */
+	xchg_spi(0xFF);			/* Dummy clock (force DO hi-z for multiple slave SPI) */
 	FATFS_DEBUG_SEND_USART("deselect: ok");
 }
 
@@ -121,7 +142,7 @@ static void deselect (void)
 static int select (void)	/* 1:OK, 0:Timeout */
 {
 	FATFS_CS_LOW;
-	SPI_Send(FATFS_SPI, 0xFF);	/* Dummy clock (force DO enabled) */
+	xchg_spi(0xFF);	/* Dummy clock (force DO enabled) */
 
 	if (wait_ready(500)) {
 		FATFS_DEBUG_SEND_USART("select: OK");
@@ -149,7 +170,7 @@ static int rcvr_datablock (	/* 1:OK, 0:Error */
 	
 	DELAY_SetTime2(200);
 	do {							// Wait for DataStart token in timeout of 200ms 
-		token = SPI_Send(FATFS_SPI, 0xFF);
+		token = xchg_spi(0xFF);
 		// This loop will take a time. Insert rot_rdq() here for multitask envilonment. 
 	} while ((token == 0xFF) && DELAY_Time2());
 	if (token != 0xFE) {
@@ -158,7 +179,7 @@ static int rcvr_datablock (	/* 1:OK, 0:Error */
 	}
 
 	rcvr_spi_multi(buff, btr);		// Store trailing data to the buffer 
-	SPI_Send(FATFS_SPI, 0xFF); SPI_Send(FATFS_SPI, 0xFF);			// Discard CRC 
+	xchg_spi(0xFF); xchg_spi(0xFF);			// Discard CRC
 	return 1;						// Function succeeded 
 }
 
@@ -184,12 +205,12 @@ static int xmit_datablock (	/* 1:OK, 0:Failed */
 	}
 	FATFS_DEBUG_SEND_USART("xmit_datablock: ready");
 
-	SPI_Send(FATFS_SPI, token);					/* Send token */
+	xchg_spi(token);					/* Send token */
 	if (token != 0xFD) {				/* Send data if token is other than StopTran */
 		xmit_spi_multi(buff, 512);		/* Data */
-		SPI_Send(FATFS_SPI, 0xFF); SPI_Send(FATFS_SPI, 0xFF);	/* Dummy CRC */
+		xchg_spi(0xFF); xchg_spi(0xFF);	/* Dummy CRC */
 
-		resp = SPI_Send(FATFS_SPI, 0xFF);				/* Receive data resp */
+		resp = xchg_spi(0xFF);				/* Receive data resp */
 		if ((resp & 0x1F) != 0x05)		/* Function fails if the data packet was not accepted */
 			return 0;
 	}
@@ -222,24 +243,24 @@ static BYTE send_cmd (		/* Return value: R1 resp (bit7==1:Failed to send) */
 	}
 
 	/* Send command packet */
-	SPI_Send(FATFS_SPI, 0x40 | cmd);				/* Start + command index */
-	SPI_Send(FATFS_SPI, (BYTE)(arg >> 24));		/* Argument[31..24] */
-	SPI_Send(FATFS_SPI, (BYTE)(arg >> 16));		/* Argument[23..16] */
-	SPI_Send(FATFS_SPI, (BYTE)(arg >> 8));		/* Argument[15..8] */
-	SPI_Send(FATFS_SPI, (BYTE)arg);				/* Argument[7..0] */
+	xchg_spi(0x40 | cmd);				/* Start + command index */
+	xchg_spi((BYTE)(arg >> 24));		/* Argument[31..24] */
+	xchg_spi((BYTE)(arg >> 16));		/* Argument[23..16] */
+	xchg_spi((BYTE)(arg >> 8));		/* Argument[15..8] */
+	xchg_spi((BYTE)arg);				/* Argument[7..0] */
 	n = 0x01;										/* Dummy CRC + Stop */
 	if (cmd == CMD0) n = 0x95;						/* Valid CRC for CMD0(0) */
 	if (cmd == CMD8) n = 0x87;						/* Valid CRC for CMD8(0x1AA) */
-	SPI_Send(FATFS_SPI, n);
+	xchg_spi(n);
 
 	/* Receive command resp */
 	if (cmd == CMD12) {
-		SPI_Send(FATFS_SPI, 0xFF);					/* Diacard following one byte when CMD12 */
+		xchg_spi(0xFF);					/* Diacard following one byte when CMD12 */
 	}
 	
 	n = 10;								/* Wait for response (10 bytes max) */
 	do {
-		res = SPI_Send(FATFS_SPI, 0xFF);
+		res = xchg_spi(0xFF);
 	} while ((res & 0x80) && --n);
 
 	return res;							/* Return received response */
@@ -305,20 +326,20 @@ DSTATUS FATFS_SD_disk_initialize (void) {
 		return STA_NODISK;
 	}
 	for (n = 10; n; n--) {
-		SPI_Send(FATFS_SPI, 0xFF);
+		xchg_spi(0xFF);
 	}
 	ty = 0;
 	if (send_cmd(CMD0, 0) == 1) {				/* Put the card SPI/Idle state */
 		DELAY_SetTime2(1000);				/* Initialization timeout = 1 sec */
 		if (send_cmd(CMD8, 0x1AA) == 1) {	/* SDv2? */
 			for (n = 0; n < 4; n++) {
-				ocr[n] = SPI_Send(FATFS_SPI, 0xFF);	/* Get 32 bit return value of R7 resp */
+				ocr[n] = xchg_spi(0xFF);	/* Get 32 bit return value of R7 resp */
 			}
 			if (ocr[2] == 0x01 && ocr[3] == 0xAA) {				/* Is the card supports vcc of 2.7-3.6V? */
 				while (DELAY_Time2() && send_cmd(ACMD41, 1UL << 30)) ;	/* Wait for end of initialization with ACMD41(HCS) */
 				if (DELAY_Time2() && send_cmd(CMD58, 0) == 0) {		/* Check CCS bit in the OCR */
 					for (n = 0; n < 4; n++) {
-						ocr[n] = SPI_Send(FATFS_SPI, 0xFF);
+						ocr[n] = xchg_spi(0xFF);
 					}
 					ty = (ocr[0] & 0x40) ? CT_SD2 | CT_BLOCK : CT_SD2;	/* Card id SDv2 */
 				}
@@ -519,9 +540,9 @@ DRESULT FATFS_SD_disk_ioctl (
 	case GET_BLOCK_SIZE :	/* Get erase block size in unit of sector (DWORD) */
 		if (FATFS_SD_CardType & CT_SD2) {	/* SDC ver 2.00 */
 			if (send_cmd(ACMD13, 0) == 0) {	/* Read SD status */
-				SPI_Send(FATFS_SPI, 0xFF);
+				xchg_spi(0xFF);
 				if (rcvr_datablock(csd, 16)) {				/* Read partial block */
-					for (n = 64 - 16; n; n--) SPI_Send(FATFS_SPI, 0xFF);	/* Purge trailing data */
+					for (n = 64 - 16; n; n--) xchg_spi(0xFF);	/* Purge trailing data */
 					*(DWORD*)buff = 16UL << (csd[10] >> 4);
 					res = RES_OK;
 				}

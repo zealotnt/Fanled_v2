@@ -24,21 +24,19 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "mtInclude.h"
+#include "../inc/mtVersion.h"
 #include "App/inc/SystemConfig.h"
-#include "Porting/inc/mtSPI.h"
-
-#include "Effects/inc/image_data.h"
-
-#include "Effects/inc/mtIncludeEffects.h"
 #include "App/tst/fanledTestApp.h"
+#include "Porting/inc/mtSPI.h"
+#include "Porting/inc/mtUart.h"
+#include "Effects/inc/image_data.h"
+#include "Effects/inc/mtIncludeEffects.h"
 #include "Bootloader/inc/driverBootloader.h"
 #include "RTC/inc/mtRtc.h"
-#include "Porting/inc/mtUart.h"
+#include "UartHandler/inc/mtSerialCmdParser.h"
 
-#include "UartHandler/inc/mtUartHandler.h"
-#include "UartHandler/inc/mtCcidHandler.h"
-
-//#include "ff.h"
+#include "ff.h"
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
@@ -52,31 +50,16 @@
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
 /******************************************************************************/
-
+extern serialQueuePayload_t gQueuePayload;
 
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
 // SD Card specific Variables
-//FATFS gFatFs;
-//DIR mydir;
-//FILINFO myfno;
+FATFS gFatFs;
+DIR mydir;
+FILINFO myfno;
 MediaPlayer MyPlayer;
-
-// Display Control Variables
-uint8_t gCircleCount;
-uint8_t gTimer_Overload_Count;
-uint16_t gCurrent_point;
-uint8_t gDisplayEnable = 0;
-volatile uint8_t g_SPI_DMA_Flag = 0;
-volatile uint32_t gtickDelay;
-volatile uint32_t CCR1_Val = 30000;
-volatile uint32_t CCR2_Val = 30000;
-
-// Display Buffer
-uint8_t ledPanel[36*4];
-Display_Type Fanled_Display;
-
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -87,51 +70,43 @@ Display_Type Fanled_Display;
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
 /******************************************************************************/
 void sd_first_step(void);
-void init_sreenbuffer(uint16_t *value, uint16_t val1, uint16_t val2);
 
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
 /******************************************************************************/
-void init_sreenbuffer(uint16_t *value, uint16_t val1, uint16_t val2)
-{
-	uint8_t i, j;
-	for(i = 0; i < 32; i++)
-	{
-		for(j = val1; j < val2; j++)
-		{
-			Fanled_Display.dis[j][i] = value[i];
-		}
-	}
-}
-
 void sd_first_step(void)
 {
-//	FRESULT res;
-//	uint8_t count = 0;
-//	mtDelayMS(5);
-//	while((res!= FR_OK) && (count < 10)) {res = f_mount(&gFatFs, "0:", 1); count++;}
-//	if (f_mount(&gFatFs, "0:", 1) == FR_OK)
-//	{
-//	do
-//	{
-//		res = f_opendir(&mydir, "0:\\");
-//		mtDelayMS(5);
-//	}
-//	while(res != FR_OK);
-//	do
-//	{
-//		res = f_readdir(&mydir, &myfno);
-//		if (myfno.fname[0]) MyPlayer.NumOfItem++;
-//	}
-//	while(myfno.fname[0]);
-//	}
-//	MyPlayer.ChoiceNow = 0;
+	FRESULT res = FR_DISK_ERR;
+	uint8_t count = 0;
+	mtDelayMS(5);
+	while ((res != FR_OK) && (count < 10))
+	{
+		res = f_mount(&gFatFs, "0:", 1);
+		count++;
+	}
+
+	if (f_mount(&gFatFs, "0:", 1) == FR_OK)
+	{
+		do
+		{
+			res = f_opendir(&mydir, "0:\\");
+			mtDelayMS(5);
+		}
+		while (res != FR_OK);
+
+		do
+		{
+			res = f_readdir(&mydir, &myfno);
+			if (myfno.fname[0]) { MyPlayer.NumOfItem++; }
+		}
+		while (myfno.fname[0]);
+	}
+	MyPlayer.ChoiceNow = 0;
 }
 
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-#define FANLED_BOOTLOADER
 void assert_failed(uint8_t* file, uint32_t line)
 {
 	/* Infinite loop */
@@ -143,19 +118,31 @@ int main(void)
 {
 #if defined(FANLED_BOOTLOADER)
 	initBootloader();
-	uart_write_str("Bootloader !!!\r\n");
-	mtBlInitFlash();
-	while(1)
+	DEBUG_INFO("Bootloader %s \r\n", FIRMWARE_VERSION_FULL);
+	mtBootloaderInitFlash();
+	DEBUG_INFO("Jump to app \r\n");
+	mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE);
+	while (1)
 	{
-		if (uart_buffer.state == CCID_UART_MSG_DONE)
+		if (True == gQueuePayload.Done)
 		{
-			checkCcidUARTQueue(&uart_buffer.state, &uart_buffer.queue[uart_buffer.start_of_msg], uart_buffer.msg_length + 10);
-			mtUartResetQueue();
+			mtSerialCmdDataLinkHandlingThread(gQueuePayload);
+			gQueuePayload.Done = False;
 		}
 	}
-	mtBlJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE); //FLASH_BOOTLOADER_SIZE
+	mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE); //FLASH_BOOTLOADER_SIZE
 
 #elif defined(FANLED_APP)
+	initBootloader();
+	DEBUG_INFO("App %s \r\n", FIRMWARE_VERSION_FULL);
+	while (1)
+	{
+		if (True == gQueuePayload.Done)
+		{
+			mtSerialCmdDataLinkHandlingThread(gQueuePayload);
+			gQueuePayload.Done = False;
+		}
+	}
 //	mainTestColor();
 //	mainTestHC05();
 //	mainTestRTC();
@@ -166,8 +153,8 @@ int main(void)
 
 #endif
 
-	BOOTLOADER_DEBUG_PRINT("Application !!!\r\n");	
-	while(1);
+	DEBUG_INFO("Application !!!\r\n");
+	while (1);
 	return 0;
 }
 

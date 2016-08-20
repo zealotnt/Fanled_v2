@@ -171,7 +171,7 @@ uint8_t tick_expire_ms(uint32_t *last_tick, uint32_t time_ms)
 	uint32_t tickms, end;
 	end = tick_get();
 	tickms = tick_delta_time_ms(*last_tick, end);
-	if (tickms < time_ms) return 0;
+	if (tickms < time_ms) { return 0; }
 	*last_tick = tick_get();
 	return 1;
 }
@@ -182,7 +182,7 @@ uint8_t tick_expire_us(uint32_t *last_tick, uint32_t time_us)
 	time_us *= 72;
 	end = systick_get_value();
 	tickus = tick_delta_time_tick(end, *last_tick);
-	if (tickus < time_us) return 0;
+	if (tickus < time_us) { return 0; }
 	*last_tick = systick_get_value();
 	return 1;
 }
@@ -193,7 +193,7 @@ uint8_t tick_expire_us(uint32_t *last_tick, uint32_t time_us)
 */
 void sys_tick_handler(void)
 {
-  if (g_ulSysTickCount == 0)
+	if (g_ulSysTickCount == 0)
 	{
 		/* Clear Cycle Counter*/
 		SCS_DWT_CYCCNT = 0;

@@ -1,0 +1,18 @@
+/*
+ * mtVersion.c
+ *
+ *  Created on: Aug 20, 2016
+ *      Author: zealot
+ */
+#include "../inc/mtVersion.h"
+
+#define FIRMWARE_DATE	__DATE__
+#define FIRMWARE_TIME	__TIME__
+
+#define STRINGIZE2(s) #s
+#define STRINGIZE(s) STRINGIZE2(s)
+
+#define FIRMWARE_VER	"V" STRINGIZE(FIRMWARE_VERSION_MAJOR) "." STRINGIZE(FIRMWARE_VERSION_MINOR) "." STRINGIZE(FIRMWARE_REVISION)
+#define FIRMWARE_VER_FULL	FIRMWARE_VER" "FIRMWARE_DATE" "FIRMWARE_TIME
+
+char FIRMWARE_VERSION_FULL[] = FIRMWARE_VER_FULL;

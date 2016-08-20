@@ -44,24 +44,7 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-//----- SPI2 options start -------
-//Options can be overwriten in defines.h file
-#ifndef SPI2_PRESCALER
-#define SPI2_PRESCALER	SPI_BaudRatePrescaler_4
-#endif
-//Specify datasize
-#ifndef SPI2_DATASIZE
-#define SPI2_DATASIZE 	SPI_DataSize_8b
-#endif
-//Specify which bit is first
-#ifndef SPI2_FIRSTBIT
-#define SPI2_FIRSTBIT 	SPI_FirstBit_MSB
-#endif
-//Mode, master or slave
-#ifndef SPI2_MASTERSLAVE
-#define SPI2_MASTERSLAVE SPI_Mode_Master
-#endif
-//----- SPI2 options end -------
+
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */

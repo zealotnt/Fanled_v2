@@ -32,6 +32,7 @@
 #include "stm32f10x_exti.h"
 
 #include "App/inc/mtAppDef.h"
+#include "Effects/inc/mtFanledDisplay.h"
 #include "Utility/inc/mtDelay.h"
 #include "Porting/inc/mtSPI.h"
 #include "App/inc/SystemConfig.h"
@@ -45,13 +46,7 @@
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
 /******************************************************************************/
-#if (OPENCM3)
-#define mtHallSensorHandler							exti3_isr
-#define mtSystickHandler							SysTick_Handler
-#define mtFanledTimerHandler						TIM2_IRQHandler
-#else
 
-#endif
 
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
@@ -61,28 +56,12 @@
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-extern volatile uint32_t gtickDelay;
-extern volatile uint8_t g_SPI_DMA_Flag;
 extern Display_Type Fanled_Display;
-extern uint8_t ledPanel[36*4];
-extern uint16_t led_red[32];
-extern const uint16_t led_black[32];
-
-extern volatile uint32_t CCR1_Val;
-extern volatile uint32_t CCR2_Val;
-extern uint8_t gCircleCount;
-extern uint8_t gTimer_Overload_Count;
-extern uint16_t gCurrent_point;
-extern uint8_t gDisplayEnable;
-
-
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-static volatile uint32_t Timing_Count;
-static volatile uint32_t Scroll_Count;
-static uint16_t gtime_capture;
+
 
 /******************************************************************************/
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
@@ -97,20 +76,28 @@ static uint16_t gtime_capture;
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-void SysTick_Handler(void)
+void mtSystickHandler(void)
 {
-	if (gtickDelay != 0) gtickDelay--;
+#if (FANLED_APP)
+	static volatile uint32_t Timing_Count = 0;
+	static volatile uint32_t Scroll_Count = 0;
+
 	TimingDelay_Decrement();
-	if(Scroll_Count > Fanled_Display.scroll_times && Fanled_Display.enable_flag == SCROLL_ENABLE_DISPLAY)
+
+	if (Scroll_Count > Fanled_Display.scroll_times && Fanled_Display.enable_flag == SCROLL_ENABLE_DISPLAY)
 	{
 		Fanled_Display.move_flag = 1;
 		Scroll_Count = 0;
 	}
-	else Scroll_Count++;		
-	Timing_Count++;
-	if(Timing_Count > Fanled_Display.animation_change_speed)
+	else
 	{
-		if(Fanled_Display.animation == MAX_ANIMATION)
+		Scroll_Count++;
+	}
+
+	Timing_Count++;
+	if (Timing_Count > Fanled_Display.animation_change_speed)
+	{
+		if (Fanled_Display.animation == MAX_ANIMATION)
 		{
 			Fanled_Display.animation = 1;
 		}
@@ -120,102 +107,20 @@ void SysTick_Handler(void)
 		}
 		Fanled_Display.animation_change_speed += ANIMATION_CHANGE_SPEED;
 	}
-	if(Timing_Count > Fanled_Display.sharingan_count)
+
+	if (Timing_Count > Fanled_Display.sharingan_count)
 	{
 		Fanled_Display.sharingan_flag = ENABLE;
 		Fanled_Display.sharingan_count += SHARINGAN_CHANGE_SPEED;
 	}
-	if(Timing_Count > Fanled_Display.misc_count)
+
+	if (Timing_Count > Fanled_Display.misc_count)
 	{
 		Fanled_Display.misc_flag = ENABLE;
 		Fanled_Display.misc_count += MISC_CHANGE_SPEED;
 	}
-}
-
-void DMA1_Channel3_IRQHandler(void)
-{
-#if STD_PERIPH_LIB
-	if (DMA_GetFlagStatus(DMA1_FLAG_TC3) != RESET)
-	{
-		g_SPI_DMA_Flag = 1;
-		DMA_ClearFlag(DMA1_FLAG_TC3);
-		DMA_Cmd(DMA1_Channel3, DISABLE);   
-	}
 #endif
-}
-
-void mtHallSensorIrq(void)
-{
-#if STD_PERIPH_LIB
-	TIM_Cmd(TIM2, DISABLE);
-	gtime_capture = TIM_GetCounter(TIM2);
-	CCR1_Val = (gTimer_Overload_Count*65536 + gtime_capture) / FANLED_RESOLUTION;
-	CCR2_Val = CCR1_Val/2;
-	
-	gCurrent_point = 0;
- 	gTimer_Overload_Count = 0;
-	gDisplayEnable = 1;
-	
-	// reset the timer
-	TIM_SetCounter(TIM2, 0);
-	TIM_SetCompare1(TIM2, CCR1_Val);
-	TIM_SetCompare2(TIM2, CCR2_Val);
-	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-	TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
-	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-	TIM_ITConfig(TIM2, TIM_IT_CC1 | TIM_IT_CC2, ENABLE);
-	TIM_Cmd(TIM2, ENABLE);
-	EXTI_ClearITPendingBit(EXTI_Line3);
-#endif
-}
-
-void mtFanledTimerHandler(void)
-{
-#if STD_PERIPH_LIB
-	if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
-	{
-		//	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-		TIM2->SR = (uint16_t)~TIM_IT_CC1;
-		if(gCurrent_point < FANLED_RESOLUTION)
-		{
-			//	capture = TIM_GetCapture1(TIM2);
-			gtime_capture = TIM2->CCR1;
-			
-			//	TIM_SetCompare1(TIM2, capture + CCR1_Val);
-			TIM2->CCR1 = gtime_capture + CCR1_Val;
-			
-			//	TIM_SetCompare2(TIM2, capture + CCR2_Val);
-			TIM2->CCR2 = gtime_capture + CCR2_Val;
-			
-			//	TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
-			TIM2->DIER |= TIM_IT_CC2;
-			gDisplayEnable = 1;
-			gCurrent_point++;
-		}
-		else
-		{
-			//	TIM_ITConfig(TIM2, TIM_IT_CC1 | TIM_IT_CC2, DISABLE);
-			TIM2->DIER &= (uint16_t)~(TIM_IT_CC1 | TIM_IT_CC2);
-		}
-	}
-	//It's time to turn off leds
-	else if (TIM_GetITStatus(TIM2, TIM_IT_CC2) != RESET)
-	{
-		//	TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
-		TIM2->SR = (uint16_t)~TIM_IT_CC2;
-		
-		//	TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
-		TIM2->DIER &= (uint16_t)~TIM_IT_CC2;
-		LED_BLANK();
-	}
-	// overflow timer
-	else if(TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
-	{
-		// TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-		TIM2->SR = (uint16_t)~TIM_IT_Update;
-		gTimer_Overload_Count++;
-	}
-#endif
+	mtDelayClockTick();
 }
 
 /******************************************************************************/
@@ -237,10 +142,10 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
-  /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Hard Fault exception occurs */
+	while (1)
+	{
+	}
 }
 
 /**
@@ -250,10 +155,10 @@ void HardFault_Handler(void)
   */
 void MemManage_Handler(void)
 {
-  /* Go to infinite loop when Memory Manage exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Memory Manage exception occurs */
+	while (1)
+	{
+	}
 }
 
 /**
@@ -263,10 +168,10 @@ void MemManage_Handler(void)
   */
 void BusFault_Handler(void)
 {
-  /* Go to infinite loop when Bus Fault exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Bus Fault exception occurs */
+	while (1)
+	{
+	}
 }
 
 /**
@@ -276,10 +181,10 @@ void BusFault_Handler(void)
   */
 void UsageFault_Handler(void)
 {
-  /* Go to infinite loop when Usage Fault exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Usage Fault exception occurs */
+	while (1)
+	{
+	}
 }
 
 /**
@@ -307,7 +212,7 @@ void DebugMon_Handler(void)
   */
 void PendSV_Handler(void)
 {
-	
+
 }
 
 /******************************************************************************/

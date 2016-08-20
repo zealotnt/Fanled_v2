@@ -434,6 +434,53 @@ uint32_t __STREXW(uint32_t value, uint32_t *addr)
 #elif (defined (__GNUC__)) /*------------------ GNU Compiler ---------------------*/
 /* GNU gcc specific functions */
 
+unsigned int __attribute__((naked)) cpsid(void)
+{
+    unsigned int								result;
+
+    //
+    // Read PRIMASK and disable interrupts.
+    //
+    __asm__ __volatile__
+    (
+    	"mrs     r0, PRIMASK\n"
+    	"cpsid   i\n"
+    	"bx      lr\n"
+          : "=r" (result)
+    );
+
+    //
+    // The return is handled in the inline assembly, but the compiler will
+    // still complain if there is not an explicit return here (despite the fact
+    // that this does not result in any code being produced because of the
+    // naked attribute).
+    //
+    return result;
+}
+
+unsigned int __attribute__((naked)) cpsie(void)
+{
+    unsigned int								result;
+
+    //
+    // Read PRIMASK and enable interrupts.
+    //
+    __asm__ __volatile__
+    (
+    	"mrs     r0, PRIMASK\n"
+    	"cpsie   i\n"
+    	"bx      lr\n"
+          : "=r" (result)
+    );
+
+    //
+    // The return is handled in the inline assembly, but the compiler will
+    // still complain if there is not an explicit return here (despite the fact
+    // that this does not result in any code being produced because of the
+    // naked attribute).
+    //
+    return result;
+}
 /**
  * @brief  Return the Process Stack Pointer
  *

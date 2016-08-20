@@ -38,7 +38,7 @@ extern "C"
 
 #define MT_MACRO_ABS( __x ) (((__x) > 0) ? (__x) : -(__x))
 
-	/* The value __x or the bound __y or __z if outside them */
+/* The value __x or the bound __y or __z if outside them */
 #define MT_MACRO_LIMIT( __x, __y, __z ) MAX( MIN( (__x), MAX( (__y), (__z) )), MIN( (__y), (__z) ))
 
 #define MT_ASSERT(__x, __y) {while(__x == __y);}

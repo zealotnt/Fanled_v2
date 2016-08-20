@@ -25,8 +25,9 @@
 #include <stm32f10x_flash.h>
 
 #include "mtInclude.h"
-#include "../Bootloader/inc/driverBootloader.h"
+#include "../inc/driverBootloader.h"
 
+#pragma GCC optimize("O0")
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
@@ -36,10 +37,6 @@
 #else
 #	define FLASH_PAGE_SIZE    ((uint16_t)0x400)
 #endif
-
-/* Define Application Address Area */
-#define BANK1_WRITE_START_ADDR  ((uint32_t)FLASH_APP_START_ADDRESS)
-#define BANK1_WRITE_END_ADDR    ((uint32_t)FLASH_APP_END_ADDRESS) ///< BANK1_WRITE_START_ADDR + ProgramSize
 
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
@@ -74,62 +71,73 @@ typedef void(*pFunction)(void);
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-void mtBlInitFlash(void)
+void mtBootloaderInitFlash(void)
 {
-#if STD_PERIPH_LIB
 	/* Unlock the Flash Bank1 Program Erase controller */
 	FLASH_Unlock();
-	
+
 	/* Clear All pending flags */
 	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
-#endif
 }
 
-void mtBlFlashWrite(uint32_t address, uint32_t data)
+mtErrorCode_t mtBootloaderFlashWrite(uint32_t address, uint32_t data)
 {
-#if STD_PERIPH_LIB
-	FLASH_ProgramWord(address, data);
-#endif
+	if (FLASH_COMPLETE != FLASH_ProgramWord(address, data))
+	{
+		return MT_ERROR;
+	}
+	return MT_SUCCESS;
 }
 
+mtErrorCode_t mtBootloaderFlashWriteBuff(uint32_t address, uint32_t buff[], uint32_t len)
+{
+	while(len)
+	{
+		if (MT_SUCCESS != mtBootloaderFlashWrite(address + len * 4, buff[len]))
+		{
+			return MT_ERROR;
+		}
+		len --;
+	}
+	return MT_SUCCESS;
+}
 /**
-  * @brief  Jump to a given address and execute it 
+  * @brief  Jump to a given address and execute it
   * @param  None
   * @retval define jump address
   */
-void mtBlJumpToApp(uint32_t appOffset, uint32_t vtorOffset)
+void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset)
 {
-#if STD_PERIPH_LIB
 	/* Jump Parameters */
-	pFunction Jump_To_Application;	
+	pFunction Jump_To_Application;
 	uint32_t JumpAddress;
-	
-	/* TODO: Should disable all IRQ */
-	
+
+	/* Disable all IRQ */
+	cpsid();
+
 	/* Set system control register SCR->VTOR  */
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, vtorOffset);
-	
+
 	JumpAddress = *(uint32_t*) (appOffset + 4);
 	Jump_To_Application = (pFunction) JumpAddress;
 	__set_MSP(*(uint32_t*) appOffset);
 	Jump_To_Application();
-#endif
 }
 
-void mtBlEraseAppFw(void)
+void mtBootloaderEraseAppFw(void)
 {
 	volatile FLASH_Status FLASHStatus = FLASH_COMPLETE;
-	uint32_t EraseCounter = 0x00, Address = 0x00, addr_data = 0x00;
+	uint32_t EraseCounter = 0x00;
 	uint32_t NbrOfPage = 0x00;
-	
+
 	/* Define the number of page to be erased */
-	NbrOfPage = (BANK1_WRITE_END_ADDR - BANK1_WRITE_START_ADDR) / FLASH_PAGE_SIZE;
-	
+	NbrOfPage = (FLASH_APP_END_ADDRESS - FLASH_APP_START_ADDRESS) / FLASH_PAGE_SIZE;
+
 	/* Erase the FLASH pages */
-	for(EraseCounter = 0; (EraseCounter < NbrOfPage) && (FLASHStatus == FLASH_COMPLETE); EraseCounter++)
+	for (EraseCounter = 0; (EraseCounter < NbrOfPage) && (FLASHStatus == FLASH_COMPLETE); EraseCounter++)
 	{
-		BOOTLOADER_DEBUG_PRINT("Erasing page from address: 0x%x\r\n", BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * EraseCounter));
-		FLASHStatus = FLASH_ErasePage(BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * EraseCounter));
+		DEBUG_INFO("Erasing page from address: 0x%lx\r\n", FLASH_APP_START_ADDRESS + (FLASH_PAGE_SIZE * EraseCounter));
+		FLASHStatus = FLASH_ErasePage(FLASH_APP_START_ADDRESS + (FLASH_PAGE_SIZE * EraseCounter));
 	}
 }
 
@@ -146,29 +154,30 @@ uint32_t retAppPage(uint32_t relativePage)
 	return (relativePage + offset);
 }
 
-mtErrorCode_t testWriteDummyDataToFlash(uint32_t startPage)
+FLASH_Status testWriteDummyDataToFlash(uint32_t startPage)
 {
-	volatile FLASH_Status FLASHStatus = FLASH_COMPLETE;
+	volatile FLASH_Status FLASHStatus;
 	const uint32_t pattern[4] = {0x12345678, 0x98765432, 0xa5a51234, 0x5a5a4321};
 	uint32_t i;
 	uint32_t Address = 0;
 
-	if (startPage > (FLASH_TOTAL_SIZE/FLASH_PAGE_SIZE - 1) || (startPage < (FLASH_BOOTLOADER_SIZE/FLASH_PAGE_SIZE)))
+	if (startPage > (FLASH_TOTAL_SIZE / FLASH_PAGE_SIZE - 1) || (startPage < (FLASH_BOOTLOADER_SIZE / FLASH_PAGE_SIZE)))
 	{
-		BOOTLOADER_DEBUG_ERROR_NOTIFY("Invalid startPage number");
+		DEBUG_ERROR("Invalid startPage number");
 		return -1;
 	}
 
-	FLASHStatus = FLASH_ErasePage(BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * startPage));
-	Address = BANK1_WRITE_START_ADDR + (FLASH_PAGE_SIZE * startPage);
+	FLASHStatus = FLASH_ErasePage(FLASH_APP_START_ADDRESS + (FLASH_PAGE_SIZE * startPage));
+	Address = FLASH_APP_START_ADDRESS + (FLASH_PAGE_SIZE * startPage);
 
-	for (i = 0; i <  FLASH_PAGE_SIZE/4; i++)
+	for (i = 0; i <  FLASH_PAGE_SIZE / 4; i++)
 	{
-		FLASHStatus = FLASH_ProgramWord(Address, pattern[i%4]);
+		FLASHStatus = FLASH_ProgramWord(Address, pattern[i % 4]);
 		Address += 4;
 	}
 
-	return MT_SUCCESS;
+	return FLASHStatus;
 }
 
+#pragma GCC reset_options
 /************************* End of File ****************************************/

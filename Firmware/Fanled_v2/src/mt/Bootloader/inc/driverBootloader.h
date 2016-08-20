@@ -39,8 +39,8 @@
 
 /* User provided definition */
 #define FLASH_START_ADDRESS		0x08000000
-#define FLASH_TOTAL_SIZE		(0x20000)
-#define FLASH_BOOTLOADER_SIZE	(0xC000)
+#define FLASH_TOTAL_SIZE		(0x10000)		/* 64KB flash size */
+#define FLASH_BOOTLOADER_SIZE	(0x8000)		/* 20KB Bootloader */
 
 #define FLASH_APP_START_ADDRESS	(FLASH_START_ADDRESS + FLASH_BOOTLOADER_SIZE)
 #define FLASH_APP_END_ADDRESS	(FLASH_APP_START_ADDRESS + FLASH_TOTAL_SIZE - FLASH_BOOTLOADER_SIZE)
@@ -63,13 +63,14 @@
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-void mtBlInitFlash(void);
-void mtBlFlashWrite(uint32_t address, uint32_t data);
-void mtBlJumpToApp(uint32_t appOffset, uint32_t vtorOffset);
-void mtBlEraseAppFw(void);
+void mtBootloaderInitFlash(void);
+mtErrorCode_t mtBootloaderFlashWrite(uint32_t address, uint32_t data);
+mtErrorCode_t mtBootloaderFlashWriteBuff(uint32_t address, uint32_t buff[], uint32_t len);
+void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset);
+void mtBootloaderEraseAppFw(void);
 uint32_t retAppPage(uint32_t relativePage);
 
-int testWriteDummyDataToFlash(uint32_t startPage);
+FLASH_Status testWriteDummyDataToFlash(uint32_t startPage);
 
 
 #endif /* TEMPLATE_H_ */

@@ -55,14 +55,20 @@
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-void mtSysTickInit(void);
-void mtRCCInit(void);
-void mtDelayMS(uint32_t time_delay);
-void mtHallSensorInit(void);
-void mtHallSensorDeinit(void);
-void mtTimerFanledDisplayInit(void);
+void blankAllLed(void);
 
-void mtHC05KeyPinInit(void);
+void initBootloader();
+void initAll();
+
+void mtSysTickInit();
+void mtRCCInit();
+void mtDelayMS(uint32_t time_delay);
+void mtHallSensorInit();
+void mtHallSensorDeinit();
+void mtTimerFanledDisplayInit();
+void mtTimerFanledDisplayDisable();
+
+void mtHC05KeyPinInit();
 void mtBluetoothUSARTInit(bool config);
 void mtBluetoothUSARTChangeBaud(uint32_t baudrate);
 

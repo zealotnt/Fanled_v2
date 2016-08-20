@@ -27,7 +27,13 @@
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
-    
+.extern mtFanledSpiTxCmplt
+.extern mtHallSensorHandler
+.extern mtSystickHandler
+.extern mtFanledTimerHandler
+.extern mtBluetoothInterbyteTimerHandler
+.extern mtBluetoothRcvHandler
+
   .syntax unified
 	.cpu cortex-m3
 	.fpu softvfp
@@ -91,7 +97,8 @@ LoopFillZerobss:
 	cmp	r2, r3
 	bcc	FillZerobss
 /* Call the clock system intitialization function.*/
-  bl  SystemInit 	
+	bl  SystemInit
+	bl  cpsie
 /* Call the application's entry point.*/
 	bl	main
 	bx	lr    
@@ -137,7 +144,7 @@ g_pfnVectors:
 	.word	DebugMon_Handler
 	.word	0
 	.word	PendSV_Handler
-	.word	SysTick_Handler
+	.word	mtSystickHandler
 	.word	WWDG_IRQHandler
 	.word	PVD_IRQHandler
 	.word	TAMPER_IRQHandler
@@ -147,11 +154,11 @@ g_pfnVectors:
 	.word	EXTI0_IRQHandler
 	.word	EXTI1_IRQHandler
 	.word	EXTI2_IRQHandler
-	.word	EXTI3_IRQHandler
+	.word	mtHallSensorHandler
 	.word	EXTI4_IRQHandler
 	.word	DMA1_Channel1_IRQHandler
 	.word	DMA1_Channel2_IRQHandler
-	.word	DMA1_Channel3_IRQHandler
+	.word	mtFanledSpiTxCmplt
 	.word	DMA1_Channel4_IRQHandler
 	.word	DMA1_Channel5_IRQHandler
 	.word	DMA1_Channel6_IRQHandler
@@ -166,8 +173,8 @@ g_pfnVectors:
 	.word	TIM1_UP_IRQHandler
 	.word	TIM1_TRG_COM_IRQHandler
 	.word	TIM1_CC_IRQHandler
-	.word	TIM2_IRQHandler
-	.word	TIM3_IRQHandler
+	.word	mtFanledTimerHandler
+	.word	mtBluetoothInterbyteTimerHandler
 	.word	TIM4_IRQHandler
 	.word	I2C1_EV_IRQHandler
 	.word	I2C1_ER_IRQHandler
@@ -175,7 +182,7 @@ g_pfnVectors:
 	.word	I2C2_ER_IRQHandler
 	.word	SPI1_IRQHandler
 	.word	SPI2_IRQHandler
-	.word	USART1_IRQHandler
+	.word	mtBluetoothRcvHandler
 	.word	USART2_IRQHandler
 	.word	USART3_IRQHandler
 	.word	EXTI15_10_IRQHandler

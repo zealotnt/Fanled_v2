@@ -21,8 +21,15 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "RTC/inc/mtRtcDriver.h"
-#include "RTC/inc/mtRtc.h"
+#include <time.h>
+#include <misc.h>
+#include <stm32f10x_rtc.h>
+#include <stm32f10x_rcc.h>
+#include <stm32f10x_bkp.h>
+#include <stm32f10x_pwr.h>
+
+#include "../inc/mtRtcDriver.h"
+#include "../inc/mtRtc.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -34,7 +41,7 @@
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
 /******************************************************************************/
-typedef struct tm time_t;
+//typedef struct tm time_t;
 
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
@@ -75,7 +82,6 @@ uint32_t stmWaitForSynchro(void);
 uint32_t stmWaitForSynchro(void)
 {
 	uint32_t del = 1000000;
-#if STD_PERIPH_LIB
 	/* Clear RSF flag */
 	RTC->CRL &= (uint16_t)~RTC_FLAG_RSF;
 	/* Loop until RSF flag is set */
@@ -84,9 +90,6 @@ uint32_t stmWaitForSynchro(void)
 		del--;
 	}
 	return del;
-#else
-	return 0;
-#endif
 }
 
 /*******************************************************************************
@@ -98,7 +101,6 @@ uint32_t stmWaitForSynchro(void)
 *******************************************************************************/
 bool stmConfigureRTC(uint32_t countval)
 {
-#if STD_PERIPH_LIB
 	uint32_t nRTCdel;
 
 	/* Enable PWR and BKP clocks */
@@ -114,13 +116,17 @@ bool stmConfigureRTC(uint32_t countval)
 	RCC_LSEConfig(RCC_LSE_ON);
 	/* Wait till LSE is ready */
 	while ((RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) && nRTCdel)
+	{
 		nRTCdel--;
+	}
 #else
 	/* Enable the LSI OSC */
 	RCC_LSICmd(ENABLE);
 	/* Wait till LSI is ready */
 	while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) && nRTCdel)
+	{
 		nRTCdel--;
+	}
 #endif
 
 	if (nRTCdel)
@@ -137,15 +143,21 @@ bool stmConfigureRTC(uint32_t countval)
 		RCC_RTCCLKCmd(ENABLE);
 		/* Wait for RTC registers synchronization */
 		if (stmWaitForSynchro() == 0)
+		{
 			return false;
+		}
 		/* Wait until last write operation on RTC registers has finished */
 		if (stmWaitForLastTask() == 0)
+		{
 			return false;
+		}
 		/* Enable the RTC Second */
 		RTC_ITConfig(RTC_IT_SEC, ENABLE);
 		/* Wait until last write operation on RTC registers has finished */
 		if (stmWaitForLastTask() == 0)
+		{
 			return false;
+		}
 		/* Set RTC prescaler: set RTC period to 1sec */
 #ifdef  DEVICE_USE_EXTOSC_32KHZ
 		RTC_SetPrescaler(32767); /* RTC period = RTCCLK/RTC_PR = (32.768 KHz)/(32767+1) */
@@ -155,7 +167,9 @@ bool stmConfigureRTC(uint32_t countval)
 #endif
 		/* Wait until last write operation on RTC registers has finished */
 		if (stmWaitForLastTask() == 0)
+		{
 			return false;
+		}
 		/* Set time registers to 00:00:00; configuration done via gui */
 		if (BKP_ReadBackupRegister(BKP_DR1) != 0x5A5A)
 		{
@@ -164,15 +178,14 @@ bool stmConfigureRTC(uint32_t countval)
 
 		/* Wait until last write operation on RTC registers has finished */
 		if (stmWaitForLastTask() == 0)
+		{
 			return false;
+		}
 		/* Write RTC flag in backup register */
 		BKP_WriteBackupRegister(BKP_DR1, 0x5A5A);
 		return true;
 	}
 	return false;
-#else
-	return 0;
-#endif
 }
 
 
@@ -184,7 +197,6 @@ bool stmConfigureRTC(uint32_t countval)
 	*/
 uint32_t stmWaitForLastTask(void)
 {
-#if STD_PERIPH_LIB
 	uint32_t del = 1000000;
 
 	/* Loop until RTOFF flag is set */
@@ -193,9 +205,6 @@ uint32_t stmWaitForLastTask(void)
 		del--;
 	}
 	return del;
-#else
-	return 0;
-#endif
 }
 
 /*******************************************************************************
@@ -207,10 +216,8 @@ uint32_t stmWaitForLastTask(void)
 *******************************************************************************/
 bool stmInitRTC(void)
 {
-#if STD_PERIPH_LIB
-#if ABC
 	NVIC_InitTypeDef NVIC_InitStructure;
-	time_t tLocalTime;
+	struct tm tLocalTime;
 
 	/* Enable the RTC Interrupt */
 	NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQn;
@@ -260,22 +267,30 @@ bool stmInitRTC(void)
 			RCC_LSICmd(ENABLE);
 			/* Wait till LSI is ready */
 			while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) && nRTCdel)
+			{
 				nRTCdel--;
+			}
 			/* Select LSI as RTC Clock Source */
 			RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
 			/* Enable RTC Clock */
 			RCC_RTCCLKCmd(ENABLE);
 			/* Wait for RTC registers synchronization */
 			if (stmWaitForSynchro() == 0)
+			{
 				return false;
+			}
 			/* Wait until last write operation on RTC registers has finished */
 			if (stmWaitForLastTask() == 0)
+			{
 				return false;
+			}
 			/* Enable the RTC Second */
 			RTC_ITConfig(RTC_IT_SEC, ENABLE);
 			/* Wait until last write operation on RTC registers has finished */
 			if (stmWaitForLastTask() == 0)
+			{
 				return false;
+			}
 			/* Set RTC prescaler: set RTC period to 1sec */
 			RTC_SetPrescaler(40000);
 			return true;
@@ -293,16 +308,14 @@ bool stmInitRTC(void)
 	tLocalTime.tm_yday  = 9;  	/* days since January 1 (0,365)     */
 	tLocalTime.tm_isdst = 0;    /* Daylight Saving Time flag        */
 	/* RTC Configuration, reset everything and set the local time */
-	if (!PL_ConfigureRTC(mktime(&tLocalTime)))
+	if (!stmConfigureRTC(mktime(&tLocalTime)))
+	{
 		return false;
+	}
 
 	/* Clear reset flags */
 	RCC_ClearFlag();
 	return true;
-#endif
-#else
-	return 0;
-#endif
 }
 
 /*******************************************************************************
@@ -314,26 +327,22 @@ bool stmInitRTC(void)
 *******************************************************************************/
 void stmUpdate(void)
 {
-#if STD_PERIPH_LIB
-	uint32_t acttime;
-	time_t *pLocalTime;
+	time_t acttime;
+	struct tm *pLocalTime;
 
 	if (RTC_GetITStatus(RTC_IT_SEC) != RESET)
 	{
 		acttime = RTC_GetCounter();
 		pLocalTime = localtime(&acttime);
-#if ABC
 		sys_date.hh     = (uint8_t)pLocalTime->tm_hour;			/* hours since midnight (0,23)      */
 		sys_date.mm     = (uint8_t)pLocalTime->tm_min;			/* minutes after the hour (0,59)    */
 		sys_date.ss     = (uint8_t)pLocalTime->tm_sec;			/* seconds after the minute (0,61)  */
 		sys_date.year   = (uint16_t)pLocalTime->tm_year + 1900;	/* years since 1900                 */
 		sys_date.month  = (uint8_t)pLocalTime->tm_mon;			/* months since January (0,11)      */
 		sys_date.day    = (uint8_t)pLocalTime->tm_mday;			/* days since January 1 (0,365)     */
-#endif
 		/* Clear the RTC Second interrupt */
 		RTC_ClearITPendingBit(RTC_IT_SEC);
 	}
-#endif
 }
 
 /************************* End of File ****************************************/
