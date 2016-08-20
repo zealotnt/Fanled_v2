@@ -80,12 +80,16 @@ void uart_cmd_init(bool config)
 	USART_InitTypeDef USARTInitStructure;
 	GPIO_InitTypeDef GPIOInitStructure;
 
+	/* Enable clock */
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+
 	/* Configure GPIO Function */
+	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStructure.GPIO_Pin = GPIO_Pin_10; //<! PA10-Rx
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_IPU;
 	GPIO_Init(GPIOA, &GPIOInitStructure);
 	GPIOInitStructure.GPIO_Pin = GPIO_Pin_9; //<! PA9-TX
-	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_Init(GPIOA, &GPIOInitStructure);
 
@@ -151,17 +155,21 @@ void uart_dbg_init()
 	USART_InitTypeDef USARTInitStructure;
 	GPIO_InitTypeDef GPIOInitStructure;
 
+	/* Enable USART2 clocks */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+
 	/* Configure GPIO Function */
+	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStructure.GPIO_Pin = GPIO_Pin_3; //<! PA3-RX
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_IPU;
 	GPIO_Init(GPIOA, &GPIOInitStructure);
 	GPIOInitStructure.GPIO_Pin = GPIO_Pin_2; //<! PA2-TX
-	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_Init(GPIOA, &GPIOInitStructure);
 
 	/* Configure UART parameters */
-	USARTInitStructure.USART_BaudRate = 460800;
+	USARTInitStructure.USART_BaudRate = 115200;
 	USARTInitStructure.USART_WordLength = USART_WordLength_8b;
 	USARTInitStructure.USART_StopBits = USART_StopBits_1;
 	USARTInitStructure.USART_Parity =  USART_Parity_No;
@@ -224,8 +232,3 @@ int _read(int file, char *ptr, int len)
 }
 
 /************************* End of File ****************************************/
-
-
-
-
-

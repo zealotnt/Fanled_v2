@@ -25,6 +25,7 @@
 #include <stm32f10x_flash.h>
 #include <stm32f10x_bkp.h>
 #include <stm32f10x_pwr.h>
+#include <stm32f10x_rcc.h>
 
 #include "mtInclude.h"
 #include "../inc/driverBootloader.h"
@@ -80,6 +81,14 @@ typedef void(*pFunction)(void);
 /******************************************************************************/
 void mtBootloaderInitFlash(void)
 {
+	/* Enable PWR and BKP clocks */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR |
+	                       RCC_APB1Periph_BKP, ENABLE);
+
+	/* Allow access to BKP Domain */
+	PWR_BackupAccessCmd(ENABLE);
+	BKP_ClearFlag();
+
 	/* Unlock the Flash Bank1 Program Erase controller */
 	FLASH_Unlock();
 

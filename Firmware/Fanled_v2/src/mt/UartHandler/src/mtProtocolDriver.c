@@ -85,7 +85,6 @@ void mtInterByteTimer_Init(void)
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 , ENABLE);
-	RCC_PCLK1Config(RCC_HCLK_Div1);
 
 	/* Compute the prescaler value */
 	PrescalerValue = (uint16_t) (SystemCoreClock / 65535) - 1;

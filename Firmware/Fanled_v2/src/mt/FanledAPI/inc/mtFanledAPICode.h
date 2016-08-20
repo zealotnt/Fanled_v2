@@ -73,7 +73,13 @@ typedef enum
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
 /*****************************************************************************/
-
+#if (DEBUG)
+#define API_INFO(...)				printf(__VA_ARGS__)
+#define API_ERR(...)				do {printf(KRED KBOLD __VA_ARGS__ ); printf(KRESET "\r\n");} while(0);
+#else
+#define API_INFO(...)
+#define API_ERR(...)
+#endif
 
 /*****************************************************************************/
 /* DECLARATION OF VARIABLES (Only external global variables)                 */

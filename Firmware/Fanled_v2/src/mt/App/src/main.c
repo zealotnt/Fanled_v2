@@ -118,6 +118,7 @@ int main(void)
 {
 #if defined(FANLED_BOOTLOADER)
 	initBootloader();
+	uart_dbg_init();
 	DEBUG_INFO("Bootloader %s \r\n", FIRMWARE_VERSION_FULL);
 
 //	if (True != mtBootloaderCheckFwUpgardeRequest())

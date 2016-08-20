@@ -87,8 +87,8 @@ extern volatile uint32_t CCR2_Val;
 /******************************************************************************/
 void initBootloader(void)
 {
-	mtSysTickInit();
 	mtRCCInit();
+	mtSysTickInit();
 	mtFanledSPIInit();
 	bltInitModule(false);
 	mtInterByteTimer_Init();
@@ -169,19 +169,11 @@ void mtHallSensorDeinit(void)
 void mtRCCInit(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOA |
-	                        RCC_APB2Periph_GPIOB |
-	                        RCC_APB2Periph_GPIOC |
-	                        RCC_APB2Periph_AFIO |
-	                        RCC_APB2Periph_USART1 |
-	                        RCC_APB2Periph_SPI1 , ENABLE);
-	/* Enable PWR and BKP clocks */
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2 | RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 
-	/* Allow access to BKP Domain */
-	PWR_BackupAccessCmd(ENABLE);
-	BKP_ClearFlag();
+	RCC_PCLK1Config(RCC_HCLK_Div1);
+
+	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOC |
+	                        RCC_APB2Periph_AFIO, ENABLE);
 
 	//SD Card enable
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
@@ -195,7 +187,6 @@ void mtRCCInit(void)
 void mtBluetoothUSARTInit(bool config)
 {
 	uart_cmd_init(config);
-	uart_dbg_init();
 }
 
 void mtBluetoothUSARTChangeBaud(uint32_t baudrate)

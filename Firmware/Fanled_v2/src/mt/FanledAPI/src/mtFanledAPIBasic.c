@@ -24,6 +24,7 @@
 #include "mtInclude.h"
 #include "App/inc/mtVersion.h"
 #include "../inc/mtFanledAPICode.h"
+#include <string.h>
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -93,6 +94,8 @@ mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
 
 	/* Copy count value */
 	memcpy(&msgOut[2], &msgIn[2], 4);
+
+	API_INFO("Get packet num %d\r\n", (UInt16)*((UInt16 *)&msgIn[8]));
 
 	for (i = 6; i < *msgOutLen; i++)
 	{

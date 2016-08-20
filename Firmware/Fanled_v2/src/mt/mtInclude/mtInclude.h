@@ -18,6 +18,7 @@ extern "C"
 #include "mtErrors.h"
 #include "mtMacros.h"
 #include "mtCompileSwitch.h"
+#include "mtPrintfFormat.h"
 
 #ifdef __cplusplus
 }
