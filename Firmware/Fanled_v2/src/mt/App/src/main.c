@@ -50,7 +50,7 @@
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
 /******************************************************************************/
-extern serialQueuePayload_t gQueuePayload;
+
 
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
@@ -119,9 +119,13 @@ int main(void)
 #if defined(FANLED_BOOTLOADER)
 	initBootloader();
 	DEBUG_INFO("Bootloader %s \r\n", FIRMWARE_VERSION_FULL);
-	mtBootloaderInitFlash();
-	DEBUG_INFO("Jump to app \r\n");
-	mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE);
+
+//	if (True != mtBootloaderCheckFwUpgardeRequest())
+//	{
+//		DEBUG_INFO("Jump to app \r\n");
+//		mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE);
+//	}
+
 	while (1)
 	{
 		if (True == gQueuePayload.Done)

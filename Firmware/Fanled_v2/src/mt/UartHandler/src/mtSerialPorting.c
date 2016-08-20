@@ -54,7 +54,7 @@
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-extern serialQueuePayload_t gQueuePayload;
+
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -183,6 +183,7 @@ void mtBluetoothRcvHandler(void)
 
 	if (USART_GetITStatus(USART1, USART_IT_ORE) == SET)
 	{
+		bCharRev = USART_ReceiveData(USART1);
 		USART_ClearFlag(USART1, USART_IT_ORE);
 	}
 

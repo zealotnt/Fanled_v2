@@ -30,6 +30,7 @@
 #include "Bluetooth/inc/bluetooth.h"
 #include "UartHandler/inc/mtProtocolDriver.h"
 #include "RTC/inc/mtRtcDriver.h"
+#include "Bootloader/inc/driverBootloader.h"
 
 #include "misc.h"
 #include "stm32f10x.h"
@@ -40,6 +41,8 @@
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_usart.h"
 #include "stm32f10x_exti.h"
+#include "stm32f10x_pwr.h"
+#include "stm32f10x_bkp.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -89,6 +92,7 @@ void initBootloader(void)
 	mtFanledSPIInit();
 	bltInitModule(false);
 	mtInterByteTimer_Init();
+	mtBootloaderInitFlash();
 //	blankAllLed();
 //	mtTimerFanledDisplayInit();
 }
@@ -172,6 +176,12 @@ void mtRCCInit(void)
 	                        RCC_APB2Periph_AFIO |
 	                        RCC_APB2Periph_USART1 |
 	                        RCC_APB2Periph_SPI1 , ENABLE);
+	/* Enable PWR and BKP clocks */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2 | RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+
+	/* Allow access to BKP Domain */
+	PWR_BackupAccessCmd(ENABLE);
+	BKP_ClearFlag();
 
 	//SD Card enable
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
@@ -184,12 +194,13 @@ void mtRCCInit(void)
 
 void mtBluetoothUSARTInit(bool config)
 {
-	uart_init(config);
+	uart_cmd_init(config);
+	uart_dbg_init();
 }
 
 void mtBluetoothUSARTChangeBaud(uint32_t baudrate)
 {
-	uart_change_baud(baudrate);
+	uart_cmd_change_baud(baudrate);
 }
 
 /* Initialize HC05 key pin */

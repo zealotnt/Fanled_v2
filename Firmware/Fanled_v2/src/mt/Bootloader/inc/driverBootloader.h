@@ -66,6 +66,7 @@
 void mtBootloaderInitFlash(void);
 mtErrorCode_t mtBootloaderFlashWrite(uint32_t address, uint32_t data);
 mtErrorCode_t mtBootloaderFlashWriteBuff(uint32_t address, uint32_t buff[], uint32_t len);
+Bool mtBootloaderCheckFwUpgardeRequest();
 void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset);
 void mtBootloaderEraseAppFw(void);
 uint32_t retAppPage(uint32_t relativePage);

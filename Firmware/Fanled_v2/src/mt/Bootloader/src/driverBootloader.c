@@ -112,16 +112,23 @@ mtErrorCode_t mtBootloaderFlashWriteBuff(uint32_t address, uint32_t buff[], uint
 Bool mtBootloaderCheckFwUpgardeRequest()
 {
 	Bool status = False;
+	/* Allow access to BKP Domain */
+	PWR_BackupAccessCmd(ENABLE);
+	BKP_ClearFlag();
+
 	/* Check if there is any upgrage request */
 	/* Set time registers to 00:00:00; configuration done via gui */
-	if (BKP_ReadBackupRegister(BKP_BOOTLOADER_ID) != BKP_PATTERN_REQ_UPGRADE)
+	if (BKP_PATTERN_REQ_UPGRADE == BKP_ReadBackupRegister(BKP_BOOTLOADER_ID))
 	{
+		BL_INFO("Get firmware upgrade request, wait for firmware download\r\n");
 		status = True;
+		goto exit;
 	}
-
+	BL_INFO("No firmware upgrade request detected\r\n");
+exit:
 	/* Next time reset -> jump straight to application */
 	BKP_WriteBackupRegister(BKP_DR2, BKP_PATTERN_JUMP_TO_APP);
-	return False;
+	return status;
 }
 
 /**

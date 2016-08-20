@@ -48,7 +48,7 @@
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-serialQueuePayload_t gQueuePayload;
+volatile serialQueuePayload_t gQueuePayload;
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -109,7 +109,7 @@ static mtErrorCode_t mtSerialCmd_CheckValidData(serialQueuePayload_t *pBuffer);
 
 static mtErrorCode_t checkValidTerminationPacket(serialQueuePayload_t *pBuffer, UInt8 *pPacketType);
 
-static UInt8 mtSerialCmd_UtilsCRC8Calculate(Void *pBuffIn, UInt32 dwLen);
+static UInt8 mtSerialCmd_UtilsCRC8Calculate(volatile Void *pBuffIn, UInt32 dwLen);
 
 static mtErrorCode_t mtSerialCmdSendACK(UInt8 bTarget);
 
@@ -119,7 +119,7 @@ static mtErrorCode_t mtSerialCmdSendACK(UInt8 bTarget);
 /**
  * @Function: mtSerialCmd_ResetRcvStateMachine
  */
-static Void mtSerialCmd_ResetRcvStateMachine(serialQueuePayload_t *qBuff)
+static Void mtSerialCmd_ResetRcvStateMachine(volatile serialQueuePayload_t *qBuff)
 {
 	qBuff->lenMonitoring = qBuff->rcvLen;
 	qBuff->rcvLen = 0;
@@ -138,7 +138,7 @@ static int mtSerialCmd_CheckValidFISecondByte(UInt8 byte)
 /**
  * @Function: mtSerialCmd_CheckValidLen
  */
-static serialErrorType_t mtSerialCmd_CheckValidLen(serialQueuePayload_t *pBuffer, UInt32 *pdwDataLen)
+static serialErrorType_t mtSerialCmd_CheckValidLen(volatile serialQueuePayload_t *pBuffer, UInt32 *pdwDataLen)
 {
 	serialErrorType_t retVal = ERROR_NONE;
 	serialHeaderLen_t *pDat = (serialHeaderLen_t *)&pBuffer->serialDataFrame.Len;
@@ -236,7 +236,7 @@ static mtErrorCode_t checkValidTerminationPacket(serialQueuePayload_t *buffer, U
 /**
  * @Function: mtSerialCmd_UtilsCRC8Calculate
  */
-static UInt8 mtSerialCmd_UtilsCRC8Calculate(Void *pBuffIn, UInt32 dwLen)
+static UInt8 mtSerialCmd_UtilsCRC8Calculate(volatile Void *pBuffIn, UInt32 dwLen)
 {
 	UInt8 bCrc = 0;
 	UInt8 *pData = (UInt8 *)pBuffIn;
@@ -276,11 +276,13 @@ static mtErrorCode_t mtSerialCmdSendACK(UInt8 bTarget)
 /**
  * @Function: mtSerialCmdRcvStateHandling
  */
-mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData, serialQueuePayload_t *qBuff, UInt32 *pdwTotalDataLen)
+mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData,
+                                                         volatile serialQueuePayload_t *qBuff,
+                                                         UInt32 *pdwTotalDataLen)
 {
 	mtSerialRcvRoutineDecision_t retVal = ROUTINE_RET_NO_CHANGE;
 	UInt8 *pDat = (UInt8 *)&qBuff->serialDataFrame;
-	receiveRoutineState_t *rcvRoutineState = &qBuff->rcvState;
+	volatile receiveRoutineState_t *rcvRoutineState = &qBuff->rcvState;
 
 	mtGetCurrentTime(&gReloadTimeAtRcvRoutine);
 	mtMutexLock(&gRcvVarChangeMutex);
@@ -540,7 +542,7 @@ exit:
 /**
  * @Function: mtSerialCmd_InterByteTimeOutHandling
  */
-Void mtSerialCmd_InterByteTimeOutHandling(Void *pParam)
+Void mtSerialCmd_InterByteTimeOutHandling(volatile Void *pParam)
 {
 	serialQueuePayload_t *pQueue = (serialQueuePayload_t *)pParam;
 
