@@ -232,7 +232,6 @@ bool stmInitRTC(void)
 	PWR_BackupAccessCmd(ENABLE);
 	BKP_ClearFlag();
 
-
 	/* Check if backup data register value is not correct or not yet programmed (when
 		 the first time the program is executed) */
 	if (BKP_ReadBackupRegister(BKP_DR1) == 0x5A5A)

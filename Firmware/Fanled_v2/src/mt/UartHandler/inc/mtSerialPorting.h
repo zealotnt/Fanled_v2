@@ -111,17 +111,19 @@ typedef struct
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
 /*****************************************************************************/
+#if (DEBUG)
+#define DEBUG_SERIAL_PRINT(...)				printf(__VA_ARGS__)
+#define DEBUG_SERIAL_PRINT_NOTIFY_BAD(...)	printf(KRED KBOLD __VA_ARGS__ ); printf(KRESET "\r\n");
+#define DEBUG_SERIAL_TIMING_PRINT(...)
+#define DEBUG_SERIAL_ERROR_PRINT(...)		printf(__VA_ARGS__ "\r\n");
+#define DEBUG_SERIAL_PRINT_NOTIFY_HANG(...)	printf(KRED KBOLD __VA_ARGS__); printf(KRESET "\r\n"); while(1);
+#else
 #define DEBUG_SERIAL_PRINT(...)
 #define DEBUG_SERIAL_PRINT_NOTIFY_BAD(...)
 #define DEBUG_SERIAL_TIMING_PRINT(...)
 #define DEBUG_SERIAL_ERROR_PRINT(...)
 #define DEBUG_SERIAL_PRINT_NOTIFY_HANG(...)
-
-//#define DEBUG_SERIAL_PRINT(...)				printf(__VA_ARGS__)
-//#define DEBUG_SERIAL_PRINT_NOTIFY_BAD(...)	printf(KRED KBOLD __VA_ARGS__ ); printf(KRESET "\r\n");
-//#define DEBUG_SERIAL_TIMING_PRINT(...)
-//#define DEBUG_SERIAL_ERROR_PRINT(...)			printf(__VA_ARGS__ "\r\n");
-//#define DEBUG_SERIAL_PRINT_NOTIFY_HANG(...)	printf(KRED KBOLD __VA_ARGS__); printf(KRESET "\r\n"); while(1);
+#endif
 
 #define mtMutexLock(a)
 #define mtMutexUnlock(a)

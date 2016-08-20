@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <misc.h>
 #include <stm32f10x_flash.h>
+#include <stm32f10x_bkp.h>
+#include <stm32f10x_pwr.h>
 
 #include "mtInclude.h"
 #include "../inc/driverBootloader.h"
@@ -38,6 +40,10 @@
 #	define FLASH_PAGE_SIZE    ((uint16_t)0x400)
 #endif
 
+#define BKP_BOOTLOADER_ID				BKP_DR2
+#define BKP_PATTERN_JUMP_TO_APP			0x1234
+#define BKP_PATTERN_REQ_UPGRADE			0x0000
+
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
 /******************************************************************************/
@@ -46,7 +52,8 @@ typedef void(*pFunction)(void);
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
 /******************************************************************************/
-
+#define BL_INFO(...)			DEBUG_INFO(__VA_ARGS__)
+#define BL_ERR(...)				DEBUG_ERROR(__VA_ARGS__)
 
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
@@ -101,6 +108,22 @@ mtErrorCode_t mtBootloaderFlashWriteBuff(uint32_t address, uint32_t buff[], uint
 	}
 	return MT_SUCCESS;
 }
+
+Bool mtBootloaderCheckFwUpgardeRequest()
+{
+	Bool status = False;
+	/* Check if there is any upgrage request */
+	/* Set time registers to 00:00:00; configuration done via gui */
+	if (BKP_ReadBackupRegister(BKP_BOOTLOADER_ID) != BKP_PATTERN_REQ_UPGRADE)
+	{
+		status = True;
+	}
+
+	/* Next time reset -> jump straight to application */
+	BKP_WriteBackupRegister(BKP_DR2, BKP_PATTERN_JUMP_TO_APP);
+	return False;
+}
+
 /**
   * @brief  Jump to a given address and execute it
   * @param  None
