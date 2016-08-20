@@ -31,6 +31,7 @@
 #include "stm32f10x_usart.h"
 #include "stm32f10x_exti.h"
 
+#include "mtInclude.h"
 #include "App/inc/mtAppDef.h"
 #include "Effects/inc/mtFanledDisplay.h"
 #include "Utility/inc/mtDelay.h"
@@ -65,8 +66,10 @@ volatile uint8_t gDisplayEnable;
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
+#if (FANLED_APP)
 static uint16_t gtime_capture;
 static uint8_t gTimer_Overload_Count = 0;
+#endif
 
 /******************************************************************************/
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
@@ -83,16 +86,19 @@ static uint8_t gTimer_Overload_Count = 0;
 /******************************************************************************/
 void mtFanledSpiTxCmplt(void)
 {
+#if (FANLED_APP)
 	if (DMA_GetFlagStatus(DMA1_FLAG_TC3) != RESET)
 	{
 		g_SPI_DMA_Flag = 1;
 		DMA_ClearFlag(DMA1_FLAG_TC3);
 		DMA_Cmd(DMA1_Channel3, DISABLE);
 	}
+#endif
 }
 
 void mtHallSensorHandler(void)
 {
+#if (FANLED_APP)
 	TIM_Cmd(TIM2, DISABLE);
 	gtime_capture = TIM_GetCounter(TIM2);
 	CCR1_Val = (gTimer_Overload_Count * 65536 + gtime_capture) / FANLED_RESOLUTION;
@@ -112,10 +118,12 @@ void mtHallSensorHandler(void)
 	TIM_ITConfig(TIM2, TIM_IT_CC1 | TIM_IT_CC2, ENABLE);
 	TIM_Cmd(TIM2, ENABLE);
 	EXTI_ClearITPendingBit(EXTI_Line3);
+#endif
 }
 
 void mtFanledTimerHandler(void)
 {
+#if (FANLED_APP)
 	if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
 	{
 		//	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
@@ -159,5 +167,6 @@ void mtFanledTimerHandler(void)
 		TIM2->SR = (uint16_t)~TIM_IT_Update;
 		gTimer_Overload_Count++;
 	}
+#endif
 }
 

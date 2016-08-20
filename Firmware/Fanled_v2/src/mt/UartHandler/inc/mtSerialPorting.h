@@ -117,11 +117,11 @@ typedef struct
 #define DEBUG_SERIAL_ERROR_PRINT(...)
 #define DEBUG_SERIAL_PRINT_NOTIFY_HANG(...)
 
-//#define DEBUG_SERIAL_PRINT(...)				lite_printf(DBG_PRINT_LEVEL_DEBUG_MASK, __VA_ARGS__)
-//#define DEBUG_SERIAL_PRINT_NOTIFY_BAD(...)	lite_printf(DBG_PRINT_LEVEL_WARNING_MASK, KRED KBOLD __VA_ARGS__ ); lite_printf(DBG_PRINT_LEVEL_WARNING_MASK, KRESET "\r\n");
+//#define DEBUG_SERIAL_PRINT(...)				printf(__VA_ARGS__)
+//#define DEBUG_SERIAL_PRINT_NOTIFY_BAD(...)	printf(KRED KBOLD __VA_ARGS__ ); printf(KRESET "\r\n");
 //#define DEBUG_SERIAL_TIMING_PRINT(...)
-//#define DEBUG_SERIAL_ERROR_PRINT(...)			lite_printf(DBG_PRINT_LEVEL_ERROR_MASK, __VA_ARGS__ "\r\n");
-//#define DEBUG_SERIAL_PRINT_NOTIFY_HANG(...)	lite_printf(DBG_PRINT_LEVEL_ERROR_MASK, KRED KBOLD __VA_ARGS__); lite_printf(DBG_PRINT_LEVEL_ERROR_MASK, KRESET "\r\n"); while(1);
+//#define DEBUG_SERIAL_ERROR_PRINT(...)			printf(__VA_ARGS__ "\r\n");
+//#define DEBUG_SERIAL_PRINT_NOTIFY_HANG(...)	printf(KRED KBOLD __VA_ARGS__); printf(KRESET "\r\n"); while(1);
 
 #define mtMutexLock(a)
 #define mtMutexUnlock(a)
@@ -143,33 +143,24 @@ mtErrorCode_t mtSerialPort_InterByteTimerInit(Void);
  * \brief Disable timer
  *
  * \param timerId timerID to be disabled
- *
- * \return MT_SUCCESS (disable successfully)
- * \return MT_ERROR (disable fail)
  */
-mtErrorCode_t mtSerialPort_InterByteTimerDisable(Void/*mlsTimerID_t *timerId*/);
+Void mtSerialPort_InterByteTimerDisable(Void);
 
 /**
  * \brief Reload next interrupt value of timer
  *
  * \param timerId timerID to be reloaded
  * \param msTimeOut timeout in millisecond
- *
- * \return MT_SUCCESS (reload successfully)
- * \return MT_ERROR (reload error)
  */
-mtErrorCode_t mtSerialPort_InterByteTimerReload(/*mlsTimerID_t *timerId,*/ UInt32 msTimeOut);
+Void mtSerialPort_InterByteTimerReload(UInt32 dwMsTimeOut);
 
 /**
  * \brief Register
  *
  * \param timer pointer to Command packet
  * \param fncHandler call back function to be registered
- *
- * \return MT_SUCCESS (register successfully)
- * \return MT_ERROR (register failed)
  */
-mtErrorCode_t mtSerialPort_InterByteTimerRegister(pTimerTimeoutHandler *timer,
+Void mtSerialPort_InterByteTimerRegister(pTimerTimeoutHandler *timer,
         pTimerTimeoutHandler fncHandler);
 
 /**
@@ -185,11 +176,8 @@ UInt32 mtSerialPort_InterByteTimerGetInverval();
  *
  * \param data pointer to buffer data
  * \param lenToWrite len to write
- *
- * \return MT_SUCCESS
- * \return MT_ERROR
  */
-mtErrorCode_t mtSerialPort_Write(UInt8 *data, UInt16 lenToWrite);
+Void mtSerialPort_Write(UInt8 *pData, UInt16 wLenToWrite);
 
 /**
  * \brief Flush RX buffer

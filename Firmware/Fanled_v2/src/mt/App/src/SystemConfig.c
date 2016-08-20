@@ -84,13 +84,12 @@ extern volatile uint32_t CCR2_Val;
 /******************************************************************************/
 void initBootloader(void)
 {
-	// 1ms interval
 	mtSysTickInit();
 	mtRCCInit();
 	mtFanledSPIInit();
-	blankAllLed();
 	bltInitModule(false);
 	mtInterByteTimer_Init();
+//	blankAllLed();
 //	mtTimerFanledDisplayInit();
 }
 

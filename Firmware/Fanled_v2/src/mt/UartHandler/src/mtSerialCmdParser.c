@@ -142,41 +142,35 @@ static serialErrorType_t mtSerialCmd_CheckValidLen(serialQueuePayload_t *pBuffer
 {
 	serialErrorType_t retVal = ERROR_NONE;
 	serialHeaderLen_t *pDat = (serialHeaderLen_t *)&pBuffer->serialDataFrame.Len;
-
 	UInt8 bCalculatedLCS;
 
 	bCalculatedLCS = pDat->Lenl ^ pDat->Lenm;
 
-	if (bCalculatedLCS == pDat->LCS)
-	{
-		*pdwDataLen = pDat->Lenl + (pDat->Lenm << 8);
-
-		/* Check max value of Data bytes (512 bytes) */
-		if ((pDat->Lenm == 0xFF) && (pDat->Lenl == 0x00))
-		{
-			/* ACK packet, length = 0 */
-			*pdwDataLen = 0;
-			retVal = ERROR_NONE;
-		}
-		else if (pDat->Lenm == 0xFF)
-		{
-			/* NOTE: NACK packet, let the handling thread choose what to do */
-			*pdwDataLen = 0;
-			retVal = ERROR_NONE;
-		}
-		else if (*pdwDataLen <= MAX_SERIAL_DATA_EXCEPT_CMD)
-		{
-			retVal = ERROR_NONE;
-		}
-		else
-		{
-			retVal = ERROR_LEN_TOO_BIG;
-		}
-	}
-	else
+	if (bCalculatedLCS != pDat->LCS)
 	{
 		retVal = ERROR_INVALID_LEN_LCS;
+		goto exit;
 	}
+	*pdwDataLen = pDat->Lenl + (pDat->Lenm << 8);
+
+	/* Check max value of Data bytes (512 bytes) */
+	if (*pdwDataLen > MAX_SERIAL_DATA_EXCEPT_CMD)
+	{
+		retVal = ERROR_LEN_TOO_BIG;
+		goto exit;
+	}
+	if ((pDat->Lenm == 0xFF) && (pDat->Lenl == 0x00))
+	{
+		/* ACK packet, length = 0 */
+		*pdwDataLen = 0;
+	}
+	else if (pDat->Lenm == 0xFF)
+	{
+		/* NOTE: NACK packet, let the handling thread choose what to do */
+		*pdwDataLen = 0;
+	}
+
+exit:
 	return retVal;
 }
 
@@ -271,8 +265,8 @@ static mtErrorCode_t mtSerialCmdSendACK(UInt8 bTarget)
 	ackLen.Lenm = 0xFF;
 	ackLen.LCS = 0xFF;
 
-	retVal = mtSerialPort_Write((UInt8 *)&ackIF, sizeof(serialHeaderFI_t));
-	retVal |= mtSerialPort_Write((UInt8 *)&ackLen, sizeof(serialHeaderLen_t));
+	mtSerialPort_Write((UInt8 *)&ackIF, sizeof(serialHeaderFI_t));
+	mtSerialPort_Write((UInt8 *)&ackLen, sizeof(serialHeaderLen_t));
 
 	return retVal;
 }
@@ -444,7 +438,7 @@ mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData, serialQueu
 		*rcvRoutineState = RCV_ERROR;
 		qBuff->lenMonitoring++;
 		qBuff->errorFlag = ERROR_SERIAL_BUFFER_OVERFLOW;
-		mtSerialPort_InterByteTimerReload(/*&cmdRcvInterByteTimer,*/ mtSerialPort_InterByteTimerGetInverval());
+		mtSerialPort_InterByteTimerReload(mtSerialPort_InterByteTimerGetInverval());
 		retVal = ROUTINE_RET_NO_CHANGE;
 	}
 	mtMutexUnlock(&gRcvVarChangeMutex);

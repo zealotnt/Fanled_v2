@@ -113,10 +113,10 @@
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.937257916" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="FANLED_BOOTLOADER"/>
+									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
 									<listOptionValue builtIn="false" value="STD_PERIPH_LIB=1"/>
 									<listOptionValue builtIn="false" value="STM32F10X_MD"/>
 									<listOptionValue builtIn="false" value="_USE_STDPERIPH_DRIVER"/>
-									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
 									<listOptionValue builtIn="false" value="_HSE_VALUE=8000000"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.1352780854" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>

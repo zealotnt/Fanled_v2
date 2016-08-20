@@ -78,10 +78,10 @@ extern Display_Type Fanled_Display;
 /******************************************************************************/
 void mtSystickHandler(void)
 {
+#if (FANLED_APP)
 	static volatile uint32_t Timing_Count = 0;
 	static volatile uint32_t Scroll_Count = 0;
 
-	mtDelayClockTick();
 	TimingDelay_Decrement();
 
 	if (Scroll_Count > Fanled_Display.scroll_times && Fanled_Display.enable_flag == SCROLL_ENABLE_DISPLAY)
@@ -119,6 +119,8 @@ void mtSystickHandler(void)
 		Fanled_Display.misc_flag = ENABLE;
 		Fanled_Display.misc_count += MISC_CHANGE_SPEED;
 	}
+#endif
+	mtDelayClockTick();
 }
 
 /******************************************************************************/

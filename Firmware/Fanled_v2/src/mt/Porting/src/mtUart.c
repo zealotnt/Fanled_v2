@@ -78,10 +78,7 @@ void uart_init(bool config)
 	USART_InitTypeDef USARTInitStructure;
 	GPIO_InitTypeDef GPIOInitStructure;
 
-	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+	/* Configure GPIO Function */
 	GPIOInitStructure.GPIO_Pin = GPIO_Pin_10; //<! PA10-Rx
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_IPU;
 	GPIO_Init(GPIOA, &GPIOInitStructure);
@@ -89,6 +86,8 @@ void uart_init(bool config)
 	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_Init(GPIOA, &GPIOInitStructure);
+
+	/* Configure UART parameters */
 	if (config == true)
 	{
 		USARTInitStructure.USART_BaudRate = 38400;
@@ -104,13 +103,14 @@ void uart_init(bool config)
 	USARTInitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
 	USART_Init(USARTx, &USARTInitStructure);
 	USART_ITConfig(USARTx, USART_IT_RXNE, ENABLE);
+	USART_Cmd(USARTx, ENABLE);
 
+	/* Configure UART ISR parameters */
 	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = UARTx_RX_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = UARTx_RX_PRIORITY;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = UARTx_RX_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
-	USART_Cmd(USARTx, ENABLE);
 }
 
 void uart_change_baud(uint32_t new_baudrate)

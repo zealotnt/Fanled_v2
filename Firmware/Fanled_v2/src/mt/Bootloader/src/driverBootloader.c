@@ -27,6 +27,7 @@
 #include "mtInclude.h"
 #include "../inc/driverBootloader.h"
 
+#pragma GCC optimize("O0")
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
@@ -178,4 +179,5 @@ FLASH_Status testWriteDummyDataToFlash(uint32_t startPage)
 	return FLASHStatus;
 }
 
+#pragma GCC reset_options
 /************************* End of File ****************************************/

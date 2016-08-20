@@ -67,19 +67,17 @@ extern serialQueuePayload_t gQueuePayload;
 /**
  * @Function: mtSerialPort_InterByteTimerReload
  */
-mtErrorCode_t mtSerialPort_InterByteTimerReload(UInt32 dwMsTimeOut)
+Void mtSerialPort_InterByteTimerReload(UInt32 dwMsTimeOut)
 {
 	mtInterByteTimer_Reload(dwMsTimeOut);
-	return MT_SUCCESS;
 }
 
 /**
  * @Function: mtSerialPort_InterByteTimerDisable
  */
-mtErrorCode_t mtSerialPort_InterByteTimerDisable(/*mtTimerID_t *timerId*/Void)
+Void mtSerialPort_InterByteTimerDisable(Void)
 {
 	mtInterByteTimer_Disable();
-	return MT_SUCCESS;
 }
 
 /**
@@ -94,19 +92,12 @@ mtErrorCode_t mtSerialPort_InterByteTimerInit(Void)
 /**
  * @Function: mtSerialPort_InterByteTimerInit
  */
-mtErrorCode_t mtSerialPort_InterByteTimerRegister(pTimerTimeoutHandler *timer, pTimerTimeoutHandler fncHandler)
+Void mtSerialPort_InterByteTimerRegister(pTimerTimeoutHandler *timer, pTimerTimeoutHandler fncHandler)
 {
-	mtErrorCode_t retVal = MT_SUCCESS;
 	if (fncHandler != Null)
 	{
 		*timer = fncHandler;
 	}
-	else
-	{
-		DEBUG_SERIAL_ERROR_PRINT("Null handler function");
-		retVal = MT_ERROR;
-	}
-	return retVal;
 }
 
 /**
@@ -135,10 +126,9 @@ UInt32 mtSerialPort_InterByteTimerGetInverval(Void)
 /**
  * @Function: mtSerialPort_Write
  */
-mtErrorCode_t mtSerialPort_Write(UInt8 *pData, UInt16 wLenToWrite)
+Void mtSerialPort_Write(UInt8 *pData, UInt16 wLenToWrite)
 {
 	mtUartWriteBuf(pData, wLenToWrite);
-	return MT_SUCCESS;
 }
 
 /**
