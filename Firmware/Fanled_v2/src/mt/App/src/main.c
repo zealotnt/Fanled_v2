@@ -25,7 +25,7 @@
 #include <math.h>
 
 #include "mtInclude.h"
-#include "mtVersion.h"
+#include "../inc/mtVersion.h"
 #include "App/inc/SystemConfig.h"
 #include "App/tst/fanledTestApp.h"
 #include "Porting/inc/mtSPI.h"
@@ -118,7 +118,7 @@ int main(void)
 {
 #if defined(FANLED_BOOTLOADER)
 	initBootloader();
-	DEBUG_INFO("Bootloader " FIRMWARE_VER_FULL "\r\n");
+	DEBUG_INFO("Bootloader %s \r\n", FIRMWARE_VERSION_FULL);
 	mtBootloaderInitFlash();
 	DEBUG_INFO("Jump to app \r\n");
 	mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE);
@@ -134,7 +134,7 @@ int main(void)
 
 #elif defined(FANLED_APP)
 	initBootloader();
-	DEBUG_INFO("App " FIRMWARE_VER_FULL "\r\n");
+	DEBUG_INFO("App %s \r\n", FIRMWARE_VERSION_FULL);
 	while (1)
 	{
 		if (True == gQueuePayload.Done)

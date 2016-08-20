@@ -22,7 +22,7 @@
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
 #include "mtInclude.h"
-#include "mtVersion.h"
+#include "App/inc/mtVersion.h"
 #include "../inc/mtFanledAPICode.h"
 
 /******************************************************************************/
