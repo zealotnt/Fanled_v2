@@ -92,12 +92,15 @@ mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
 
 	*msgOutLen = (UInt16)(*(UInt16 *)(&msgIn[6]));
 
-	/* Copy count value */
+	/* Copy rsp_len value */
 	memcpy(&msgOut[2], &msgIn[2], 4);
+
+	/* Copy packet_id value */
+	memcpy(&msgOut[6], &msgIn[8], 2);
 
 	API_INFO("Get packet num %d\r\n", (UInt16)*((UInt16 *)&msgIn[8]));
 
-	for (i = 6; i < *msgOutLen; i++)
+	for (i = 8; i < *msgOutLen; i++)
 	{
 		msgOut[i] = i;
 	}

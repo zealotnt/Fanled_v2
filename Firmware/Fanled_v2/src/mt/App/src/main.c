@@ -121,11 +121,11 @@ int main(void)
 	uart_dbg_init();
 	DEBUG_INFO("Bootloader %s \r\n", FIRMWARE_VERSION_FULL);
 
-//	if (True != mtBootloaderCheckFwUpgardeRequest())
-//	{
-//		DEBUG_INFO("Jump to app \r\n");
-//		mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE);
-//	}
+	if (True != mtBootloaderCheckFwUpgardeRequest())
+	{
+		DEBUG_INFO("Jump to app \r\n");
+		mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE);
+	}
 
 	while (1)
 	{

@@ -13,7 +13,7 @@
 #endif
 
 #ifndef FANLED_BL
-#define FANLED_APP			0
+#define FANLED_BL			0
 #endif
 
 #ifndef DEBUG

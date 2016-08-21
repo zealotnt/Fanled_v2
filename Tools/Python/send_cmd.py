@@ -15,7 +15,8 @@ import struct
 from optparse import OptionParser, OptionGroup
 
 sys.path.insert(0, 'bluefinserial')
-from datalink_deliver import BluefinserialSend, BluefinserialCommand
+from fanled_api_basic import *
+from datalink_deliver import *
 from scan import scan
 from utils import *
 
@@ -78,18 +79,13 @@ if __name__ == "__main__":
 		print 'Open serial port: ' + port_name
 	comm = BluefinserialSend(port_name, 460800)
 
-	pkt = BluefinserialCommand()
-	cmd = pkt.Packet('\x8b', '\x00', '\x03')
-
+	fanled_basic_api = FanledAPIBasic(comm)
 	rsp = ''
 
 	while True:
-		dump_hex(cmd, "Command: ")
 		start = time.clock()
-		rsp = comm.Exchange(cmd)
-		if rsp is not None:
-			dump_hex(rsp, "Response: ")
-		else:
+		rsp = fanled_basic_api.GetFirmwareVersion()
+		if rsp is None:
 			print_err("Transmit fail")
 			sys.exit(-1)
 		end = time.clock()

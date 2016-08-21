@@ -24,14 +24,11 @@
 #include "../inc/mtSerialCmdParser.h"
 #include "../inc/mtSerialHandler.h"
 #include "../inc/mtSerialPorting.h"
+#include "Utility/inc/mtDumpData.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
-#ifndef SUPPORT_DUMP_DEBUG_DATA
-#define SUPPORT_DUMP_DEBUG_DATA		0
-#endif
-
 #define SERIAL_FI_RESP_SECONDBYTE	SERIAL_FI_RF_PROCESSOR_TO_DEVICE
 #define OWN_FI						SERIAL_FI_DEVICE_TO_RF_PROCESSOR
 
@@ -153,21 +150,23 @@ static serialErrorType_t mtSerialCmd_CheckValidLen(volatile serialQueuePayload_t
 	}
 	*pdwDataLen = pDat->Lenl + (pDat->Lenm << 8);
 
-	/* Check max value of Data bytes (512 bytes) */
-	if (*pdwDataLen > MAX_SERIAL_DATA_EXCEPT_CMD)
-	{
-		retVal = ERROR_LEN_TOO_BIG;
-		goto exit;
-	}
 	if ((pDat->Lenm == 0xFF) && (pDat->Lenl == 0x00))
 	{
 		/* ACK packet, length = 0 */
 		*pdwDataLen = 0;
+		goto exit;
 	}
 	else if (pDat->Lenm == 0xFF)
 	{
 		/* NOTE: NACK packet, let the handling thread choose what to do */
 		*pdwDataLen = 0;
+		goto exit;
+	}
+	/* Check max value of Data bytes (512 bytes) */
+	if (*pdwDataLen > MAX_SERIAL_DATA_EXCEPT_CMD)
+	{
+		retVal = ERROR_LEN_TOO_BIG;
+		goto exit;
 	}
 
 exit:
@@ -475,6 +474,7 @@ Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload)
 
 	if (sQueuePayload.errorFlag != RCV_SUCCESS)
 	{
+		mtSerialCmdDumpBufferDataRaw("Receive: ", (Void *)&gQueuePayload.serialDataFrame, gQueuePayload.lenMonitoring);
 		mtSerialCmd_ResetRcvStateMachine(&gQueuePayload);
 	}
 

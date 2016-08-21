@@ -13,6 +13,8 @@ import time
 from crc8 import crc8
 from utils import *
 
+#---- CLASSES
+
 class BluefinserialCommand():
 	"""
 	Bluefinserial command class
@@ -55,7 +57,7 @@ class BluefinserialSend():
 	ACK_RETRY = 3
 	ACK_TIMEOUT = 500
 	RESPONSE_TIMEOUT = 6000
-	NACK_PACKET = '\x00\x3a\x00\x01\xff\xfe'
+	NACK_PACKET = '\x00\x35\x01\xff\xfe'
 	def __init__(self, port, baud):
 		"""
 		:Parameter port: serial port to use (/dev/tty* or COM*)
@@ -68,9 +70,9 @@ class BluefinserialSend():
 		self._port = serial.Serial(port=port, baudrate=baud, timeout=self._timeout)
 
 	def WaitTillFinishRcv(self):
-		time_start = int(round(time.time() * 1000))
+		time_start = float(time.time() * 1000)
 		while True:
-			time_check = int(round(time.time() * 1000))
+			time_check = float(time.time() * 1000)
 			waiting = self._port.inWaiting()
 			read_bytes = self._port.read(1 if waiting == 0 else waiting)
 			if read_bytes == '' and (time_check - time_start) > self.FLUSH_INPUT:
@@ -111,7 +113,7 @@ class BluefinserialSend():
 			while ret == False and retry < self.ACK_RETRY:
 				self.WaitTillFinishRcv()
 				self._port.write(self.NACK_PACKET)
-				ret = self.GetResponse(self._ack_remain)
+				ret = self.GetResponse("")
 				if ret is False:
 					# If fail, flush all input
 					self.WaitTillFinishRcv()
@@ -130,9 +132,9 @@ class BluefinserialSend():
 	def GetACK(self):
 		partial_packet = ""
 		ACK_PACKET = "\x00\x3a\x00\xff\xff"
-		time_start = int(round(time.time() * 1000))
+		time_start = float(time.time() * 1000)
 		while True:
-			time_check = int(round(time.time() * 1000))
+			time_check = float(time.time() * 1000)
 			waiting = self._port.inWaiting()
 			read_bytes = self._port.read(1 if waiting == 0 else waiting)
 			if read_bytes == '' and (time_check - time_start) > self.ACK_TIMEOUT :
@@ -161,9 +163,9 @@ class BluefinserialSend():
 		pkt_frame_len = ""
 		pkt_frame_data = ""
 		loop_times = 0
-		time_start = int(round(time.time() * 1000))
+		time_start = float(time.time() * 1000)
 		while True:
-			time_check = int(round(time.time() * 1000))
+			time_check = float(time.time() * 1000)
 
 			if (len(partial_packet) >= 2 and 
 				STATE == 0):
@@ -193,7 +195,7 @@ class BluefinserialSend():
 				if chr(val) != partial_packet[len(pkt_frame_data)]:
 					print_err_dump(partial_packet, "Wrong CRC8 checksum")
 					return False
-				self.response = pkt_frame_data	
+				self._response = pkt_frame_data	
 				return True
 			
 			waiting = self._port.inWaiting()

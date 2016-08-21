@@ -31,12 +31,13 @@
 #include "stm32f10x_usart.h"
 #include "stm32f10x_exti.h"
 
-#include "App/inc/mtAppDef.h"
-#include "Effects/inc/mtFanledDisplay.h"
+#include "../inc/mtIntHandler.h"
+#include "../inc/mtAppDef.h"
+#include "../inc/SystemConfig.h"
 #include "Utility/inc/mtDelay.h"
 #include "Porting/inc/mtSPI.h"
-#include "App/inc/SystemConfig.h"
 #include "Effects/inc/mtIncludeEffects.h"
+#include "Effects/inc/mtFanledDisplay.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -56,7 +57,9 @@
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
+#if (FANLED_APP)
 extern Display_Type Fanled_Display;
+#endif
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
