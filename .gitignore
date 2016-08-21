@@ -3,3 +3,4 @@
 *.pyc
 
 Firmware/Fanled_v2/Debug
+Tools/Terminal/terminal-config
