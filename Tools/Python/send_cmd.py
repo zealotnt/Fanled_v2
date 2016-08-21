@@ -16,6 +16,7 @@ from optparse import OptionParser, OptionGroup
 
 sys.path.insert(0, 'bluefinserial')
 from fanled_api_basic import *
+from fanled_api_fw_upgrade import *
 from datalink_deliver import *
 from scan import scan
 from utils import *
@@ -33,7 +34,7 @@ PROG = "send_cmd"
 
 COPYRIGHT = u"Copyright © 2016"
 
-DEFAULT_SERIAL_PORT = "/dev/rfcomm0"
+DEFAULT_SERIAL_PORT = "/dev/ttyUSB0"
 
 # ---- GLOBALS
 
@@ -80,6 +81,7 @@ if __name__ == "__main__":
 	comm = BluefinserialSend(port_name, 460800)
 
 	fanled_basic_api = FanledAPIBasic(comm)
+	fanled_fw_upgrade = FanledAPIFwUpgrade(comm)
 	rsp = ''
 
 	while True:
@@ -90,4 +92,7 @@ if __name__ == "__main__":
 			sys.exit(-1)
 		end = time.clock()
 		print "%.2gms" % ((end-start)*1000)
+
+	fanled_fw_upgrade.UpgradeRequest()
+	print "Done !!!"
 

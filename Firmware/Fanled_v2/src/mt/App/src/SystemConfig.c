@@ -99,8 +99,8 @@ void initBootloader(void)
 
 void initAll(void)
 {
-	mtSysTickInit();
 	mtRCCInit();
+	mtSysTickInit();
 	mtFanledSPIInit();
 	mtTimerFanledDisplayInit();
 	mtHallSensorInit();
@@ -182,6 +182,10 @@ void mtRCCInit(void)
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 	GPIO_WriteBit(GPIOA, GPIO_Pin_8, (BitAction)1);
+#if (FANLED_APP)
+	/* Set system control register SCR->VTOR  */
+	NVIC_SetVectorTable(NVIC_VectTab_FLASH, FLASH_BOOTLOADER_SIZE);
+#endif
 }
 
 void mtBluetoothUSARTInit(bool config)

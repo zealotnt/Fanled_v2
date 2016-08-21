@@ -1216,8 +1216,8 @@ static __INLINE void __DSB()                      { __ASM volatile ("dsb"); }
 static __INLINE void __DMB()                      { __ASM volatile ("dmb"); }
 static __INLINE void __CLREX()                    { __ASM volatile ("clrex"); }
 
-extern unsigned int __attribute__((naked)) cpsid(void);
-extern unsigned int __attribute__((naked)) cpsie(void);
+extern unsigned int __attribute__((naked)) core_disable_isr(void);
+extern unsigned int __attribute__((naked)) core_enable_isr(void);
 /**
  * @brief  Return the Process Stack Pointer
  *

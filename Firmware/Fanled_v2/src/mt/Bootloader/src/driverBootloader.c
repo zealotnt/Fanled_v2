@@ -118,12 +118,21 @@ mtErrorCode_t mtBootloaderFlashWriteBuff(uint32_t address, uint32_t buff[], uint
 	return MT_SUCCESS;
 }
 
+Void mtBootloaderCoreReset()
+{
+	core_disable_isr();
+	NVIC_SystemReset();
+}
+
+Void mtBootloaderRequestUpgrade()
+{
+	/* Next time reset -> jump Bootloader will wait for firmware upgrade */
+	BKP_WriteBackupRegister(BKP_DR2, BKP_PATTERN_REQ_UPGRADE);
+}
+
 Bool mtBootloaderCheckFwUpgardeRequest()
 {
 	Bool status = False;
-	/* Allow access to BKP Domain */
-	PWR_BackupAccessCmd(ENABLE);
-	BKP_ClearFlag();
 
 	/* Check if there is any upgrage request */
 	/* Set time registers to 00:00:00; configuration done via gui */
@@ -152,7 +161,7 @@ void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset)
 	uint32_t JumpAddress;
 
 	/* Disable all IRQ */
-	cpsid();
+	core_disable_isr();
 
 	/* Set system control register SCR->VTOR  */
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, vtorOffset);

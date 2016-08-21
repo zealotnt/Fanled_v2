@@ -30,6 +30,7 @@ extern "C"
 /*****************************************************************************/
 #include "mtInclude.h"
 #include "FanledAPI/inc/mtFanledAPIBasic.h"
+#include "FanledAPI/inc/mtFanledAPIFwUpgrade.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -44,6 +45,7 @@ extern "C"
 #define CMD_CODE_BASIC				0x8B
 
 #define CTR_CODE_GETVERSION			0x00
+#define CTR_CODE_UPGRADEFW			0x30
 #define CTR_CODE_PROTOCOL_TEST		0x70
 
 /*****************************************************************************/

@@ -223,6 +223,8 @@ typedef struct
 } volatile serialQueuePayload_t;
 #pragma pack()
 
+typedef void (*pCmdHandlerCallback)(Void *param);
+
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
 /*****************************************************************************/
@@ -231,7 +233,7 @@ typedef struct
 /*****************************************************************************/
 /* DECLARATION OF VARIABLES (Only external global variables)                 */
 /*****************************************************************************/
-volatile serialQueuePayload_t gQueuePayload;
+extern volatile serialQueuePayload_t gQueuePayload;
 
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
@@ -242,6 +244,8 @@ volatile serialQueuePayload_t gQueuePayload;
  *
  */
 Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload);
+
+Void mtSerialCmdDataLinkCallbackRegister(pCmdHandlerCallback call_back);
 
 /*!
  * \brief State machine for receiving Bluefin Serial Command

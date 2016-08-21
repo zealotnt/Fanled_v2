@@ -33,7 +33,7 @@ class BluefinserialCommand():
 		len_parse = struct.pack('H', len)
 		return ord(len_parse[0]) ^ ord(len_parse[1])
 
-	def Packet(self, CmdCode, CtrCode, Data):
+	def Packet(self, CmdCode, CtrCode, Data=""):
 		# Packet format:
 		# FIl        FIm      Lenl        Lenm        LCS         Data        CRC8
 		# 0          1         2            3           4         5:x         x+1

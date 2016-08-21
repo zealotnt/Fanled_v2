@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtFanledAPIFwUpgrade.c
 **
-** Module name       : template
+** Module name       : FanledAPI
 **
 **
 ** Summary:
@@ -21,10 +21,12 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "mtInclude.h"
-#include "App/inc/mtVersion.h"
-#include "../inc/mtFanledAPICode.h"
 #include <string.h>
+
+#include "mtInclude.h"
+#include "../inc/mtFanledAPICode.h"
+#include "Bootloader/inc/driverBootloader.h"
+#include "UartHandler/inc/mtSerialCmdParser.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -64,50 +66,22 @@
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
-                                            UInt16 msgInLen,
-                                            UInt8 *msgOut,
-                                            UInt16 *msgOutLen)
+Void ResetHandler(Void *param)
 {
-	mtErrorCode_t retVal = MT_SUCCESS;
-	UInt32 dwVersion;
-
-	dwVersion = FIRMWARE_VERSION_MAJOR * 10000 + FIRMWARE_VERSION_MINOR * 100 + FIRMWARE_REVISION;
-#if (FANLED_APP)
-	msgOut[6] = 3;		/* Firmware ID = 3 --> Fanled Application */
-#else
-	msgOut[6] = 2;		/* Firmware ID = 2 --> Fanled Bootloader */
-#endif
-	msgOut[3] = (dwVersion & 0xFF);
-	msgOut[4] = (dwVersion >> 8) & 0xFF;
-	msgOut[5] = (dwVersion >> 16) & 0xFF;
-	*msgOutLen = 7;
-
-	return retVal;
+	DEBUG_INFO("Jump back to Bootloader\r\n");
+	mtBootloaderCoreReset();
 }
 
-mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
-                                      UInt16 msgInLen,
-                                      UInt8 *msgOut,
-                                      UInt16 *msgOutLen)
+mtErrorCode_t mtFanledApiRequestFirmwareUpgrade(UInt8 *msgIn,
+                                                UInt16 msgInLen,
+                                                UInt8 *msgOut,
+                                                UInt16 *msgOutLen)
 {
-	UInt32 i;
-
-	*msgOutLen = (UInt16)(*(UInt16 *)(&msgIn[6]));
-
-	/* Copy rsp_len value */
-	memcpy(&msgOut[2], &msgIn[2], 4);
-
-	/* Copy packet_id value */
-	memcpy(&msgOut[6], &msgIn[8], 2);
-
-	API_INFO("Get packet num %d\r\n", (UInt16)*((UInt16 *)&msgIn[8]));
-
-	for (i = 8; i < *msgOutLen; i++)
-	{
-		msgOut[i] = i;
-	}
-
+	mtBootloaderRequestUpgrade();
+	mtSerialCmdDataLinkCallbackRegister(ResetHandler);
 	return MT_SUCCESS;
 }
+
 /************************* End of File ****************************************/
+
+

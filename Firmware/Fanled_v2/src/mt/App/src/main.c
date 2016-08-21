@@ -139,6 +139,7 @@ int main(void)
 
 #elif defined(FANLED_APP)
 	initBootloader();
+	uart_dbg_init();
 	DEBUG_INFO("App %s \r\n", FIRMWARE_VERSION_FULL);
 	while (1)
 	{

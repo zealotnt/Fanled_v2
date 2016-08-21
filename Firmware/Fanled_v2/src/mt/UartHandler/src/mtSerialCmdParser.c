@@ -50,6 +50,7 @@ volatile serialQueuePayload_t gQueuePayload;
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
+static pCmdHandlerCallback CmdHandlerCallback = Null;
 static UInt32 dwTotalByteRcv = 0;
 /* 8-bit CRC with polynomial x^8+x^6+x^3+x^2+1, 0x14D.
    Chosen based on Koopman, et al. (0xA6 in his notation = 0x14D >> 1):
@@ -463,6 +464,11 @@ mtErrorCode_t mtSerialCmdSendPacket(serialRcvFrame_t *packet)
 	return retVal;
 }
 
+Void mtSerialCmdDataLinkCallbackRegister(pCmdHandlerCallback call_back)
+{
+	CmdHandlerCallback = call_back;
+}
+
 /**
  * @Function: mtSerialCmdDataLinkHandlingThread
  */
@@ -476,6 +482,7 @@ Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload)
 	{
 		mtSerialCmdDumpBufferDataRaw("Receive: ", (Void *)&gQueuePayload.serialDataFrame, gQueuePayload.lenMonitoring);
 		mtSerialCmd_ResetRcvStateMachine(&gQueuePayload);
+		goto exit;
 	}
 
 	switch (sQueuePayload.type)
@@ -533,7 +540,14 @@ Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload)
 		break;
 
 		default:
+			goto exit;
 			break;
+	}
+
+	if (CmdHandlerCallback != Null)
+	{
+		CmdHandlerCallback(Null);
+		CmdHandlerCallback = Null;
 	}
 exit:
 	return;

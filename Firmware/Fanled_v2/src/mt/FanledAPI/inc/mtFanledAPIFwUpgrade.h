@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtFanledAPIFwUpgrade.h
 **
-** Module name       : template
+** Module name       : FanledAPI
 **
 **
 ** Summary:
@@ -17,8 +17,8 @@
 ** - Development
 ==============================================================================*/
 
-#ifndef MTFANLEDAPIBASIC_H_
-#define MTFANLEDAPIBASIC_H_
+#ifndef MTFANLEDAPIFWUPGRADE_H_
+#define MTFANLEDAPIFWUPGRADE_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -58,18 +58,13 @@ extern "C"
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
-                                            UInt16 msgInLen,
-                                            UInt8 *msgOut,
-                                            UInt16 *msgOutLen);
-
-mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
-                                      UInt16 msgInLen,
-                                      UInt8 *msgOut,
-                                      UInt16 *msgOutLen);
+mtErrorCode_t mtFanledApiRequestFirmwareUpgrade(UInt8 *msgIn,
+                                                UInt16 msgInLen,
+                                                UInt8 *msgOut,
+                                                UInt16 *msgOutLen);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MTFANLEDAPIBASIC_H_ */
+#endif /* MTFANLEDAPIFWUPGRADE_H_ */

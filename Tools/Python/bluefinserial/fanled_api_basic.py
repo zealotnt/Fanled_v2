@@ -44,7 +44,6 @@ class FanledAPIBasic():
 		cmd = pkt.Packet('\x8b', '\x00', '\x03')
 		rsp = ''
 
-		start = time.clock()
 		rsp = self._datalink.Exchange(cmd)
 		if rsp is None:
 			print_err("Get version fail")
