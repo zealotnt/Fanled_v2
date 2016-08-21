@@ -30,6 +30,7 @@ typedef Int32 mtErrorCode_t;
 #define MT_SUCCESS                    		0 	/** Global success return status   */
 #define MT_ERROR							-1	/** Global error return status*/
 #define MT_ERR_BAD_FORMAT					-2
+#define MT_ERR_BAD_PARAM					-3
 
 #ifdef __cplusplus
 }

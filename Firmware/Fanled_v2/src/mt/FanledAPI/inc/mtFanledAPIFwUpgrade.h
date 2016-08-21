@@ -38,7 +38,7 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-
+#define MAX_DOWNLOAD_PACKET_LEN			480
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
@@ -51,10 +51,9 @@ typedef struct
 {
 	UInt8 CmdCode;
 	UInt8 ControlCode;
-	UInt16 NumOfPacket;
 	UInt16 PacketNumber;
 	UInt16 PacketLen;
-	UInt8 PacketData[0];
+	UInt32 PacketData[0];
 } mtDownloadCmdPacket_t;
 
 /*!
@@ -73,7 +72,7 @@ typedef struct
 	UInt8 CmdCode;
 	UInt8 ControlCode;
 	UInt16 FirmwareSize;
-	UInt8 MD5[0];
+	UInt32 CRC32;
 } mtChecksumPacket_t;
 
 #pragma pack()
@@ -96,10 +95,21 @@ mtErrorCode_t mtFanledApiRequestFirmwareUpgrade(UInt8 *msgIn,
                                                 UInt8 *msgOut,
                                                 UInt16 *msgOutLen);
 
+mtErrorCode_t mtFanledApiFirmwareEraseApp(UInt8 *msgIn,
+                                          UInt16 msgInLen,
+                                          UInt8 *msgOut,
+                                          UInt16 *msgOutLen);
+
 mtErrorCode_t mtFanledApiFirmwareDownload(UInt8 *msgIn,
                                           UInt16 msgInLen,
                                           UInt8 *msgOut,
                                           UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiFirmwareChecksum(UInt8 *msgIn,
+                                          UInt16 msgInLen,
+                                          UInt8 *msgOut,
+                                          UInt16 *msgOutLen);
+
 #ifdef __cplusplus
 }
 #endif

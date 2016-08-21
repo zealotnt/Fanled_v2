@@ -9,15 +9,15 @@
 #define MTCOMPILESWITCH_H_
 
 #ifndef FANLED_APP
-#define FANLED_APP			0
+#define FANLED_APP					0
 #endif
 
-#ifndef FANLED_BL
-#define FANLED_BL			0
+#ifndef FANLED_BOOTLOADER
+#define FANLED_BOOTLOADER			0
 #endif
 
 #ifndef DEBUG
-#define DEBUG				1
+#define DEBUG						1
 #endif
 
 #endif /* MTCOMPILESWITCH_H_ */

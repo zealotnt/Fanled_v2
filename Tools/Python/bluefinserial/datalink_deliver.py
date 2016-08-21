@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 #
 # datalink_deliver.py
+# [Python Serial Ref](https://pythonhosted.org/pyserial/pyserial_api.html)
+# [Python binascii Ref](https://docs.python.org/2/library/binascii.html)
+# [Python struct Ref](https://docs.python.org/3/library/struct.html)
+# [Python struct TUT](https://pymotw.com/2/struct/)
+# [Python builtin function Ref](https://docs.python.org/2/library/functions.html)
+# [Python string Ref](http://thepythonguru.com/python-strings/)
 
 
 #---- IMPORTS

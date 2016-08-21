@@ -116,7 +116,7 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 int main(void)
 {
-#if defined(FANLED_BOOTLOADER)
+#if (FANLED_BOOTLOADER)
 	initBootloader();
 	uart_dbg_init();
 	DEBUG_INFO("Bootloader %s \r\n", FIRMWARE_VERSION_FULL);
@@ -135,9 +135,8 @@ int main(void)
 			gQueuePayload.Done = False;
 		}
 	}
-	mtBootloaderJumpToApp(FLASH_APP_START_ADDRESS, FLASH_BOOTLOADER_SIZE); //FLASH_BOOTLOADER_SIZE
 
-#elif defined(FANLED_APP)
+#elif (FANLED_APP)
 	initBootloader();
 	uart_dbg_init();
 	DEBUG_INFO("App %s \r\n", FIRMWARE_VERSION_FULL);
