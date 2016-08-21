@@ -84,14 +84,14 @@ if __name__ == "__main__":
 	fanled_fw_upgrade = FanledAPIFwUpgrade(comm)
 	rsp = ''
 
-	while True:
-		start = time.clock()
-		rsp = fanled_basic_api.GetFirmwareVersion()
-		if rsp is None:
-			print_err("Transmit fail")
-			sys.exit(-1)
-		end = time.clock()
-		print "%.2gms" % ((end-start)*1000)
+	# while True:
+		# start = time.clock()
+		# rsp = fanled_basic_api.GetFirmwareVersion()
+		# if rsp is None:
+		# 	print_err("Transmit fail")
+		# 	sys.exit(-1)
+		# end = time.clock()
+		# print "%.2gms" % ((end-start)*1000)
 
 	fanled_fw_upgrade.UpgradeRequest()
 	print "Done !!!"

@@ -45,7 +45,11 @@ extern "C"
 #define CMD_CODE_BASIC				0x8B
 
 #define CTR_CODE_GETVERSION			0x00
+/* free to add */
 #define CTR_CODE_UPGRADEFW			0x30
+#define CTR_CODE_FW_DOWNLOAD		0x32
+#define CTR_CODE_FW_CHECKSUM		0x34
+/* free to add */
 #define CTR_CODE_PROTOCOL_TEST		0x70
 
 /*****************************************************************************/
