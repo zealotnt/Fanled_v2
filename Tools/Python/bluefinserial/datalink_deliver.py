@@ -47,13 +47,15 @@ class BluefinserialCommand():
 		return self.pkt[4:len(self.pkt)-1]
 
 
-class BluefinserialSend(serial.Serial):
+class BluefinserialSend():
 	"""
 	BluefinserialSend extends `Serial` by adding functions to read BluefinSerial commands.
 	"""
+	FLUSH_INPUT = 100
 	ACK_RETRY = 3
 	ACK_TIMEOUT = 500
 	RESPONSE_TIMEOUT = 6000
+	NACK_PACKET = '\x00\x3a\x00\x01\xff\xfe'
 	def __init__(self, port, baud):
 		"""
 		:Parameter port: serial port to use (/dev/tty* or COM*)
@@ -64,24 +66,63 @@ class BluefinserialSend(serial.Serial):
 		self._response = ""
 		self._ack_remain = ""
 		self._port = serial.Serial(port=port, baudrate=baud, timeout=self._timeout)
-		
+
+	def WaitTillFinishRcv(self):
+		time_start = int(round(time.time() * 1000))
+		while True:
+			time_check = int(round(time.time() * 1000))
+			waiting = self._port.inWaiting()
+			read_bytes = self._port.read(1 if waiting == 0 else waiting)
+			if read_bytes == '' and (time_check - time_start) > self.FLUSH_INPUT:
+				self._port.flushInput()
+				return
+
 	def Exchange(self, packet):
-		retry = 0
 		self._ack_remain = ""
 		self._response = ""
 		self._full_packet = ""
 
-		self._port.flushInput()
-		self._port.write(packet)
+		retry = 0
+		ret = False
+		while ret == False and retry < self.ACK_RETRY:
+			self._port.write(packet)
+			ret = self.GetACK()
+			if ret is False:
+				# If fail, flush all input
+				self.WaitTillFinishRcv()
+				print_err("ACK not received, retry " + str(retry + 1))
+			else:
+				# If ok, quit while loop, without increase retry counter
+				break
+			retry += 1
 
-		ret = self.GetACK()
-		if ret is False:
-			print_err("ACK not received, retry " + str(retry))
+		# If receive ACK fail, return
+		if ret == False or retry >= self.ACK_RETRY:
+			print_err("Send fail after retry 3 times")
 			return None
 
+		# Get respone packet
 		ret = self.GetResponse(self._ack_remain)
 
+		# If receive ACK, but not receive Response successfully, 
+		# send NACK, then wait for try-again-response paket
 		if ret == False:
+			retry = 0
+			while ret == False and retry < self.ACK_RETRY:
+				self.WaitTillFinishRcv()
+				self._port.write(self.NACK_PACKET)
+				ret = self.GetResponse(self._ack_remain)
+				if ret is False:
+					# If fail, flush all input
+					self.WaitTillFinishRcv()
+					print_err("Response not received, send NACK and retry " + str(retry + 1))
+				else:
+					# If ok, quit while loop, without increase retry counter
+					break
+				retry += 1
+
+		if ret == False or retry >= self.ACK_RETRY:
+			print_err("Receive response fail")
 			return None
 
 		return self._response
