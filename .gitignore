@@ -1,4 +1,5 @@
 *.d
 *.o
+*.pyc
 
 Firmware/Fanled_v2/Debug

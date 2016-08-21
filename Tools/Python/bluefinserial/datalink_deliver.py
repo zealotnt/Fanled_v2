@@ -96,7 +96,7 @@ class BluefinserialSend(serial.Serial):
 			read_bytes = self._port.read(1 if waiting == 0 else waiting)
 			if read_bytes == '' and (time_check - time_start) > self.ACK_TIMEOUT :
 				if len(partial_packet) != 0:
-					dump_hex(partial_packet, "ACK read timeout, rcv before timeout: ")
+					print_err_dump(partial_packet, "ACK read timeout, rcv before timeout: ")
 				return False
 
 			for b in read_bytes:
@@ -109,7 +109,7 @@ class BluefinserialSend(serial.Serial):
 					self._ack_remain = partial_packet
 					return True
 				else:
-					print_err("Not expected ACK packet")
+					print_err_dump(partial_packet, "Not expected ACK packet")
 					return False
 
 	def GetResponse(self, remain):
@@ -130,13 +130,12 @@ class BluefinserialSend(serial.Serial):
 					STATE = 1
 					partial_packet = partial_packet[2:]
 				else:
-					print_err("Wrong Rsp header, return")
+					print_err_dump(partial_packet, "Wrong Rsp header, return")
 					return False
 			if (len(partial_packet) >= 3 and 
 				STATE == 1):
 				if ((ord(partial_packet[0]) ^ ord(partial_packet[1])) != ord(partial_packet[2])):
-					dump_hex(partial_packet)
-					print_err("LCS not equal Lm ^ Ll, return")
+					print_err_dump(partial_packet, "LCS not equal Lm ^ Ll, return")
 					return False
 				pkt_len = ord(partial_packet[0]) + ord(partial_packet[1])*256
 				pkt_frame_len = partial_packet[:3]
@@ -151,7 +150,7 @@ class BluefinserialSend(serial.Serial):
 				crc = crc8()
 				val = crc.crc(pkt_frame_len + pkt_frame_data)
 				if chr(val) != partial_packet[len(pkt_frame_data)]:
-					print_err("Wrong CRC8 checksum")
+					print_err_dump(partial_packet, "Wrong CRC8 checksum")
 					return False
 				self.response = pkt_frame_data	
 				return True
@@ -160,7 +159,7 @@ class BluefinserialSend(serial.Serial):
 			read_bytes = self._port.read(1 if waiting == 0 else waiting)
 
 			if read_bytes == '' and (time_check - time_start) > self.RESPONSE_TIMEOUT:
-				dump_hex(self._full_packet, "Receive timeout, receive: ")
+				print_err_dump(self._full_packet, "Receive timeout, receive: ")
 				return False
 
 			for b in read_bytes:

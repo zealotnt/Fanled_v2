@@ -21,6 +21,8 @@ class bcolors:
 def print_err(text):
     print >> sys.stderr, bcolors.FAIL + text + bcolors.ENDC
 
+def print_err_dump(data, desc_str):
+    print >> sys.stderr, bcolors.FAIL + desc_str + " " + binascii.hexlify(data) + bcolors.ENDC
 
 def print_ok(text):
     print bcolors.OKGREEN + text + bcolors.ENDC
