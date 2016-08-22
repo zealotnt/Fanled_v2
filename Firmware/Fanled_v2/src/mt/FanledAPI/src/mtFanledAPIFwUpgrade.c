@@ -96,6 +96,7 @@ mtErrorCode_t mtFanledApiFirmwareEraseApp(UInt8 *msgIn,
 	DEBUG_INFO("Get erase app fw request\r\n");
 	packet_id = -1;
 	mtBootloaderEraseAppFw();
+	mtBootloaderWriteUpgradeBKPValue(BKP_PATTERN_UPGRADING);
 	return MT_SUCCESS;
 }
 
@@ -158,6 +159,9 @@ mtErrorCode_t mtFanledApiFirmwareChecksum(UInt8 *msgIn,
 		goto exit;
 	}
 
+	mtBootloaderSaveBackupCRC32Value(pCmd->CRC32);
+	mtBootloaderSaveBackupFwLenValue(pCmd->FirmwareSize);
+	mtBootloaderWriteUpgradeBKPValue(BKP_PATTERN_JUMP_TO_APP);
 	mtSerialCmdDataLinkCallbackRegister(JumpToApp);
 
 exit:

@@ -43,8 +43,9 @@
 #endif
 
 #define BKP_BOOTLOADER_ID				BKP_DR2
-#define BKP_PATTERN_JUMP_TO_APP			0x1234
-#define BKP_PATTERN_REQ_UPGRADE			0x0000
+#define BKP_CRC32_LOW					BKP_DR3
+#define BKP_CRC32_HIGH					BKP_DR4
+#define BKP_FW_LEN						BKP_DR5
 
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
@@ -170,6 +171,33 @@ u32 CalcCRC32_BZIP2(u8 *buffer, u32 size, Bool swap)
 	return ui32;
 };
 
+UInt32 mtBootloaderGetBackupCRC32Value()
+{
+	UInt16 templ, temph;
+	templ = BKP_ReadBackupRegister(BKP_CRC32_LOW);
+	temph = BKP_ReadBackupRegister(BKP_CRC32_HIGH);
+	return (templ + (temph << 16));
+}
+
+UInt16 mtBootloaderGetBackupFwLenValue()
+{
+	return BKP_ReadBackupRegister(BKP_FW_LEN);
+}
+
+Bool mtBootloaderCheckAppValid()
+{
+	UInt32 crc32_saved = mtBootloaderGetBackupCRC32Value();
+	UInt16 fw_len_saved = mtBootloaderGetBackupFwLenValue();
+	/* Calculate self checksum */
+	UInt32 crc32_cal = mtBootloaderFlashCalculateCRC32((UInt8 *)FLASH_APP_START_ADDRESS, fw_len_saved);
+	if (crc32_saved != crc32_cal)
+	{
+		return False;
+	}
+
+	return True;
+}
+
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
@@ -224,25 +252,42 @@ Void mtBootloaderCoreReset()
 Void mtBootloaderRequestUpgrade()
 {
 	/* Next time reset -> jump Bootloader will wait for firmware upgrade */
-	BKP_WriteBackupRegister(BKP_DR2, BKP_PATTERN_REQ_UPGRADE);
+	mtBootloaderWriteUpgradeBKPValue(BKP_PATTERN_REQ_UPGRADE);
+}
+
+Void mtBootloaderWriteUpgradeBKPValue(UInt16 value)
+{
+	BKP_WriteBackupRegister(BKP_BOOTLOADER_ID, value);
+}
+
+Void mtBootloaderSaveBackupCRC32Value(UInt32 crc32)
+{
+	BKP_WriteBackupRegister(BKP_CRC32_LOW, crc32 & 0xffff);
+	BKP_WriteBackupRegister(BKP_CRC32_HIGH, ((crc32 & 0xffff0000) >> 16));
+}
+
+Void mtBootloaderSaveBackupFwLenValue(UInt16 len)
+{
+	BKP_WriteBackupRegister(BKP_FW_LEN, len);
 }
 
 Bool mtBootloaderCheckFwUpgardeRequest()
 {
-	Bool status = False;
+	Bool status = True;
 
 	/* Check if there is any upgrage request */
-	/* Set time registers to 00:00:00; configuration done via gui */
-	if (BKP_PATTERN_REQ_UPGRADE == BKP_ReadBackupRegister(BKP_BOOTLOADER_ID))
+	if (BKP_PATTERN_JUMP_TO_APP == BKP_ReadBackupRegister(BKP_BOOTLOADER_ID))
 	{
-		BL_INFO("Get firmware upgrade request, wait for firmware download\r\n");
-		status = True;
-		goto exit;
+		if (True == mtBootloaderCheckAppValid())
+		{
+			BL_INFO("Firmware consistency check valid, "
+					"no firmware upgrade request\r\n");
+			status = False;
+			goto exit;
+		}
+		BL_ERR("Firmware checksum fail\r\n");
 	}
-	BL_INFO("No firmware upgrade request detected\r\n");
 exit:
-	/* Next time reset -> jump straight to application */
-	BKP_WriteBackupRegister(BKP_DR2, BKP_PATTERN_JUMP_TO_APP);
 	return status;
 }
 
