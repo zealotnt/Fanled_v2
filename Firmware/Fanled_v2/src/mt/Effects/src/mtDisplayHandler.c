@@ -86,14 +86,12 @@ static uint8_t gTimer_Overload_Count = 0;
 /******************************************************************************/
 void mtFanledSpiTxCmplt(void)
 {
-#if (FANLED_APP)
 	if (DMA_GetFlagStatus(DMA1_FLAG_TC3) != RESET)
 	{
 		g_SPI_DMA_Flag = 1;
 		DMA_ClearFlag(DMA1_FLAG_TC3);
 		DMA_Cmd(DMA1_Channel3, DISABLE);
 	}
-#endif
 }
 
 void mtHallSensorHandler(void)

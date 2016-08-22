@@ -49,7 +49,7 @@
 /******************************************************************************/
 #define BLUETOOTH_KEYPIN_RESET()		GPIO_ResetBits(GPIOA, GPIO_Pin_11);
 #define BLUETOOTH_KEYPIN_SET()			GPIO_SetBits(GPIOA, GPIO_Pin_11);
-#define bltPrintf(...)					printf(__VA_ARGS__)
+#define bltPrintf(...)					bltPrintStr(__VA_ARGS__)
 
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
@@ -84,6 +84,15 @@ void checkResponseOK(void)
 #endif
 }
 
+void bltPrintStr(char *str)
+{
+	while(*str)
+	{
+		uart_cmd_write_char(*str);
+		str++;
+	}
+}
+
 void bltSendMultiChar(char *data, uint32_t length)
 {
 	mtUartWriteBuf((UInt8 *)data, length);
@@ -116,6 +125,10 @@ void bltInitStandardBluetoothMode(void)
 	BLUETOOTH_KEYPIN_SET();
 	mtDelayMS(200);
 	bltPrintf("AT\r\n");
+	mtDelayMS(300);
+	checkResponseOK();
+
+	bltPrintf("AT+CMODE=1\r\n");
 	mtDelayMS(300);
 	checkResponseOK();
 

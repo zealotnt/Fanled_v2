@@ -85,8 +85,6 @@ void mtSystickHandler(void)
 	static volatile uint32_t Timing_Count = 0;
 	static volatile uint32_t Scroll_Count = 0;
 
-	TimingDelay_Decrement();
-
 	if (Scroll_Count > Fanled_Display.scroll_times && Fanled_Display.enable_flag == SCROLL_ENABLE_DISPLAY)
 	{
 		Fanled_Display.move_flag = 1;
@@ -123,6 +121,7 @@ void mtSystickHandler(void)
 		Fanled_Display.misc_count += MISC_CHANGE_SPEED;
 	}
 #endif
+	TimingDelay_Decrement();
 	mtDelayClockTick();
 }
 

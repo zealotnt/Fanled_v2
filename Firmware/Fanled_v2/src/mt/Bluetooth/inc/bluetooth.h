@@ -55,6 +55,7 @@
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
+void bltPrintStr(char *str);
 void bltSendCharUart(char data);
 void bltSendMultiChar(char *data, uint32_t length);
 void bltPrintf(const char * __restrict format, ...);

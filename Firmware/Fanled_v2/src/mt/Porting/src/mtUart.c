@@ -100,7 +100,7 @@ void uart_cmd_init(bool config)
 	}
 	else
 	{
-		USARTInitStructure.USART_BaudRate = 460800;
+		USARTInitStructure.USART_BaudRate = 115200;
 	}
 	USARTInitStructure.USART_WordLength = USART_WordLength_8b;
 	USARTInitStructure.USART_StopBits = USART_StopBits_1;

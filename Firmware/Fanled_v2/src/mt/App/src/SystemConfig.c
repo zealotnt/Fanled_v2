@@ -93,19 +93,15 @@ void initBootloader(void)
 	bltInitModule(false);
 	mtInterByteTimer_Init();
 	mtBootloaderInitFlash();
-//	blankAllLed();
-//	mtTimerFanledDisplayInit();
+	blankAllLed();
 }
 
 void initAll(void)
 {
-	mtRCCInit();
-	mtSysTickInit();
-	mtFanledSPIInit();
-	mtTimerFanledDisplayInit();
+	initBootloader();
 	mtHallSensorInit();
-	bltInitModule(false);
 	stmInitRTC();
+	mtTimerFanledDisplayInit();
 }
 
 void mtSysTickInit(void)
