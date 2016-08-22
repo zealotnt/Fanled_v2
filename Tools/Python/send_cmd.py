@@ -93,37 +93,37 @@ if __name__ == "__main__":
 		# end = time.clock()
 		# print "%.2gms" % ((end-start)*1000)
 
-	PROMT = u"Input your command:"
-	HELP = u"""
-Support comand:
-- erase | e: erase firmware flash
-- up    | u: request app to upgrade firmware, jump back to bootloader
-- write | w: continue write firmware content to target device
-- reset | r: reset file and index sequence 
-"""
-	FW_PATH = "/home/zealot/workspace_NotCategorized/Fanled_v2/Firmware/Fanled_v2/Build-App/Fanled_v2.bin"
-	fw = open(FW_PATH, "rb")
-	fw_max_packet = GetNumOfPacket(FW_PATH)
-	fw_contents = GetFileContent(FW_PATH)
+# 	PROMT = u"Input your command:"
+# 	HELP = u"""
+# Support comand:
+# - erase | e: erase firmware flash
+# - up    | u: request app to upgrade firmware, jump back to bootloader
+# - write | w: continue write firmware content to target device
+# - reset | r: reset file and index sequence 
+# """
+	# FW_PATH = "/home/zealot/workspace_NotCategorized/Fanled_v2/Firmware/Fanled_v2/Build-App/Fanled_v2.bin"
+	# fw = open(FW_PATH, "rb")
+	# fw_max_packet = GetNumOfPacket(FW_PATH)
+	# fw_contents = GetFileContent(FW_PATH)
 
-	fw_idx = 0
-	while True:
-		user_promt = raw_input(PROMT)
-		if user_promt == "erase" or user_promt == "e":
-			fanled_fw_upgrade.EraseAppFwRequest()
-		elif user_promt == "write" or user_promt == "w":
-			print "Writing firmware index " + str(fw_idx)
-			first_idx = fw_idx * PACKET_MAX_SIZE
-			end_idx = ((fw_idx + 1) * PACKET_MAX_SIZE)
-			fanled_fw_upgrade.WriteFirmwarePacket(fw_idx, PACKET_MAX_SIZE, fw_contents[first_idx:end_idx])
-			fw_idx += 1
-		elif user_promt == "write all" or user_promt == "wa":
-			fanled_fw_upgrade.DownloadFirmware(FW_PATH)
-		elif user_promt == "checksum" or user_promt == "ck":
-			fanled_fw_upgrade.DownloadChecksum(FW_PATH)
-		elif user_promt == "reset" or user_promt == "r":
-			fw_idx = 0
-		elif user_promt == "up" or user_promt == "u":
-			fanled_fw_upgrade.UpgradeRequest()
-		else:
-			print HELP
+	# fw_idx = 0
+	# while True:
+	# 	user_promt = raw_input(PROMT)
+	# 	if user_promt == "erase" or user_promt == "e":
+	# 		fanled_fw_upgrade.EraseAppFwRequest()
+	# 	elif user_promt == "write" or user_promt == "w":
+	# 		print "Writing firmware index " + str(fw_idx)
+	# 		first_idx = fw_idx * PACKET_MAX_SIZE
+	# 		end_idx = ((fw_idx + 1) * PACKET_MAX_SIZE)
+	# 		fanled_fw_upgrade.WriteFirmwarePacket(fw_idx, PACKET_MAX_SIZE, fw_contents[first_idx:end_idx])
+	# 		fw_idx += 1
+	# 	elif user_promt == "write all" or user_promt == "wa":
+	# 		fanled_fw_upgrade.DownloadFirmware(FW_PATH)
+	# 	elif user_promt == "checksum" or user_promt == "ck":
+	# 		fanled_fw_upgrade.DownloadChecksum(FW_PATH)
+	# 	elif user_promt == "reset" or user_promt == "r":
+	# 		fw_idx = 0
+	# 	elif user_promt == "up" or user_promt == "u":
+	# 		fanled_fw_upgrade.UpgradeRequest()
+	# 	else:
+	# 		print HELP

@@ -22,9 +22,9 @@
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
 #include "../inc/mtSerialCmdParser.h"
-#include "../inc/mtSerialHandler.h"
 #include "../inc/mtSerialPorting.h"
 #include "Utility/inc/mtDumpData.h"
+#include "FanledAPI/inc/mtFanledHandler.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */

@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtFanledHandler.h
 **
-** Module name       : template
+** Module name       : FanledAPI
 **
 **
 ** Summary:
@@ -17,8 +17,8 @@
 ** - Development
 ==============================================================================*/
 
-#ifndef _MTREADERHANDLER_H_
-#define _MTREADERHANDLER_H_
+#ifndef MTFANLEDHANDLER_H_
+#define MTFANLEDHANDLER_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -28,8 +28,7 @@ extern "C"
 /*****************************************************************************/
 /* INCLUSIONS                                                                */
 /*****************************************************************************/
-/********** Include section ***************************************************/
-#include "mtInclude.h"
+
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -90,4 +89,4 @@ mtErrorCode_t mtSerialProcessCmdPacket(UInt8 *msgIn,
 }
 #endif
 
-#endif /* _MTREADERHANDLER_H_ */
+#endif /* MTFANLEDHANDLER_H_ */

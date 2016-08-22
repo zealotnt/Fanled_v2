@@ -130,3 +130,22 @@ class FanledAPIFwUpgrade():
 		else:
 			print_err("Firmware checksum mismatch")
 		return True
+
+	def UpgradeFirmware(self, file_path):
+		ret = self.UpgradeRequest()
+		if ret is None:
+			return False
+
+		ret = self.EraseAppFwRequest()
+		if ret is None:
+			return False
+
+		ret = self.DownloadFirmware(file_path)
+		if ret is False:
+			return False
+
+		ret = self.DownloadChecksum(file_path)
+		if ret is False:
+			return False
+
+		return True

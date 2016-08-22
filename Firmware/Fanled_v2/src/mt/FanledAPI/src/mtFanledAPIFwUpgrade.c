@@ -81,8 +81,10 @@ mtErrorCode_t mtFanledApiRequestFirmwareUpgrade(UInt8 *msgIn,
                                                 UInt8 *msgOut,
                                                 UInt16 *msgOutLen)
 {
+#if (FANLED_APP)
 	mtBootloaderRequestUpgrade();
 	mtSerialCmdDataLinkCallbackRegister(ResetHandler);
+#endif
 	return MT_SUCCESS;
 }
 
