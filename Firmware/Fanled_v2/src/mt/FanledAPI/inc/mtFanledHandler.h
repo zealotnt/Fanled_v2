@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtFanledHandler.h
 **
-** Module name       : template
+** Module name       : FanledAPI
 **
 **
 ** Summary:
@@ -17,8 +17,8 @@
 ** - Development
 ==============================================================================*/
 
-#ifndef MTFANLEDAPIBASIC_H_
-#define MTFANLEDAPIBASIC_H_
+#ifndef MTFANLEDHANDLER_H_
+#define MTFANLEDHANDLER_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -43,7 +43,19 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
 /*****************************************************************************/
+typedef mtErrorCode_t (*fnSerialCmdHandler) (UInt8 *msgIn, UInt16 msgInLen, UInt8 *msgOut, UInt16 *msgOutLen);
 
+#pragma pack(1)
+/*!
+ *	\brief basic element of ReaderHandler Table Function
+ */
+typedef struct
+{
+	UInt8 CmdCode;
+	UInt8 ControlCode;
+	fnSerialCmdHandler fnHandler;
+} mtSerialAppAPIHandler;
+#pragma pack()
 
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
@@ -58,18 +70,23 @@ extern "C"
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
-                                            UInt16 msgInLen,
-                                            UInt8 *msgOut,
-                                            UInt16 *msgOutLen);
-
-mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
-                                      UInt16 msgInLen,
-                                      UInt8 *msgOut,
-                                      UInt16 *msgOutLen);
+/**
+ * \brief Parse Command code, control code and Process receive Command
+ *
+ * \param msgIn pointer to Command packet
+ * \param msgInLen len of Command packet
+ * \param msgOut pointer to Response packet
+ * \param msgOutLen len of Response packet
+ *
+ * \return MT_SUCCESS
+ */
+mtErrorCode_t mtSerialProcessCmdPacket(UInt8 *msgIn,
+                                       UInt16 msgInLen,
+                                       UInt8 *msgOut,
+                                       UInt16 *msgOutLen);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MTFANLEDAPIBASIC_H_ */
+#endif /* MTFANLEDHANDLER_H_ */

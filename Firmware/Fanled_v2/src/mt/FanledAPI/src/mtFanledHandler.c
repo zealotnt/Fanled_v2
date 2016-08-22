@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtFanledHandler.c
 **
-** Module name       : template
+** Module name       : FanledAPI
 **
 **
 ** Summary:
@@ -21,10 +21,11 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "../inc/mtSerialHandler.h"
-#include "../inc/mtSerialCmdParser.h"
-#include "../inc/mtSerialPorting.h"
-#include "FanledAPI/inc/mtFanledAPICode.h"
+#include "mtInclude.h"
+#include "UartHandler/inc/mtSerialCmdParser.h"
+#include "UartHandler/inc/mtSerialPorting.h"
+#include "../inc/mtFanledHandler.h"
+#include "../inc/mtFanledAPICode.h"
 
 #include <string.h>
 
@@ -51,23 +52,33 @@
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-static const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
+const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 {
+#if (FANLED_BOOTLOADER)
+	{CMD_CODE_BASIC,	CTR_CODE_UPGRADEFW,			mtFanledApiRequestFirmwareUpgrade},
+	{CMD_CODE_BASIC,	CTR_CODE_FW_DOWNLOAD,		mtFanledApiFirmwareDownload},
+	{CMD_CODE_BASIC,	CTR_CODE_FW_CHECKSUM,		mtFanledApiFirmwareChecksum},
+	{CMD_CODE_BASIC,	CTR_CODE_ERASE_APP,			mtFanledApiFirmwareEraseApp},
+
+#elif (FANLED_APP)
+	{CMD_CODE_BASIC,	CTR_CODE_UPGRADEFW,			mtFanledApiRequestFirmwareUpgrade},
+
+#endif
+	/* Common API for both Bootloader and Application */
 	{CMD_CODE_BASIC,	CTR_CODE_GETVERSION,		mtFanledApiGetFirmwareVersion},
 	{CMD_CODE_BASIC, 	CTR_CODE_PROTOCOL_TEST, 	mtFanledApiProtocolTest},
 	{0, 0, Null},
 };
 #define SERIAL_APP_API_TABLE_LEN		MT_ARRAY_SIZE(gSerialReaderHandlerTable)
 
+
 /******************************************************************************/
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
 /******************************************************************************/
-static UInt32 mtSerial_FindTableItem(
-    Const mtSerialAppAPIHandler table[],
-    UInt32 dwTableLen,
-    UInt8 bCmd,
-    UInt8 bControl);
-
+static UInt32 mtSerial_FindTableItem(Const mtSerialAppAPIHandler table[],
+                                     UInt32 dwTableLen,
+                                     UInt8 bCmd,
+                                     UInt8 bControl);
 
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
@@ -75,11 +86,10 @@ static UInt32 mtSerial_FindTableItem(
 /**
  * @Function: mtSerial_FindTableItem
  */
-static UInt32 mtSerial_FindTableItem(
-    Const mtSerialAppAPIHandler table[],
-    UInt32 dwTableLen,
-    UInt8 bCmd,
-    UInt8 bControl)
+static UInt32 mtSerial_FindTableItem(Const mtSerialAppAPIHandler table[],
+                                     UInt32 dwTableLen,
+                                     UInt8 bCmd,
+                                     UInt8 bControl)
 {
 	UInt32 dwIdx;
 	Bool bFoundCmdCode = False;

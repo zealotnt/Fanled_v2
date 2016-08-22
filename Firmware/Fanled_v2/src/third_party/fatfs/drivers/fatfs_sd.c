@@ -123,33 +123,33 @@ static int wait_ready (	/* 1:Ready, 0:Timeout */
 
 
 /*-----------------------------------------------------------------------*/
-/* Deselect card and release SPI                                         */
+/* sd_deselect card and release SPI                                         */
 /*-----------------------------------------------------------------------*/
 
-static void deselect (void)
+static void sd_deselect (void)
 {
 	FATFS_CS_HIGH;			/* CS = H */
 	xchg_spi(0xFF);			/* Dummy clock (force DO hi-z for multiple slave SPI) */
-	FATFS_DEBUG_SEND_USART("deselect: ok");
+	FATFS_DEBUG_SEND_USART("sd_deselect: ok");
 }
 
 
 
 /*-----------------------------------------------------------------------*/
-/* Select card and wait for ready                                        */
+/* sd_select card and wait for ready                                        */
 /*-----------------------------------------------------------------------*/
 
-static int select (void)	/* 1:OK, 0:Timeout */
+static int sd_select (void)	/* 1:OK, 0:Timeout */
 {
 	FATFS_CS_LOW;
 	xchg_spi(0xFF);	/* Dummy clock (force DO enabled) */
 
 	if (wait_ready(500)) {
-		FATFS_DEBUG_SEND_USART("select: OK");
+		FATFS_DEBUG_SEND_USART("sd_select: OK");
 		return 1;	/* OK */
 	}
-	FATFS_DEBUG_SEND_USART("select: no");
-	deselect();
+	FATFS_DEBUG_SEND_USART("sd_select: no");
+	sd_deselect();
 	return 0;	/* Timeout */
 }
 
@@ -236,10 +236,10 @@ static BYTE send_cmd (		/* Return value: R1 resp (bit7==1:Failed to send) */
 		if (res > 1) return res;
 	}
 
-	/* Select the card and wait for ready except to stop multiple block read */
+	/* sd_select the card and wait for ready except to stop multiple block read */
 	if (cmd != CMD12) {
-		deselect();
-		if (!select()) return 0xFF;
+		sd_deselect();
+		if (!sd_select()) return 0xFF;
 	}
 
 	/* Send command packet */
@@ -357,7 +357,7 @@ DSTATUS FATFS_SD_disk_initialize (void) {
 		}
 	}
 	FATFS_SD_CardType = ty;	/* Card type */
-	deselect();
+	sd_deselect();
 
 	if (ty) {			/* OK */
 		FATFS_SD_Stat &= ~STA_NOINIT;	/* Clear STA_NOINIT flag */
@@ -433,7 +433,7 @@ DRESULT FATFS_SD_disk_read (
 			send_cmd(CMD12, 0);				/* STOP_TRANSMISSION */
 		}
 	}
-	deselect();
+	sd_deselect();
 
 	return count ? RES_ERROR : RES_OK;	/* Return result */
 }
@@ -488,7 +488,7 @@ DRESULT FATFS_SD_disk_write (
 			}
 		}
 	}
-	deselect();
+	sd_deselect();
 
 	return count ? RES_ERROR : RES_OK;	/* Return result */
 }
@@ -520,7 +520,7 @@ DRESULT FATFS_SD_disk_ioctl (
 
 	switch (cmd) {
 	case CTRL_SYNC :		/* Wait for end of internal write process of the drive */
-		if (select()) res = RES_OK;
+		if (sd_select()) res = RES_OK;
 		break;
 
 	case GET_SECTOR_COUNT :	/* Get drive capacity in unit of sector (DWORD) */
@@ -575,7 +575,7 @@ DRESULT FATFS_SD_disk_ioctl (
 		res = RES_PARERR;
 	}
 
-	deselect();
+	sd_deselect();
 
 	return res;
 }

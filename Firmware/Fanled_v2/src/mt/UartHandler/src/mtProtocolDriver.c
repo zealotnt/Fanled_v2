@@ -85,7 +85,6 @@ void mtInterByteTimer_Init(void)
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 , ENABLE);
-	RCC_PCLK1Config(RCC_HCLK_Div1);
 
 	/* Compute the prescaler value */
 	PrescalerValue = (uint16_t) (SystemCoreClock / 65535) - 1;
@@ -139,6 +138,7 @@ void mtInterByteTimer_Reload(UInt32 timeout_ms)
 void mtInterByteTimer_Disable()
 {
 	TIM_Cmd(TIM3, DISABLE);
+	TIM_ITConfig(TIM3, TIM_IT_CC1, DISABLE);
 }
 
 void mtUartWriteBuf(UInt8 *byte, UInt32 len)
@@ -146,7 +146,7 @@ void mtUartWriteBuf(UInt8 *byte, UInt32 len)
 	uint32_t i = 0;
 	while (len != 0)
 	{
-		uart_write_char(byte[i]);
+		uart_cmd_write_char(byte[i]);
 		i++;
 		len--;
 	}

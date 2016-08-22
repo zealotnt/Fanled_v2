@@ -28,7 +28,7 @@ extern "C"
 /*****************************************************************************/
 /* INCLUSIONS                                                                */
 /*****************************************************************************/
-
+#include <stdio.h>
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -72,9 +72,13 @@ extern "C"
 /* DEFINITION OF MACROS                                                      */
 /*****************************************************************************/
 /* Header for module's debugging */
+#if (DEBUG)
 #define DEBUG_INFO(...)					printf(__VA_ARGS__)
 #define DEBUG_ERROR(...)				printf(KRED KBOLD __VA_ARGS__); printf(KRESET "\r\n");
-
+#else
+#define DEBUG_INFO(...)
+#define DEBUG_ERROR(...)
+#endif
 
 /*****************************************************************************/
 /* DECLARATION OF VARIABLES (Only external global variables)                 */

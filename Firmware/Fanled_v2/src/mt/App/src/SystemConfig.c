@@ -30,6 +30,7 @@
 #include "Bluetooth/inc/bluetooth.h"
 #include "UartHandler/inc/mtProtocolDriver.h"
 #include "RTC/inc/mtRtcDriver.h"
+#include "Bootloader/inc/driverBootloader.h"
 
 #include "misc.h"
 #include "stm32f10x.h"
@@ -40,6 +41,8 @@
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_usart.h"
 #include "stm32f10x_exti.h"
+#include "stm32f10x_pwr.h"
+#include "stm32f10x_bkp.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -84,19 +87,20 @@ extern volatile uint32_t CCR2_Val;
 /******************************************************************************/
 void initBootloader(void)
 {
-	mtSysTickInit();
 	mtRCCInit();
+	mtSysTickInit();
 	mtFanledSPIInit();
 	bltInitModule(false);
 	mtInterByteTimer_Init();
+	mtBootloaderInitFlash();
 //	blankAllLed();
 //	mtTimerFanledDisplayInit();
 }
 
 void initAll(void)
 {
-	mtSysTickInit();
 	mtRCCInit();
+	mtSysTickInit();
 	mtFanledSPIInit();
 	mtTimerFanledDisplayInit();
 	mtHallSensorInit();
@@ -165,13 +169,11 @@ void mtHallSensorDeinit(void)
 void mtRCCInit(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOA |
-	                        RCC_APB2Periph_GPIOB |
-	                        RCC_APB2Periph_GPIOC |
-	                        RCC_APB2Periph_AFIO |
-	                        RCC_APB2Periph_USART1 |
-	                        RCC_APB2Periph_SPI1 , ENABLE);
+
+	RCC_PCLK1Config(RCC_HCLK_Div1);
+
+	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOC |
+	                        RCC_APB2Periph_AFIO, ENABLE);
 
 	//SD Card enable
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
@@ -180,16 +182,20 @@ void mtRCCInit(void)
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 	GPIO_WriteBit(GPIOA, GPIO_Pin_8, (BitAction)1);
+#if (FANLED_APP)
+	/* Set system control register SCR->VTOR  */
+	NVIC_SetVectorTable(NVIC_VectTab_FLASH, FLASH_BOOTLOADER_SIZE);
+#endif
 }
 
 void mtBluetoothUSARTInit(bool config)
 {
-	uart_init(config);
+	uart_cmd_init(config);
 }
 
 void mtBluetoothUSARTChangeBaud(uint32_t baudrate)
 {
-	uart_change_baud(baudrate);
+	uart_cmd_change_baud(baudrate);
 }
 
 /* Initialize HC05 key pin */

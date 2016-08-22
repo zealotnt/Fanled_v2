@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtFanledAPIFwUpgrade.h
 **
-** Module name       : template
+** Module name       : FanledAPI
 **
 **
 ** Summary:
@@ -17,8 +17,8 @@
 ** - Development
 ==============================================================================*/
 
-#ifndef _MTREADERHANDLER_H_
-#define _MTREADERHANDLER_H_
+#ifndef MTFANLEDAPIFWUPGRADE_H_
+#define MTFANLEDAPIFWUPGRADE_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -28,8 +28,7 @@ extern "C"
 /*****************************************************************************/
 /* INCLUSIONS                                                                */
 /*****************************************************************************/
-/********** Include section ***************************************************/
-#include "mtInclude.h"
+
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -39,23 +38,43 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-
+#define MAX_DOWNLOAD_PACKET_LEN			480
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
 /*****************************************************************************/
-typedef mtErrorCode_t (*fnSerialCmdHandler) (UInt8 *msgIn, UInt16 msgInLen, UInt8 *msgOut, UInt16 *msgOutLen);
-
 #pragma pack(1)
 /*!
- *	\brief basic element of ReaderHandler Table Function
+ *	\brief Download Command Packet data structure
  */
 typedef struct
 {
 	UInt8 CmdCode;
 	UInt8 ControlCode;
-	fnSerialCmdHandler fnHandler;
-} mtSerialAppAPIHandler;
+	UInt16 PacketNumber;
+	UInt16 PacketLen;
+	UInt32 PacketData[0];
+} mtDownloadCmdPacket_t;
+
+/*!
+ *	\brief Download Response Packet data structure
+ */
+typedef struct
+{
+	UInt8 RespCode;
+	UInt8 RespControl;
+	UInt8 Status;
+	UInt16 PacketNumber;
+} mtDownloadResponsePacket_t;
+
+typedef struct
+{
+	UInt8 CmdCode;
+	UInt8 ControlCode;
+	UInt16 FirmwareSize;
+	UInt32 CRC32;
+} mtChecksumPacket_t;
+
 #pragma pack()
 
 /*****************************************************************************/
@@ -71,23 +90,28 @@ typedef struct
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-/**
- * \brief Parse Command code, control code and Process receive Command
- *
- * \param msgIn pointer to Command packet
- * \param msgInLen len of Command packet
- * \param msgOut pointer to Response packet
- * \param msgOutLen len of Response packet
- *
- * \return MT_SUCCESS
- */
-mtErrorCode_t mtSerialProcessCmdPacket(UInt8 *msgIn,
-                                       UInt16 msgInLen,
-                                       UInt8 *msgOut,
-                                       UInt16 *msgOutLen);
+mtErrorCode_t mtFanledApiRequestFirmwareUpgrade(UInt8 *msgIn,
+                                                UInt16 msgInLen,
+                                                UInt8 *msgOut,
+                                                UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiFirmwareEraseApp(UInt8 *msgIn,
+                                          UInt16 msgInLen,
+                                          UInt8 *msgOut,
+                                          UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiFirmwareDownload(UInt8 *msgIn,
+                                          UInt16 msgInLen,
+                                          UInt8 *msgOut,
+                                          UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiFirmwareChecksum(UInt8 *msgIn,
+                                          UInt16 msgInLen,
+                                          UInt8 *msgOut,
+                                          UInt16 *msgOutLen);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _MTREADERHANDLER_H_ */
+#endif /* MTFANLEDAPIFWUPGRADE_H_ */

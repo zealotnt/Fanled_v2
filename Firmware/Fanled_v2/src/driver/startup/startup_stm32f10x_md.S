@@ -98,7 +98,7 @@ LoopFillZerobss:
 	bcc	FillZerobss
 /* Call the clock system intitialization function.*/
 	bl  SystemInit
-	bl  cpsie
+	bl  core_enable_isr
 /* Call the application's entry point.*/
 	bl	main
 	bx	lr    

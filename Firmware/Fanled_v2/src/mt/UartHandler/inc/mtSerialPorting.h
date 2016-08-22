@@ -38,38 +38,6 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-/* Console color print */
-#define KNRM  	"\033[0m"
-#define KRED  	"\033[31m"
-#define KGRN  	"\033[32m"
-#define KYEL  	"\033[33m"
-#define KBLU  	"\033[34m"
-#define KMAG  	"\033[35m"
-#define KCYN  	"\033[36m"
-#define KWHT  	"\033[37m"
-
-#define KLGRN	"\033[92m"
-#define KLRED	"\033[91m"
-#define KLYEL	"\033[93m"
-#define KLBLU	"\033[94m"
-#define KLMAG	"\033[95m"
-#define KLCYN	"\033[96m"
-
-/* Console style print */
-#define KBOLD	"\033[1m"
-#define KUDLN	"\033[4m"
-#define KBLINK	"\033[5m"
-
-/* Background color */
-#define KBGRED	"\033[41m"
-#define KBGYEL	"\033[43m"
-#define KBGGRN	"\033[42m"
-#define KBGBLU	"\033[44m"
-
-
-/* Reset all settings of console print */
-#define KRESET "\033[0m"
-#define KRBOLD "\033[21m"
 
 
 /*****************************************************************************/
@@ -111,17 +79,19 @@ typedef struct
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
 /*****************************************************************************/
+#if (DEBUG)
+#define DEBUG_SERIAL_PRINT(...)				printf(__VA_ARGS__)
+#define DEBUG_SERIAL_PRINT_NOTIFY_BAD(...)	do {printf(KRED KBOLD __VA_ARGS__ ); printf(KRESET "\r\n");} while(0);
+#define DEBUG_SERIAL_TIMING_PRINT(...)
+#define DEBUG_SERIAL_ERROR_PRINT(...)		printf(__VA_ARGS__ "\r\n");
+#define DEBUG_SERIAL_PRINT_NOTIFY_HANG(...)	do {printf(KRED KBOLD __VA_ARGS__); printf(KRESET "\r\n"); while(1);} while(0);
+#else
 #define DEBUG_SERIAL_PRINT(...)
 #define DEBUG_SERIAL_PRINT_NOTIFY_BAD(...)
 #define DEBUG_SERIAL_TIMING_PRINT(...)
 #define DEBUG_SERIAL_ERROR_PRINT(...)
 #define DEBUG_SERIAL_PRINT_NOTIFY_HANG(...)
-
-//#define DEBUG_SERIAL_PRINT(...)				printf(__VA_ARGS__)
-//#define DEBUG_SERIAL_PRINT_NOTIFY_BAD(...)	printf(KRED KBOLD __VA_ARGS__ ); printf(KRESET "\r\n");
-//#define DEBUG_SERIAL_TIMING_PRINT(...)
-//#define DEBUG_SERIAL_ERROR_PRINT(...)			printf(__VA_ARGS__ "\r\n");
-//#define DEBUG_SERIAL_PRINT_NOTIFY_HANG(...)	printf(KRED KBOLD __VA_ARGS__); printf(KRESET "\r\n"); while(1);
+#endif
 
 #define mtMutexLock(a)
 #define mtMutexUnlock(a)

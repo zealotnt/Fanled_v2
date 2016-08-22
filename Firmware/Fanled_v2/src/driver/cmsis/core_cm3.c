@@ -434,7 +434,7 @@ uint32_t __STREXW(uint32_t value, uint32_t *addr)
 #elif (defined (__GNUC__)) /*------------------ GNU Compiler ---------------------*/
 /* GNU gcc specific functions */
 
-unsigned int __attribute__((naked)) cpsid(void)
+unsigned int __attribute__((naked)) core_disable_isr(void)
 {
     unsigned int								result;
 
@@ -458,7 +458,7 @@ unsigned int __attribute__((naked)) cpsid(void)
     return result;
 }
 
-unsigned int __attribute__((naked)) cpsie(void)
+unsigned int __attribute__((naked)) core_enable_isr(void)
 {
     unsigned int								result;
 

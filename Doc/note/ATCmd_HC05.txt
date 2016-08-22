@@ -1,0 +1,32 @@
+[str-hex converter](http://codebeautify.org/string-hex-converter)
+
+AT+CMODE=1$0D$0a                //Pair to any device
+41 54 2b 43 4d 4f 44 45 3d 31 0d 0a
+
+AT$0D$0A                        //TEST OK
+61 74 0d 0a
+
+AT+NAME?$0D$0A                  //Name check
+41 54 2b 4e 41 4d 45 3f 0d 0a
+
+AT+VERSION?$0D$0A               //Version check
+
+AT+ADDR?$0D$0A                  //Get module address
+
+AT+ROLE?$0D$0A                  //Get role of the module 0:slave 1:master
+
+AT+PSWD?$0D$0A                  //Check password of module
+41 54 2b 50 53 57 44 3f 0d 0a
+
+AT+PSWD=""$0D$0A                //Set password for module
+
+AT+RESET$0D$0A                  //Reset module
+
+AT+ORGL$0D$0A                   //Restore default status
+
+AT+NAME="ZEALOT-HC"$0D$0A       //Set name to module
+
+AT+UART=460800,1,0$0D$0A
+41 54 2b 55 41 52 54 3d 34 36 30 38 30 30 2c 31 2c 30 0d 0a
+AT+UART=115200,1,0$0D$0A
+41 54 2b 55 41 52 54 3d 31 31 35 32 30 30 2c 31 2c 30 0d 0a

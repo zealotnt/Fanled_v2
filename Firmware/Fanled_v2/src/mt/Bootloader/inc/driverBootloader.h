@@ -24,7 +24,6 @@
 /* INCLUSIONS                                                                */
 /*****************************************************************************/
 #include <stdint.h>
-#include "Utility/inc/mtPrintfFormat.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -34,9 +33,6 @@
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-#define FLASH_Status		uint8_t
-#define FLASH_COMPLETE		0
-
 /* User provided definition */
 #define FLASH_START_ADDRESS		0x08000000
 #define FLASH_TOTAL_SIZE		(0x10000)		/* 64KB flash size */
@@ -66,11 +62,13 @@
 void mtBootloaderInitFlash(void);
 mtErrorCode_t mtBootloaderFlashWrite(uint32_t address, uint32_t data);
 mtErrorCode_t mtBootloaderFlashWriteBuff(uint32_t address, uint32_t buff[], uint32_t len);
+Void mtBootloaderCoreReset();
+Void mtBootloaderRequestUpgrade();
+Bool mtBootloaderCheckFwUpgardeRequest();
 void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset);
+UInt32 mtBootloaderFlashCalculateCRC32(UInt8 *start_add, UInt16 len);
 void mtBootloaderEraseAppFw(void);
 uint32_t retAppPage(uint32_t relativePage);
-
-FLASH_Status testWriteDummyDataToFlash(uint32_t startPage);
 
 
 #endif /* TEMPLATE_H_ */

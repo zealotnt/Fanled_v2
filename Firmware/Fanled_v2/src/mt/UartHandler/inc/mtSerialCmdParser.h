@@ -220,8 +220,10 @@ typedef struct
 	UInt32					lenMonitoring;		/*!< counter for receive length (always monitoring - even failed, reset when begin new packet) */
 	receiveRoutineState_t	rcvState;			/*!< receive state (feed to mtSerialRcvStateHandling) */
 	Bool					Done;
-} serialQueuePayload_t;
+} volatile serialQueuePayload_t;
 #pragma pack()
+
+typedef void (*pCmdHandlerCallback)(Void *param);
 
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
@@ -231,7 +233,7 @@ typedef struct
 /*****************************************************************************/
 /* DECLARATION OF VARIABLES (Only external global variables)                 */
 /*****************************************************************************/
-
+extern volatile serialQueuePayload_t gQueuePayload;
 
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
@@ -243,6 +245,8 @@ typedef struct
  */
 Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload);
 
+Void mtSerialCmdDataLinkCallbackRegister(pCmdHandlerCallback call_back);
+
 /*!
  * \brief State machine for receiving Bluefin Serial Command
  * \param data data feed to state machine
@@ -252,9 +256,11 @@ Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload);
  * \return ROUTINE_RET_NO_CHANGE (state machine still need to process).
  * \return ROUTINE_RET_PUSH_DATA (state machine output a result).
  */
-mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 data, serialQueuePayload_t *buffer, UInt32 *TotalDataLen);
+mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData,
+                                                         volatile serialQueuePayload_t *qBuff,
+                                                         UInt32 *pdwTotalDataLen);
 
-Void mtSerialCmd_InterByteTimeOutHandling(Void *pParam);
+Void mtSerialCmd_InterByteTimeOutHandling(volatile Void *pParam);
 
 
 #ifdef __cplusplus

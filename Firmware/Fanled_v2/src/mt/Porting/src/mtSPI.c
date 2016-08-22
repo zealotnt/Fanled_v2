@@ -111,15 +111,18 @@ void mtFanledSPIInit(void)
 	GPIO_InitTypeDef GPIO_InitStruct;
 	SPI_InitTypeDef SPI_InitStruct;
 
+	/* Enable DMA, clock for SPI1 */
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
+
 	//Common settings for all pins
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	//Config Output for 		BLANK			LATCH
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_6;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
-	//Enable clock for SPI1
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
+
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
 	//Pinspack					 MOSI			SCK
 	GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_7 | GPIO_Pin_5;
