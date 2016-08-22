@@ -1,19 +1,46 @@
-/*
- * mtFanledDisplay.h
- *
- *  Created on: Aug 18, 2016
- *      Author: zealot
- */
+/*==============================================================================
+**
+**                      Proprietary - Copyright (C) 2016
+**------------------------------------------------------------------------------
+** Supported MCUs      : STM32F
+** Supported Compilers : GCC
+**------------------------------------------------------------------------------
+** File name         : mtFanledDisplay.h
+**
+** Module name       : Effects
+**
+**
+** Summary:
+**
+**= History ====================================================================
+** - Creation
+** - Development
+==============================================================================*/
 
 #ifndef MTFANLEDDISPLAY_H_
 #define MTFANLEDDISPLAY_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+/*****************************************************************************/
+/* INCLUSIONS                                                                */
+/*****************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
 
+/*****************************************************************************/
+/* DEFINITION OF COMPILE SWITCH                                              */
+/*****************************************************************************/
+
+
+/*****************************************************************************/
+/* DEFINITION OF CONSTANTS                                                   */
+/*****************************************************************************/
 #define FANLED_RESOLUTION			240
 #define DISPLAY_SIZE				FANLED_RESOLUTION
-
 
 #define COLOR_RED_MAX				0xf800
 #define COLOR_BLUE_MAX				0x1f
@@ -26,10 +53,9 @@
 #define CALENDAR_MINUTE_STICK_COLOR			COLOR_GREEN_MAX
 #define CALENDAR_HOUR_STICK_COLOR			COLOR_BLUE_MAX
 
-#define LED_BLANK()   				//GPIO_WriteBit(GPIOA,GPIO_Pin_4,(BitAction)1);
-#define LED_UNBLANK()   			//GPIO_WriteBit(GPIOA,GPIO_Pin_4,(BitAction)0);
-#define LED_LATCH()					//GPIO_WriteBit(GPIOA,GPIO_Pin_6,(BitAction)1);GPIO_WriteBit(GPIOA,GPIO_Pin_6,(BitAction)0);
-
+/*****************************************************************************/
+/* DEFINITION OF TYPES                                                       */
+/*****************************************************************************/
 typedef enum sharinganFlag
 {
 	STATE_ENABLE,
@@ -70,6 +96,27 @@ typedef struct
 	uint8_t 		misc_flag;
 } Display_Type;
 
+/*****************************************************************************/
+/* DEFINITION OF MACROS                                                      */
+/*****************************************************************************/
+
+
+/*****************************************************************************/
+/* DECLARATION OF VARIABLES (Only external global variables)                 */
+/*****************************************************************************/
+
+
+/*****************************************************************************/
+/* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
+/*****************************************************************************/
 void mtFanledSendLineBuffer();
 void blankAllLed(void);
+void LED_BLANK();
+void LED_UNBLANK();
+void LED_LATCH();
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* MTFANLEDDISPLAY_H_ */

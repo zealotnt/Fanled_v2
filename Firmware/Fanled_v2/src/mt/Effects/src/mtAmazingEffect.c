@@ -81,22 +81,28 @@ double module_percent_double(double num1, double num2)
 
 uint16_t rgb_24_to_16(rgb_t input)
 {
-	/*Formular convert from RGB16 to RGB24:
-	rgb.Red = (input & 0xF800) >> 11;
-	rgb.Green = ((input & 0x07E0) >> 5) & 0x3f;
-	rgb.Blue = (input & 0x1f); 				*/
+	/*
+	 * Formular convert from RGB16 to RGB24:
+	 * rgb.Red = (input & 0xF800) >> 11;
+	 * rgb.Green = ((input & 0x07E0) >> 5) & 0x3f;
+	 * rgb.Blue = (input & 0x1f);
+	 * */
 	return ( ((input.Red & 0xF8) << 7) + ((input.Green & 0xFC) << 3) + (input.Blue >> 3) );	//R:5 G:6 B:5
 }
 
 rgb_t HSV_to_Color(int32_t H, int32_t S, int32_t V)
 {
-	// HSV contains values scaled as in the color wheel:
-	// that is, all from 0 to 255.
+	/*
+	 * HSV contains values scaled as in the color wheel:
+	 * that is, all from 0 to 255.
+	 * */
 
-	// for ( this code to work, HSV.Hue needs
-	// to be scaled from 0 to 360 (it//s the angle of the selected
-	// point within the circle). HSV.Saturation and HSV.value must be
-	// scaled to be between 0 and 1.
+	/*
+	 * for ( this code to work, HSV.Hue needs
+	 * to be scaled from 0 to 360 (it//s the angle of the selected
+	 * point within the circle). HSV.Saturation and HSV.value must be
+	 * scaled to be between 0 and 1.
+	 * */
 	double h;
 	double s;
 	double v;
@@ -105,16 +111,16 @@ rgb_t HSV_to_Color(int32_t H, int32_t S, int32_t V)
 	double g = 0;
 	double b = 0;
 	rgb_t temp_rgb;
-	// Scale Hue to be between 0 and 360. Saturation
-	// and value scale to be between 0 and 1.
-	//h = ((double) H / 255 * 360) % 360; c# code
+	/* Scale Hue to be between 0 and 360. Saturation */
+	/* and value scale to be between 0 and 1. */
+	/* h = ((double) H / 255 * 360) % 360; c# code */
 	h = module_percent_double(((double) H / 255 * 360), 360);
 	s = (double) S / 255;
 	v = (double) V / 255;
 	if ( s == 0 )
 	{
-		// If s is 0, all colors are the same.
-		// This is some flavor of gray.
+		/* If s is 0, all colors are the same. */
+		/* This is some flavor of gray. */
 		r = v;
 		g = v;
 		b = v;
@@ -129,23 +135,23 @@ rgb_t HSV_to_Color(int32_t H, int32_t S, int32_t V)
 		int sectorNumber;
 		double sectorPos;
 
-		// The color wheel consists of 6 sectors.
-		// Figure out which sector you//re in.
+		/* The color wheel consists of 6 sectors. */
+		/* Figure out which sector you//re in. */
 		sectorPos = h / 60;
 		sectorNumber = (int)(floor(sectorPos));
-		// get the fractional part of the sector.
-		// That is, how many degrees into the sector
-		// are you?
+		/* get the fractional part of the sector. */
+		/* That is, how many degrees into the sector */
+		/* are you? */
 		fractionalSector = sectorPos - sectorNumber;
 
-		// Calculate values for the three axes
-		// of the color.
+		/* Calculate values for the three axes */
+		/* of the color. */
 		p = v * (1 - s);
 		q = v * (1 - (s * fractionalSector));
 		t = v * (1 - (s * (1 - fractionalSector)));
 
-		// Assign the fractional colors to r, g, and b
-		// based on the sector the angle is in.
+		/* Assign the fractional colors to r, g, and b */
+		/* based on the sector the angle is in. */
 		switch (sectorNumber)
 		{
 			case 0:
@@ -188,8 +194,8 @@ rgb_t HSV_to_Color(int32_t H, int32_t S, int32_t V)
 	temp_rgb.Red = r * 255;
 	temp_rgb.Green = g * 225;			//scale down green color		default: 255
 	temp_rgb.Blue = b * 255;
-	// return an RGB structure, with values scaled
-	// to be between 0 and 255.
+	/* return an RGB structure, with values scaled */
+	/* to be between 0 and 255. */
 	return temp_rgb;
 }
 
@@ -211,7 +217,8 @@ uint16_t offset_color(uint16_t input, uint16_t offset)
 	return input;
 }
 
-void ColorWheelPrepare(Display_Type *FanledDisplay)				//version that draw full circle
+/* version that draw full circle */
+void ColorWheelPrepare(Display_Type *FanledDisplay)
 {
 	uint32_t i, j;
 	rgb_t temp_rgb;
@@ -242,15 +249,15 @@ void ColorWheelPrepare(Display_Type *FanledDisplay)				//version that draw full 
 void Ring_set_data(uint16_t color, uint32_t pos_start_ring, uint32_t pos_radius_ring)
 {
 	uint32_t i;
-	// Not accept data out of range
+	/* Not accept data out of range */
 	if (pos_start_ring < FANLED_RESOLUTION )
 	{
-		//Set color for ring
+		/* Set color for ring */
 		for (i = pos_start_ring; i < (RING_SIZE + pos_start_ring); i++)
 		{
 			Fanled_Display.dis[i % FANLED_RESOLUTION][pos_radius_ring] = color;
 		}
-		//Remove color for region not the ring
+		/* Remove color for region not the ring */
 		if ((pos_start_ring + RING_SIZE) > FANLED_RESOLUTION)
 		{
 			for (i = ((RING_SIZE + pos_start_ring) % FANLED_RESOLUTION); i < (pos_start_ring - 1); i++)
@@ -354,14 +361,17 @@ void EightLightMachine(uint16_t color)
 				Fanled_Display.dis[i * 30 + j][s_state] = color;
 			}
 		}
-		/* Remove unneeded value in same circle */
 
-		for (i = 0; i < s_state; i++)	/* Remove each circle (from outer to the present inner ON circle) */
+		/* Remove unneeded value in same circle */
+		/* Remove each circle (from outer to the present inner ON circle) */
+		for (i = 0; i < s_state; i++)
 		{
-			for (j = 0; j < 8; j++)		/* Search for item that need to be deleted */
+			/* Search for item that need to be deleted */
+			for (j = 0; j < 8; j++)
 			{
 				/* Fanled_Display.dis[j*30+s_state][i] = 0;	--> only this, the left image is like a shuriken */
-				Fanled_Display.dis[j * 30 + s_state - 1][i] = 0;	/* Remove target item */
+				/* Remove target item */
+				Fanled_Display.dis[j * 30 + s_state - 1][i] = 0;
 				Fanled_Display.dis[j * 30 + s_state][i] = 0;
 			}
 		}
