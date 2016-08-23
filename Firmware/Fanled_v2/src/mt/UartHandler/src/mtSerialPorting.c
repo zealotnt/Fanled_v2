@@ -174,6 +174,12 @@ void mtBluetoothRcvHandler(void)
 		bCharRev = USART_ReceiveData(USART1);
 		USART_ClearFlag(USART1, USART_FLAG_RXNE);
 
+		if (gQueuePayload.InitHC)
+		{
+			mtSerialUartEnqueue(&gQueuePayload, bCharRev);
+			return;
+		}
+
 		if (mtSerialCmdRcvStateHandling((UInt8)bCharRev, &gQueuePayload, &dwTotalDataLen) != ROUTINE_RET_NO_CHANGE)
 		{
 			gQueuePayload.type = DATA_TYPE;

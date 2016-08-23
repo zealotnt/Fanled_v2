@@ -99,6 +99,8 @@ extern "C"
 */
 #define MAX_SERIAL_DATAPAYLOAD_IN_PACKET_SIZE		sizeof(serialRcvFrame_t) /* 2FI + 3LEN + 512DATA + 1CRC = 518 */
 
+#define UART_QUEUE_MAX_COUNT						200
+
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
 /*****************************************************************************/
@@ -223,6 +225,7 @@ typedef struct
 	Bool					InitHC;
 	UInt8					BufHead;
 	UInt8					BufTail;
+	UInt8					BufCount;
 } volatile serialQueuePayload_t;
 #pragma pack()
 
@@ -265,6 +268,9 @@ mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData,
 
 Void mtSerialCmd_InterByteTimeOutHandling(volatile Void *pParam);
 
+Void mtSerialQueueInit(serialQueuePayload_t *q);
+mtErrorCode_t mtSerialUartEnqueue(serialQueuePayload_t *q, uint8_t value);
+mtErrorCode_t mlsSerialUartDequeue(serialQueuePayload_t *q, uint8_t *dataOut);
 
 #ifdef __cplusplus
 }

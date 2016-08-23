@@ -602,4 +602,47 @@ Void mtSerialCmd_InterByteTimeOutHandling(volatile Void *pParam)
 	mtMutexUnlock(&gRcvVarChangeMutex);
 }
 
+Void mtSerialQueueInit(serialQueuePayload_t *q)
+{
+	q->BufCount = 0;
+	q->BufTail = 0;
+	q->BufHead = UART_QUEUE_MAX_COUNT - 1;
+}
+
+mtErrorCode_t mtSerialUartEnqueue(serialQueuePayload_t *q, uint8_t value)
+{
+	mtErrorCode_t errCode = MT_SUCCESS;
+	UInt8 *pBuf = (UInt8 *)&q->serialDataFrame;
+
+	if (q->BufCount >= UART_QUEUE_MAX_COUNT)
+	{
+		return MT_ERROR;
+	}
+	else
+	{
+		q->BufHead = (q->BufHead + 1) % UART_QUEUE_MAX_COUNT;
+		pBuf[ q->BufHead ] = value;
+		q->BufCount = q->BufCount + 1;
+	}
+	return errCode;
+}
+
+mtErrorCode_t mlsSerialUartDequeue(serialQueuePayload_t *q, uint8_t *dataOut)
+{
+	mtErrorCode_t errCode = MT_SUCCESS;
+	UInt8 *pBuf = (UInt8 *)&q->serialDataFrame;
+
+	if (q->BufCount <= 0)
+	{
+		return MT_ERROR;
+	}
+	else
+	{
+		*dataOut = pBuf[ q->BufTail ];
+		q->BufTail = (q->BufTail+1) % UART_QUEUE_MAX_COUNT;
+		q->BufCount = q->BufCount - 1;
+	}
+	return (errCode);
+}
+
 /************************* End of File ****************************************/
