@@ -53,12 +53,13 @@
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-int mainPicture(void);
-int mainAppDeveloping(void);
-int mainTestHSVCircle(void);
-int mainTestNarutoEffect(void);
 int mainTestHC05(void);
-int mainTestColor(void);
 int mainTestRTC(void);
+
+void FanledTestPicture(void);
+void FanledTestColor(void);
+void FanledTestHSVCircle(void);
+void FanledAppDeveloping(void);
+void FanledTestNarutoEffect(void);
 
 #endif /* _FANLED_TEST_APP_H_ */

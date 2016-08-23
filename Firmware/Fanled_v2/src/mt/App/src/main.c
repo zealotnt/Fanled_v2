@@ -25,6 +25,7 @@
 #include <math.h>
 
 #include "mtInclude.h"
+#include "../inc/main.h"
 #include "../inc/mtVersion.h"
 #include "App/inc/SystemConfig.h"
 #include "App/tst/fanledTestApp.h"
@@ -64,7 +65,7 @@ MediaPlayer MyPlayer;
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-
+static pMainHandler mainHandler = Null;
 
 /******************************************************************************/
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
@@ -140,27 +141,36 @@ int main(void)
 	initAll();
 	uart_dbg_init();
 	DEBUG_INFO("App %s \r\n", FIRMWARE_VERSION_FULL);
+
+//	FanledTestColor();
+//	FanledTestPicture();
+//	FanledAppDeveloping();
+//	FanledTestHSVCircle();
+//	FanledTestNarutoEffect();
+
 	while (1)
 	{
+		if (mainHandler != Null)
+		{
+			mainHandler(Null);
+		}
+
 		if (True == gQueuePayload.Done)
 		{
 			mtSerialCmdDataLinkHandlingThread(gQueuePayload);
 			gQueuePayload.Done = False;
 		}
 	}
-//	mainTestColor();
+
 //	mainTestHC05();
 //	mainTestRTC();
-//	mainPicture();
-//	mainAppDeveloping();
-//	mainTestHSVCircle();
-//	mainTestNarutoEffect();
 
 #endif
-
-	DEBUG_INFO("Application !!!\r\n");
-	while (1);
 	return 0;
 }
 
+Void mainCallBackRegister(pMainHandler call_back)
+{
+	mainHandler = call_back;
+}
 /************************* End of File ****************************************/
