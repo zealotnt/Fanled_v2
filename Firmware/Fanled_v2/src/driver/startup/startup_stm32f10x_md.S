@@ -33,7 +33,7 @@
 .extern mtFanledTimerHandler
 .extern mtBluetoothInterbyteTimerHandler
 .extern mtBluetoothRcvHandler
-
+.extern stmRtcUpdate
   .syntax unified
 	.cpu cortex-m3
 	.fpu softvfp
@@ -148,7 +148,7 @@ g_pfnVectors:
 	.word	WWDG_IRQHandler
 	.word	PVD_IRQHandler
 	.word	TAMPER_IRQHandler
-	.word	RTC_IRQHandler
+	.word	stmRtcUpdate
 	.word	FLASH_IRQHandler
 	.word	RCC_IRQHandler
 	.word	EXTI0_IRQHandler

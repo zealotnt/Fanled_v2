@@ -119,10 +119,12 @@ void mtHallSensorInit(void)
 	EXTI_InitTypeDef EXTI_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 
+	/* Config GPIO */
 	GPIOInitStructure.GPIO_Pin = GPIO_Pin_3;
 	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOB, &GPIOInitStructure);
+
 	/* Config EXTI */
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource3);
 	EXTI_InitStructure.EXTI_Line = EXTI_Line3;
@@ -130,6 +132,8 @@ void mtHallSensorInit(void)
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&EXTI_InitStructure);
+
+	/* Config NVIC */
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = ISR_HALLSENSOR_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = ISR_HALLSENSOR_PRIORITY;
@@ -137,28 +141,25 @@ void mtHallSensorInit(void)
 	NVIC_Init(&NVIC_InitStructure);
 }
 
-// For test color
+/* For test color */
 void mtHallSensorDeinit(void)
 {
-	GPIO_InitTypeDef GPIOInitStructure;
 	EXTI_InitTypeDef EXTI_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 
-	GPIOInitStructure.GPIO_Pin = GPIO_Pin_3;
-	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIOInitStructure.GPIO_Mode = GPIO_Mode_IPD;
-	GPIO_Init(GPIOB, &GPIOInitStructure);
 	/* Config EXTI */
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource3);
 	EXTI_InitStructure.EXTI_Line = EXTI_Line3;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+	EXTI_InitStructure.EXTI_LineCmd = DISABLE;
 	EXTI_Init(&EXTI_InitStructure);
+
+	/* Config NVIC */
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
 
@@ -213,7 +214,6 @@ void mtTimerFanledDisplayInit(void)
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
-	RCC_PCLK1Config(RCC_HCLK_Div1);
 
 	/* Compute the prescaler value */
 	PrescalerValue = (uint16_t) (SystemCoreClock / 36000000) - 1;

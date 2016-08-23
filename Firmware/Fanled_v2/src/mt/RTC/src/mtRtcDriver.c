@@ -324,7 +324,7 @@ bool stmInitRTC(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void stmUpdate(void)
+void stmRtcUpdate(void)
 {
 	time_t acttime;
 	struct tm *pLocalTime;

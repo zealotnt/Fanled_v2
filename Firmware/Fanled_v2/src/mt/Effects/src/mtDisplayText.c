@@ -180,7 +180,7 @@ void updatePanel16b(uint16_t *input_color, bool blank)
 			assignLed16b(0, i);
 		}
 	}
-	else if ( (*input_color != 0) && (blank == true) )
+	else if ( (input_color != 0) && (blank == true) )
 	{
 		for (i = 0; i < 32; i++)
 		{
