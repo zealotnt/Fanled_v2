@@ -23,7 +23,6 @@ from utils import *
 
 
 # ---- CONSTANTS
-DEFAULT_SERIAL_PORT = "/dev/ttyUSB0"
 DEFAULT_FIRMWARE_FILE = "../../Firmware/Fanled_v2/Build-App/Fanled_v2.bin"
 
 if __name__ == "__main__":
@@ -46,8 +45,8 @@ if __name__ == "__main__":
 	if options.serial is not None:
 		serial = options.serial
 	else:
-		serial = DEFAULT_SERIAL_PORT
-		print_err("No serial port specified, use " + DEFAULT_SERIAL_PORT + " as default")
+		serial = BLUEFINSERIAL_DEFAULT_SERIAL_PORT
+		print_err("No serial port specified, use " + BLUEFINSERIAL_DEFAULT_SERIAL_PORT + " as default")
 
 	if options.firmware is not None:
 		file = options.firmware
@@ -57,7 +56,7 @@ if __name__ == "__main__":
 	file_path = file
 	port_name = serial
 
-	comm = BluefinserialSend(port_name, 115200)
+	comm = BluefinserialSend(port_name, BLUEFINSERIAL_BAUDRATE)
 
 	fanled_fw_upgrade = FanledAPIFwUpgrade(comm)
 

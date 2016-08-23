@@ -45,6 +45,7 @@ extern "C"
 #define CMD_CODE_BASIC				0x8B
 
 #define CTR_CODE_GETVERSION			0x00
+#define CTR_CODE_GETSET_RTC			0x02
 /* free to add */
 #define CTR_CODE_BL_GET_LAST_ERR	0x20
 #define CTR_CODE_UPGRADEFW			0x30

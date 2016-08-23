@@ -63,6 +63,7 @@ const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 
 #elif (FANLED_APP)
 	{CMD_CODE_BASIC,	CTR_CODE_UPGRADEFW,			mtFanledApiRequestFirmwareUpgrade},
+	{CMD_CODE_BASIC,	CTR_CODE_GETSET_RTC,		mtFanledApiGetSetRTC},
 
 #endif
 	/* Common API for both Bootloader and Application */

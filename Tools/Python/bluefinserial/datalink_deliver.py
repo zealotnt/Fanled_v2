@@ -19,6 +19,10 @@ import time
 from crc8 import crc8
 from utils import *
 
+#---- CONSTANT
+BLUEFINSERIAL_BAUDRATE = 115200
+BLUEFINSERIAL_DEFAULT_SERIAL_PORT = "/dev/ttyUSB0"
+
 #---- CLASSES
 
 class BluefinserialCommand():

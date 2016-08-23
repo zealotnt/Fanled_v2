@@ -30,6 +30,7 @@ extern "C"
 /*****************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
+#include "mtInclude.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -71,6 +72,9 @@ extern bool        sys_nextday;
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
+UInt32 mtRtcGetUnixTime();
+void mtRtcSetUnixTime(UInt32 value);
+
 void printCurTime(void);
 sytemdate_t *mtRtcGetSystemTime(void);
 bool mtRtcSetSystemTime(sytemdate_t *time);

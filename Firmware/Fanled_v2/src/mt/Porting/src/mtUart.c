@@ -152,6 +152,7 @@ void uart_cmd_write_str(char *str)
 
 void uart_dbg_init()
 {
+#if (DEBUG)
 	USART_InitTypeDef USARTInitStructure;
 	GPIO_InitTypeDef GPIOInitStructure;
 
@@ -177,25 +178,30 @@ void uart_dbg_init()
 	USARTInitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
 	USART_Init(USART_DBG, &USARTInitStructure);
 	USART_Cmd(USART_DBG, ENABLE);
+#endif
 }
 
 void uart_dbg_write_buff(uint8_t *p_data, uint16_t p_len)
 {
+#if (DEBUG)
 	for (int i = 0; i < p_len; ++i)
 	{
 		/* Transmit Data */
 		while (USART_GetFlagStatus(USART_DBG, USART_FLAG_TXE) == RESET);
 		USART_SendData(USART_DBG, *(p_data++));
 	}
+#endif
 }
 
 void uart_dbg_read_buff(uint8_t *p_data, uint16_t p_len)
 {
+#if (DEBUG)
 	for (int i = 0; i < p_len; ++i)
 	{
 		while (USART_GetFlagStatus(USART_DBG, USART_FLAG_RXNE) == RESET);
 		*(p_data++) = USART_ReceiveData(USART_DBG);
 	}
+#endif
 }
 
 /*
@@ -203,7 +209,9 @@ void uart_dbg_read_buff(uint8_t *p_data, uint16_t p_len)
  */
 int _write(int file, char *ptr, int len)
 {
+#if (DEBUG)
 	uart_dbg_write_buff((uint8_t *)ptr, len);
+#endif
 	return len;
 }
 
@@ -213,6 +221,7 @@ int _write(int file, char *ptr, int len)
  */
 int _read(int file, char *ptr, int len)
 {
+#if (DEBUG)
 	int n;
 	int num = 0;
 	for (n = 0; n < len; n++)
@@ -229,6 +238,9 @@ int _read(int file, char *ptr, int len)
 
 	}
 	return num;
+#else
+	return 0;
+#endif
 }
 
 /************************* End of File ****************************************/

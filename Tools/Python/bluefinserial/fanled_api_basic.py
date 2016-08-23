@@ -85,3 +85,34 @@ class FanledAPIBasic():
 		rsp = ''
 		rsp = self._datalink.Exchange(cmd)
 		return rsp
+
+	def GetFanledUnixTime(self):
+		pkt = BluefinserialCommand()
+		cmd = pkt.Packet('\x8b', '\x02', '\x00')
+
+		# Send to target
+		rsp = ''
+		rsp = self._datalink.Exchange(cmd)
+		if len(rsp) != 7:
+			print_err("Len response not expected")
+
+		if rsp[2] == '\x00':
+			return rsp[3:]
+		else:
+			print_err("Can't get Unix time from Fanled")
+			return 0
+
+	def SetFanledUnixTime(self, set_value):
+		cmd_data = struct.pack('<BL', 0x01, set_value)
+		pkt = BluefinserialCommand()
+		cmd = pkt.Packet('\x8b', '\x02', cmd_data)
+
+		# Send to target
+		rsp = ''
+		rsp = self._datalink.Exchange(cmd)
+		if rsp[2] == '\x00':
+			print_ok("Set time ok")
+			return True
+		else:
+			print_err("Can't get Unix time from Fanled")
+			return False

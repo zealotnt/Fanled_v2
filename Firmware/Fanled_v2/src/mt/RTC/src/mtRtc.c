@@ -93,6 +93,16 @@ void printCurTime(void)
 	       sys_date.day, getMonthStr(sys_date.month), sys_date.year);
 }
 
+UInt32 mtRtcGetUnixTime()
+{
+	return RTC_GetCounter();
+}
+
+void mtRtcSetUnixTime(UInt32 value)
+{
+	RTC_SetCounter(value);
+}
+
 /*******************************************************************************
 * Function Name  : mtRtcGetSystemTime
 * Description    : Get the current RTC time value

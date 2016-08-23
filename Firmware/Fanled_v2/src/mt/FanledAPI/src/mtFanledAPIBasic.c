@@ -21,10 +21,13 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
+#include <string.h>
 #include "mtInclude.h"
+
+#include "RTC/inc/mtRtc.h"
 #include "App/inc/mtVersion.h"
 #include "../inc/mtFanledAPICode.h"
-#include <string.h>
+
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -106,6 +109,27 @@ mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
 	for (i = 8; i < *msgOutLen; i++)
 	{
 		msgOut[i] = i;
+	}
+
+	return MT_SUCCESS;
+}
+
+mtErrorCode_t mtFanledApiGetSetRTC(UInt8 *msgIn,
+                                   UInt16 msgInLen,
+                                   UInt8 *msgOut,
+                                   UInt16 *msgOutLen)
+{
+	/* Get RTC */
+	if (msgIn[2] == 0)
+	{
+		UInt32 cur_rtc_value = mtRtcGetUnixTime();
+		memcpy(&msgOut[3], &cur_rtc_value, 4);
+		*msgOutLen = 7;
+	}
+	/* Set RTC */
+	else
+	{
+		mtRtcSetUnixTime((UInt32)*(UInt32 *)(&msgIn[3]));
 	}
 
 	return MT_SUCCESS;
