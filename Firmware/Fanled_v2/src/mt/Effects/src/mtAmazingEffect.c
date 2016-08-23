@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtAmazingEffect.c
 **
-** Module name       : template
+** Module name       : Effects
 **
 **
 ** Summary:

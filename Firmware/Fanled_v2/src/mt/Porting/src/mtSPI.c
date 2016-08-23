@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtSPI.c
 **
-** Module name       : template
+** Module name       : Porting
 **
 **
 ** Summary:
@@ -67,15 +67,15 @@ DMA_InitTypeDef	g_DMA_InitStructure;
 /******************************************************************************/
 uint8_t mtSPISend(SPI_TypeDef* SPIx, uint8_t data)
 {
-	//Fill output buffer with data
+	/* Fill output buffer with data */
 	SPIx->DR = data;
-	//Wait for transmission to complete
+	/* Wait for transmission to complete */
 	while (!SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE));
-	//Wait for received data to complete
+	/* Wait for received data to complete */
 	while (!SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE));
-	//Wait for SPI to be ready
+	/* Wait for SPI to be ready */
 	while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_BSY));
-	//Return data from buffer
+	/* Return data from buffer */
 	return SPIx->DR;
 }
 
@@ -116,15 +116,15 @@ void mtFanledSPIInit(void)
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 
-	//Common settings for all pins
+	/* Common settings for all pins */
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-	//Config Output for 		BLANK			LATCH
+	/* Config Output for 		BLANK			LATCH */
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_6;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
-	//Pinspack					 MOSI			SCK
+	/* Pinspack					 MOSI			SCK */
 	GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_7 | GPIO_Pin_5;
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 	GPIO_WriteBit(GPIOA, GPIO_Pin_6, (BitAction)0);
@@ -153,10 +153,10 @@ void mtFanledDMAInit(void)
 	DMA_DeInit(SPI_MASTER_Tx_DMA_Channel);
 	g_DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&SPI1->DR;
 
-	//This field will be configured in transmit function
+	/* This field will be configured in transmit function */
 	g_DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)0;
-	//This field will be configured in transmit function
-	g_DMA_InitStructure.DMA_BufferSize = (uint32_t)0;
+	/* This field will be configured in transmit function */
+	g_DMA_InitStructure.DMA_BufferSize = (uint32_t)1;
 
 	g_DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
 	g_DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
@@ -166,7 +166,6 @@ void mtFanledDMAInit(void)
 	g_DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
 	g_DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
 	g_DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-	g_DMA_InitStructure.DMA_BufferSize = 1;
 	DMA_Init(SPI_MASTER_Tx_DMA_Channel, &g_DMA_InitStructure);
 	DMA_ITConfig(SPI_MASTER_Tx_DMA_Channel, DMA_IT_TC, ENABLE);
 	NVIC_InitStructure.NVIC_IRQChannel = SPI_Tx_DMA_IRQ;
@@ -185,10 +184,11 @@ void mtSPIFanledSend(uint32_t Addr, uint32_t Size)
 {
 	/* Configure the buffer address and size */
 	g_DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)Addr;
-	g_DMA_InitStructure.DMA_BufferSize = (uint32_t)Size;		//one package is 8 bit
+	/* one package is 8 bit */
+	g_DMA_InitStructure.DMA_BufferSize = (uint32_t)Size;
 	/* Configure the DMA Stream with the new parameters */
 	DMA_Init(SPI_MASTER_Tx_DMA_Channel, &g_DMA_InitStructure);
-	/* Enable the I2S DMA Stream*/
+	/* Enable the I2S DMA Stream */
 	DMA_Cmd(SPI_MASTER_Tx_DMA_Channel, ENABLE);
 	SPI_Cmd(SPI1, ENABLE);
 	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);

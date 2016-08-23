@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : driverBootloader.c
 **
-** Module name       : template
+** Module name       : Bootloader
 **
 **
 ** Summary:
@@ -78,7 +78,7 @@ typedef void(*pFunction)(void);
 /******************************************************************************/
 u32 convert_endianess(u32 little_endian)
 {
-	uint32_t b0,b1,b2,b3;
+	uint32_t b0, b1, b2, b3;
 
 	b0 = (little_endian & 0x000000ff) << 24u;
 	b1 = (little_endian & 0x0000ff00) << 8u;
@@ -231,7 +231,7 @@ mtErrorCode_t mtBootloaderFlashWrite(uint32_t address, uint32_t data)
 mtErrorCode_t mtBootloaderFlashWriteBuff(uint32_t address, uint32_t buff[], uint32_t len)
 {
 	UInt32 idx = 0;
-	while(len)
+	while (len)
 	{
 		if (MT_SUCCESS != mtBootloaderFlashWrite(address + idx * 4, buff[idx]))
 		{
@@ -281,7 +281,7 @@ Bool mtBootloaderCheckFwUpgardeRequest()
 		if (True == mtBootloaderCheckAppValid())
 		{
 			BL_INFO("Firmware consistency check valid, "
-					"no firmware upgrade request\r\n");
+			        "no firmware upgrade request\r\n");
 			status = False;
 			goto exit;
 		}

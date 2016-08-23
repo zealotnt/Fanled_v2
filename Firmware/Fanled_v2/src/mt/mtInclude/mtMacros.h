@@ -4,7 +4,7 @@
  */
 
 /**
- * @file mlsMacros.h
+ * @file mtMacros.h
  * @brief	Common macro definitions
  *
  * This file contains common macro which are used a lot of time in project

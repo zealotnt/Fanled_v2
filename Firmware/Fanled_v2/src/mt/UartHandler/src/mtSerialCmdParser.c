@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtSerialCmdParser.c
 **
-** Module name       : template
+** Module name       : UartHandler
 **
 **
 ** Summary:
@@ -45,7 +45,10 @@
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-volatile serialQueuePayload_t gQueuePayload;
+volatile serialQueuePayload_t gQueuePayload =
+{
+	.InitHC = False,
+};
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -277,8 +280,8 @@ static mtErrorCode_t mtSerialCmdSendACK(UInt8 bTarget)
  * @Function: mtSerialCmdRcvStateHandling
  */
 mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData,
-                                                         volatile serialQueuePayload_t *qBuff,
-                                                         UInt32 *pdwTotalDataLen)
+        volatile serialQueuePayload_t *qBuff,
+        UInt32 *pdwTotalDataLen)
 {
 	mtSerialRcvRoutineDecision_t retVal = ROUTINE_RET_NO_CHANGE;
 	UInt8 *pDat = (UInt8 *)&qBuff->serialDataFrame;

@@ -91,24 +91,24 @@ typedef struct
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
 mtErrorCode_t mtFanledApiRequestFirmwareUpgrade(UInt8 *msgIn,
-                                                UInt16 msgInLen,
-                                                UInt8 *msgOut,
-                                                UInt16 *msgOutLen);
+        UInt16 msgInLen,
+        UInt8 *msgOut,
+        UInt16 *msgOutLen);
 
 mtErrorCode_t mtFanledApiFirmwareEraseApp(UInt8 *msgIn,
-                                          UInt16 msgInLen,
-                                          UInt8 *msgOut,
-                                          UInt16 *msgOutLen);
+        UInt16 msgInLen,
+        UInt8 *msgOut,
+        UInt16 *msgOutLen);
 
 mtErrorCode_t mtFanledApiFirmwareDownload(UInt8 *msgIn,
-                                          UInt16 msgInLen,
-                                          UInt8 *msgOut,
-                                          UInt16 *msgOutLen);
+        UInt16 msgInLen,
+        UInt8 *msgOut,
+        UInt16 *msgOutLen);
 
 mtErrorCode_t mtFanledApiFirmwareChecksum(UInt8 *msgIn,
-                                          UInt16 msgInLen,
-                                          UInt8 *msgOut,
-                                          UInt16 *msgOutLen);
+        UInt16 msgInLen,
+        UInt8 *msgOut,
+        UInt16 *msgOutLen);
 
 #ifdef __cplusplus
 }

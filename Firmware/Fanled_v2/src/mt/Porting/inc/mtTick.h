@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtTick.h
 **
-** Module name       : template
+** Module name       : Porting
 **
 **
 ** Summary:

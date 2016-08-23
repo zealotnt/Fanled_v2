@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtFanledAPIBasic.c
 **
-** Module name       : template
+** Module name       : FanledAPI
 **
 **
 ** Summary:
@@ -65,9 +65,9 @@
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
 mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
-                                            UInt16 msgInLen,
-                                            UInt8 *msgOut,
-                                            UInt16 *msgOutLen)
+        UInt16 msgInLen,
+        UInt8 *msgOut,
+        UInt16 *msgOutLen)
 {
 	mtErrorCode_t retVal = MT_SUCCESS;
 	UInt32 dwVersion;
@@ -101,7 +101,7 @@ mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
 	/* Copy packet_id value */
 	memcpy(&msgOut[6], &msgIn[8], 2);
 
-	API_INFO("Get packet num %d\r\n", (UInt16)*((UInt16 *)&msgIn[8]));
+	API_INFO("Get packet num %d\r\n", (UInt16) * ((UInt16 *)&msgIn[8]));
 
 	for (i = 8; i < *msgOutLen; i++)
 	{

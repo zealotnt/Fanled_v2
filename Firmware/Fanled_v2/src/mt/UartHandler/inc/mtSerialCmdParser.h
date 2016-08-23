@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtSerialCmdParser.h
 **
-** Module name       : template
+** Module name       : UartHandler
 **
 **
 ** Summary:
@@ -220,6 +220,9 @@ typedef struct
 	UInt32					lenMonitoring;		/*!< counter for receive length (always monitoring - even failed, reset when begin new packet) */
 	receiveRoutineState_t	rcvState;			/*!< receive state (feed to mtSerialRcvStateHandling) */
 	Bool					Done;
+	Bool					InitHC;
+	UInt8					BufHead;
+	UInt8					BufTail;
 } volatile serialQueuePayload_t;
 #pragma pack()
 
@@ -257,8 +260,8 @@ Void mtSerialCmdDataLinkCallbackRegister(pCmdHandlerCallback call_back);
  * \return ROUTINE_RET_PUSH_DATA (state machine output a result).
  */
 mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData,
-                                                         volatile serialQueuePayload_t *qBuff,
-                                                         UInt32 *pdwTotalDataLen);
+        volatile serialQueuePayload_t *qBuff,
+        UInt32 *pdwTotalDataLen);
 
 Void mtSerialCmd_InterByteTimeOutHandling(volatile Void *pParam);
 

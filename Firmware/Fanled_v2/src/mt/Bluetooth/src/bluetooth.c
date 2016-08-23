@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : bluetooth.c
 **
-** Module name       : template
+** Module name       : Bluetooth
 **
 **
 ** Summary:
@@ -76,17 +76,15 @@
 /******************************************************************************/
 void checkResponseOK(void)
 {
-#if ABC
-	if ( checkUartString("OK\r\n", &uart_buffer) )
-	{
-		while (1);
-	}
-#endif
+//	if ( checkUartString("OK\r\n", &uart_buffer) )
+//	{
+//		while (1);
+//	}
 }
 
 void bltPrintStr(char *str)
 {
-	while(*str)
+	while (*str)
 	{
 		uart_cmd_write_char(*str);
 		str++;
@@ -103,11 +101,11 @@ void bltChangeBaud(uint32_t baurate)
 	mtBluetoothUSARTChangeBaud(baurate);
 }
 
-// True for first time config HC-05 module
-// False for instant usage
+/* True for first time config HC-05 module */
+/* False for instant usage */
 void bltInitModule(bool config)
 {
-	// Initialize peripheral for HC05 module
+	/* Initialize peripheral for HC05 module */
 	mtBluetoothUSARTInit(config);
 	mtHC05KeyPinInit();
 	if (config == true)
