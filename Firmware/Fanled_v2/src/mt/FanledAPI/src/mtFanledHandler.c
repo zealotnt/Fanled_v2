@@ -55,6 +55,7 @@
 const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 {
 #if (FANLED_BOOTLOADER)
+	{CMD_CODE_BASIC,	CTR_CODE_BL_GET_LAST_ERR,	mtFanledApiBlGetLastErr},
 	{CMD_CODE_BASIC,	CTR_CODE_UPGRADEFW,			mtFanledApiRequestFirmwareUpgrade},
 	{CMD_CODE_BASIC,	CTR_CODE_FW_DOWNLOAD,		mtFanledApiFirmwareDownload},
 	{CMD_CODE_BASIC,	CTR_CODE_FW_CHECKSUM,		mtFanledApiFirmwareChecksum},

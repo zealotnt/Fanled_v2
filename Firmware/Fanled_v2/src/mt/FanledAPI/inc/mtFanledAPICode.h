@@ -46,6 +46,7 @@ extern "C"
 
 #define CTR_CODE_GETVERSION			0x00
 /* free to add */
+#define CTR_CODE_BL_GET_LAST_ERR	0x20
 #define CTR_CODE_UPGRADEFW			0x30
 #define CTR_CODE_FW_DOWNLOAD		0x32
 #define CTR_CODE_FW_CHECKSUM		0x34

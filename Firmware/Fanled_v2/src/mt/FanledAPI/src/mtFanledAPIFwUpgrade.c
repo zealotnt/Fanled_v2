@@ -57,6 +57,7 @@
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
 /******************************************************************************/
 Int32 packet_id = -1;
+extern mtLastError_t gLastErr;
 
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
@@ -76,6 +77,15 @@ Void JumpToApp(Void *param)
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
+mtErrorCode_t mtFanledApiBlGetLastErr(UInt8 *msgIn,
+                                      UInt16 msgInLen,
+                                      UInt8 *msgOut,
+                                      UInt16 *msgOutLen)
+{
+	msgOut[3] = gLastErr;
+	return MT_SUCCESS;
+}
+
 mtErrorCode_t mtFanledApiRequestFirmwareUpgrade(UInt8 *msgIn,
                                                 UInt16 msgInLen,
                                                 UInt8 *msgOut,

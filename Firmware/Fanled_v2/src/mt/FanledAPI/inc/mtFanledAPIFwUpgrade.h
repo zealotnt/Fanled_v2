@@ -90,6 +90,11 @@ typedef struct
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
+mtErrorCode_t mtFanledApiBlGetLastErr(UInt8 *msgIn,
+                                      UInt16 msgInLen,
+                                      UInt8 *msgOut,
+                                      UInt16 *msgOutLen);
+
 mtErrorCode_t mtFanledApiRequestFirmwareUpgrade(UInt8 *msgIn,
         UInt16 msgInLen,
         UInt8 *msgOut,

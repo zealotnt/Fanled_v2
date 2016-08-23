@@ -48,7 +48,13 @@
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
 /*****************************************************************************/
-
+typedef enum
+{
+	ERR_NONE				= 0x00,
+	ERR_HARD_FAULT 			= 0x01,
+	ERR_BKP_CLEAR			= 0x02,
+	ERR_APP_CRC32_FAIL 		= 0x03,
+} mtLastError_t;
 
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
@@ -75,7 +81,6 @@ Bool mtBootloaderCheckFwUpgardeRequest();
 void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset);
 UInt32 mtBootloaderFlashCalculateCRC32(UInt8 *start_add, UInt16 len);
 void mtBootloaderEraseAppFw(void);
-uint32_t retAppPage(uint32_t relativePage);
 
 
 #endif /* TEMPLATE_H_ */

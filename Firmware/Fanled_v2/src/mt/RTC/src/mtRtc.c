@@ -26,6 +26,7 @@
 #include <time.h>
 #include <string.h>
 
+#include "mtInclude.h"
 #include "../inc/mtRtc.h"
 #include "../inc/mtRtcDriver.h"
 #include "std_type.h"
@@ -87,7 +88,7 @@ char *getMonthStr(uint8_t month)
 
 void printCurTime(void)
 {
-	printf("Current time: %2dh, %2dm, %2ds, %d %s %d\r\n",
+	DEBUG_INFO("Current time: %2dh, %2dm, %2ds, %d %s %d\r\n",
 	       sys_date.hh, sys_date.mm, sys_date.ss,
 	       sys_date.day, getMonthStr(sys_date.month), sys_date.year);
 }

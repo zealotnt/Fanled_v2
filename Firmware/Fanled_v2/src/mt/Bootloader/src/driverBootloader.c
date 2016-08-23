@@ -61,7 +61,7 @@ typedef void(*pFunction)(void);
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-
+mtLastError_t gLastErr = ERR_NONE;
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -275,7 +275,7 @@ Bool mtBootloaderCheckFwUpgardeRequest()
 {
 	Bool status = True;
 
-	/* Check if there is any upgrage request */
+	/* Check if there is any upgrade request */
 	if (BKP_PATTERN_JUMP_TO_APP == BKP_ReadBackupRegister(BKP_BOOTLOADER_ID))
 	{
 		if (True == mtBootloaderCheckAppValid())
@@ -285,8 +285,13 @@ Bool mtBootloaderCheckFwUpgardeRequest()
 			status = False;
 			goto exit;
 		}
+
+		gLastErr = ERR_APP_CRC32_FAIL;
 		BL_ERR("Firmware checksum fail\r\n");
 	}
+
+	/* BKP has been clear (check RTC pin...), Boot_loader continue running */
+	gLastErr = ERR_BKP_CLEAR;
 exit:
 	return status;
 }
@@ -340,44 +345,6 @@ void mtBootloaderEraseAppFw(void)
 		}
 	}
 	DEBUG_INFO("Done erasing\r\n");
-}
-
-/**
- * @Function	: retAppPage
- * @Brief		: input page as relative to App's Flash region (0-StartofAppPage --> MaxAppPage),
- *                return as absolute page address (0 --> EndOfBootloader's Page --> StartofAppPage --> MaxAppPage)
- * @Parameter	:
- * @retval Value:
- */
-uint32_t retAppPage(uint32_t relativePage)
-{
-	uint32_t offset = (FLASH_BOOTLOADER_SIZE / FLASH_PAGE_SIZE);
-	return (relativePage + offset);
-}
-
-FLASH_Status testWriteDummyDataToFlash(uint32_t startPage)
-{
-	volatile FLASH_Status FLASHStatus;
-	const uint32_t pattern[4] = {0x12345678, 0x98765432, 0xa5a51234, 0x5a5a4321};
-	uint32_t i;
-	uint32_t Address = 0;
-
-	if (startPage > (FLASH_TOTAL_SIZE / FLASH_PAGE_SIZE - 1) || (startPage < (FLASH_BOOTLOADER_SIZE / FLASH_PAGE_SIZE)))
-	{
-		DEBUG_ERROR("Invalid startPage number");
-		return -1;
-	}
-
-	FLASHStatus = FLASH_ErasePage(FLASH_APP_START_ADDRESS + (FLASH_PAGE_SIZE * startPage));
-	Address = FLASH_APP_START_ADDRESS + (FLASH_PAGE_SIZE * startPage);
-
-	for (i = 0; i <  FLASH_PAGE_SIZE / 4; i++)
-	{
-		FLASHStatus = FLASH_ProgramWord(Address, pattern[i % 4]);
-		Address += 4;
-	}
-
-	return FLASHStatus;
 }
 
 #pragma GCC reset_options
