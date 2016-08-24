@@ -26,6 +26,7 @@
 #include "Porting/inc/mtTick.h"
 #include "Porting/inc/mtUart.h"
 #include "Porting/inc/mtSPI.h"
+#include "Porting/inc/mtWdt.h"
 #include "Effects/inc/mtFanledDisplay.h"
 #include "Bluetooth/inc/bluetooth.h"
 #include "UartHandler/inc/mtProtocolDriver.h"
@@ -102,6 +103,7 @@ void initAll(void)
 	mtHallSensorInit();
 	stmInitRTC();
 	mtTimerFanledDisplayInit();
+	mtWdtInit();
 }
 
 void mtSysTickInit(void)

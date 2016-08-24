@@ -29,6 +29,7 @@
 #include <stm32f10x_crc.h>
 
 #include "mtInclude.h"
+#include "Porting/inc/mtWdt.h"
 #include "../inc/driverBootloader.h"
 
 #pragma GCC optimize("O0")
@@ -275,23 +276,36 @@ Bool mtBootloaderCheckFwUpgardeRequest()
 {
 	Bool status = True;
 
-	/* Check if there is any upgrade request */
-	if (BKP_PATTERN_JUMP_TO_APP == BKP_ReadBackupRegister(BKP_BOOTLOADER_ID))
+	if (True == mtWdtCheckTriggered())
 	{
-		if (True == mtBootloaderCheckAppValid())
+		BL_ERR("Wdt triggered \r\n");
+		gLastErr = ERR_WDT_RESET;
+	}
+
+	/* Check if there is any upgrade request */
+	if (BKP_PATTERN_OK_JUMP_TO_APP == BKP_ReadBackupRegister(BKP_BOOTLOADER_ID))
+	{
+		if (True != mtBootloaderCheckAppValid())
+		{
+			gLastErr |= ERR_APP_CRC32_FAIL;
+			BL_ERR("Firmware checksum fail\r\n");
+		}
+
+		if (gLastErr == ERR_NONE)
 		{
 			BL_INFO("Firmware consistency check valid, "
 			        "no firmware upgrade request\r\n");
 			status = False;
 			goto exit;
 		}
-
-		gLastErr = ERR_APP_CRC32_FAIL;
-		BL_ERR("Firmware checksum fail\r\n");
 	}
 
-	/* BKP has been clear (check RTC pin...), Boot_loader continue running */
-	gLastErr = ERR_BKP_CLEAR;
+	/* BKP_BOOTLOADER_ID not have valid value: BKP_PATTERN_OK_JUMP_TO_APP
+	 * BKP_BOOTLOADER_ID may be clear (check RTC pin...),
+	 * or have a firmware upgrade request `BKP_PATTERN_REQ_UPGRADE`
+	 * or being upgrade, and then force reset ??? `BKP_PATTERN_UPGRADING`
+	 * => Boot_loader continue running */
+	gLastErr |= ERR_BKP_CLEAR;
 exit:
 	return status;
 }

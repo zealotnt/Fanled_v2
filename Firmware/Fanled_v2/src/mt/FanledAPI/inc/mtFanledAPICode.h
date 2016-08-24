@@ -54,6 +54,7 @@ extern "C"
 #define CTR_CODE_ERASE_APP			0x36
 /* free to add */
 #define CTR_CODE_PROTOCOL_TEST		0x70
+#define CTR_CODE_HARDFAULT			0x72
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */

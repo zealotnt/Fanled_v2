@@ -41,7 +41,7 @@
 #define FLASH_APP_START_ADDRESS	(FLASH_START_ADDRESS + FLASH_BOOTLOADER_SIZE)
 #define FLASH_APP_END_ADDRESS	(FLASH_APP_START_ADDRESS + FLASH_TOTAL_SIZE - FLASH_BOOTLOADER_SIZE)
 
-#define BKP_PATTERN_JUMP_TO_APP			0xff00
+#define BKP_PATTERN_OK_JUMP_TO_APP		0xff00
 #define BKP_PATTERN_UPGRADING			0x5678
 #define BKP_PATTERN_REQ_UPGRADE			0x0000
 
@@ -51,9 +51,9 @@
 typedef enum
 {
 	ERR_NONE				= 0x00,
-	ERR_HARD_FAULT 			= 0x01,
+	ERR_WDT_RESET 			= 0x01,
 	ERR_BKP_CLEAR			= 0x02,
-	ERR_APP_CRC32_FAIL 		= 0x03,
+	ERR_APP_CRC32_FAIL 		= 0x04,
 } mtLastError_t;
 
 /*****************************************************************************/

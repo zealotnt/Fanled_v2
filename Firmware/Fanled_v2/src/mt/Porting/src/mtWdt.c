@@ -5,15 +5,15 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : mtFanledAPIBasic.c
+** File name         : mtWdt.c
 **
-** Module name       : FanledAPI
+** Module name       : Porting
 **
 **
 ** Summary:
 **
 **= History ====================================================================
-** @date 	Feb 23, 2016
+** @date 	Aug 24, 2016
 ** @author	zealot
 ** - Development
 ==============================================================================*/
@@ -21,24 +21,23 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include <string.h>
+#include <stm32f10x_wwdg.h>
+#include <stm32f10x_iwdg.h>
+#include <stm32f10x_rcc.h>
+#include <misc.h>
+
 #include "mtInclude.h"
-
-#include "Bootloader/inc/driverBootloader.h"
-#include "RTC/inc/mtRtc.h"
-#include "App/inc/mtVersion.h"
-#include "../inc/mtFanledAPICode.h"
-
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
-#define ADDRESS_CAUSE_HARDFAULT			0x09008000
+
 
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
 /******************************************************************************/
-
+#define WDT_RELOAD_VALUE			0x7F
+#define WDT_COUNT_MAX_VALUE			50
 
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
@@ -63,85 +62,61 @@
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
 /******************************************************************************/
-
+volatile UInt8 gWdtCount = 0;
 
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
-                                            UInt16 msgInLen,
-                                            UInt8 *msgOut,
-                                            UInt16 *msgOutLen)
+void mtWdtInit()
 {
-	mtErrorCode_t retVal = MT_SUCCESS;
-	UInt32 dwVersion;
+	/* Enable clock */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_WWDG, ENABLE);
 
-	dwVersion = FIRMWARE_VERSION_MAJOR * 10000 + FIRMWARE_VERSION_MINOR * 100 + FIRMWARE_REVISION;
+	/* Setup watchdog */
+	WWDG_SetPrescaler(WWDG_Prescaler_8);
+	WWDG_Enable(WDT_RELOAD_VALUE);
+	WWDG_ClearFlag();
+	WWDG_EnableIT();
+
+	/* WWDG interrupt */
+	/* NVIC initialization */
+	NVIC_InitTypeDef NVIC_InitStructure;
+	NVIC_InitStructure.NVIC_IRQChannel = WWDG_IRQn;
+	/* In 2, sub priority 3 */
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+}
+
+void mtWdtFeed()
+{
+	gWdtCount = 0;
+	WWDG_Enable(WDT_RELOAD_VALUE);
+}
+
+Bool mtWdtCheckTriggered()
+{
+	Bool ret;
+	ret = (Bool)RCC_GetFlagStatus(RCC_FLAG_WWDGRST);
+	RCC_ClearFlag();
+	return ret;
+}
+
+/**
+ * The watchdog interrupt service routine
+ */
+void WWDG_IRQHandler(void)
+{
 #if (FANLED_APP)
-	msgOut[6] = 3;		/* Firmware ID = 3 --> Fanled Application */
-#else
-	msgOut[6] = 2;		/* Firmware ID = 2 --> Fanled Bootloader */
+	if (gWdtCount < WDT_COUNT_MAX_VALUE)
+	{
+		WWDG_Enable(WDT_RELOAD_VALUE);
+	    /*Remove pre wakeup interrupt flag*/
+	    WWDG_ClearFlag();
+	    gWdtCount ++;
+	}
 #endif
-	msgOut[3] = (dwVersion & 0xFF);
-	msgOut[4] = (dwVersion >> 8) & 0xFF;
-	msgOut[5] = (dwVersion >> 16) & 0xFF;
-	*msgOutLen = 7;
-
-	return retVal;
 }
 
-mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
-                                      UInt16 msgInLen,
-                                      UInt8 *msgOut,
-                                      UInt16 *msgOutLen)
-{
-	UInt32 i;
-
-	*msgOutLen = (UInt16)(*(UInt16 *)(&msgIn[6]));
-
-	/* Copy rsp_len value */
-	memcpy(&msgOut[2], &msgIn[2], 4);
-
-	/* Copy packet_id value */
-	memcpy(&msgOut[6], &msgIn[8], 2);
-
-	API_INFO("Get packet num %d\r\n", (UInt16) * ((UInt16 *)&msgIn[8]));
-
-	for (i = 8; i < *msgOutLen; i++)
-	{
-		msgOut[i] = i;
-	}
-
-	return MT_SUCCESS;
-}
-
-mtErrorCode_t mtFanledApiGetSetRTC(UInt8 *msgIn,
-                                   UInt16 msgInLen,
-                                   UInt8 *msgOut,
-                                   UInt16 *msgOutLen)
-{
-	/* Get RTC */
-	if (msgIn[2] == 0)
-	{
-		UInt32 cur_rtc_value = mtRtcGetUnixTime();
-		memcpy(&msgOut[3], &cur_rtc_value, 4);
-		*msgOutLen = 7;
-	}
-	/* Set RTC */
-	else
-	{
-		mtRtcSetUnixTime((UInt32)*(UInt32 *)(&msgIn[3]));
-	}
-
-	return MT_SUCCESS;
-}
-
-mtErrorCode_t mtFanledApiHardFault(UInt8 *msgIn,
-                                   UInt16 msgInLen,
-                                   UInt8 *msgOut,
-                                   UInt16 *msgOutLen)
-{
-	mtBootloaderJumpToApp(ADDRESS_CAUSE_HARDFAULT, FLASH_BOOTLOADER_SIZE);
-	return MT_SUCCESS;
-}
 /************************* End of File ****************************************/

@@ -35,6 +35,83 @@ PROG = "send_cmd"
 COPYRIGHT = u"Copyright © 2016"
 
 # ---- GLOBALS
+def string_function_parse(argument):
+	switcher = {
+		"basic": basic_api,
+		"1"    : basic_api,
+		"upg"  : fw_upg_api,
+		"2"    : fw_upg_api,
+	}
+	# Get the function from switcher dictionary
+	func = switcher.get(argument, lambda: "not found")
+	# Execute the function
+	return func()
+
+def basic_api():
+	# fanled_basic_api test suite
+	print_ok("Basic api application selected")
+	PROMT = u"Input your command:"
+	HELP = u"""
+Support comand:
+- gt       : get rtc value
+- st       : set rtc value
+- ver      : get firmware version
+- hf       : cause device to hardfault (for WDT testing)
+"""
+
+	while True:
+		user_promt = raw_input(PROMT)
+		if user_promt == "gt":
+			rtc_get_val = fanled_basic_api.GetFanledUnixTime()
+			print "rtc return from fanled: " + str(rtc_get_val)
+			print "Date format: " + GetDateString(rtc_get_val)
+		elif user_promt == "st":
+			value_to_set = raw_input("Value to set: ")
+			fanled_basic_api.SetFanledUnixTime(int(value_to_set))
+		elif user_promt == "ver":
+			ver_get = fanled_basic_api.GetFirmwareVersion()
+			print ver_get
+		elif user_promt == "hf":
+			fanled_basic_api.MakeFanledHardfault()
+		else:
+			print HELP	
+
+def fw_upg_api():
+	# Fw upgrade test suite
+	print_ok("Firmware upgrade application selected")
+	PROMT = u"Input your command:"
+	HELP = u"""
+Support comand:
+- erase | e: erase firmware flash
+- up    | u: request app to upgrade firmware, jump back to bootloader
+- write | w: continue write firmware content to target device
+- reset | r: reset file and index sequence 
+"""
+	FW_PATH = "/home/zealot/workspace_NotCategorized/Fanled_v2/Firmware/Fanled_v2/Build-App/Fanled_v2.bin"
+	fw = open(FW_PATH, "rb")
+	fw_max_packet = GetNumOfPacket(FW_PATH)
+	fw_contents = GetFileContent(FW_PATH)
+	fw_idx = 0
+	while True:
+		user_promt = raw_input(PROMT)
+		if user_promt == "erase" or user_promt == "e":
+			fanled_fw_upgrade.EraseAppFwRequest()
+		elif user_promt == "write" or user_promt == "w":
+			print "Writing firmware index " + str(fw_idx)
+			first_idx = fw_idx * PACKET_MAX_SIZE
+			end_idx = ((fw_idx + 1) * PACKET_MAX_SIZE)
+			fanled_fw_upgrade.WriteFirmwarePacket(fw_idx, PACKET_MAX_SIZE, fw_contents[first_idx:end_idx])
+			fw_idx += 1
+		elif user_promt == "write all" or user_promt == "wa":
+			fanled_fw_upgrade.DownloadFirmware(FW_PATH)
+		elif user_promt == "checksum" or user_promt == "ck":
+			fanled_fw_upgrade.DownloadChecksum(FW_PATH)
+		elif user_promt == "reset" or user_promt == "r":
+			fw_idx = 0
+		elif user_promt == "up" or user_promt == "u":
+			fanled_fw_upgrade.UpgradeRequest()
+		else:
+			print HELP
 
 # ---- MAIN
 
@@ -57,6 +134,10 @@ if __name__ == "__main__":
 						dest="list_serial", 
 						default=False, 
 						help="display available serial ports")
+	parser.add_option(  "-a", "--app-select", 
+						dest="app_selected",
+						type="string", 
+						help="application to select")
 
 	(options, args) = parser.parse_args()
 
@@ -70,7 +151,7 @@ if __name__ == "__main__":
 		serial = options.serial
 	else:
 		serial = BLUEFINSERIAL_DEFAULT_SERIAL_PORT
-		print_err("No serial port specified, use " + BLUEFINSERIAL_DEFAULT_SERIAL_PORT + " as default")
+		print_ok("No serial port specified, use " + BLUEFINSERIAL_DEFAULT_SERIAL_PORT + " as default")
 
 	port_name = serial
 
@@ -80,60 +161,16 @@ if __name__ == "__main__":
 
 	fanled_basic_api = FanledAPIBasic(comm)
 	fanled_fw_upgrade = FanledAPIFwUpgrade(comm)
-	
-	# fanled_basic_api test suite
-# 	PROMT = u"Input your command:"
-# 	HELP = u"""
-# Support comand:
-# - gt       : get rtc value
-# - st       : set rtc value
-# - ver      : get firmware version
-# """
-# 	while True:
-# 		user_promt = raw_input(PROMT)
-# 		if user_promt == "gt":
-# 			rtc_get_val = fanled_basic_api.GetFanledUnixTime()
-# 			dump_hex(rtc_get_val, "rtc return from fanled: ")
-# 		elif user_promt == "st":
-# 			value_to_set = raw_input("Value to set: ")
-# 			fanled_basic_api.SetFanledUnixTime(int(value_to_set))
-# 		elif user_promt == "ver":
-# 			ver_get = fanled_basic_api.GetFirmwareVersion()
-# 			print ver_get
-# 		else:
-# 			print HELP
 
-	# Fw upgrade test suite
-# 	PROMT = u"Input your command:"
-# 	HELP = u"""
-# Support comand:
-# - erase | e: erase firmware flash
-# - up    | u: request app to upgrade firmware, jump back to bootloader
-# - write | w: continue write firmware content to target device
-# - reset | r: reset file and index sequence 
-# """
-# 	FW_PATH = "/home/zealot/workspace_NotCategorized/Fanled_v2/Firmware/Fanled_v2/Build-App/Fanled_v2.bin"
-# 	fw = open(FW_PATH, "rb")
-# 	fw_max_packet = GetNumOfPacket(FW_PATH)
-# 	fw_contents = GetFileContent(FW_PATH)
-# 	fw_idx = 0
-# 	while True:
-# 		user_promt = raw_input(PROMT)
-# 		if user_promt == "erase" or user_promt == "e":
-# 			fanled_fw_upgrade.EraseAppFwRequest()
-# 		elif user_promt == "write" or user_promt == "w":
-# 			print "Writing firmware index " + str(fw_idx)
-# 			first_idx = fw_idx * PACKET_MAX_SIZE
-# 			end_idx = ((fw_idx + 1) * PACKET_MAX_SIZE)
-# 			fanled_fw_upgrade.WriteFirmwarePacket(fw_idx, PACKET_MAX_SIZE, fw_contents[first_idx:end_idx])
-# 			fw_idx += 1
-# 		elif user_promt == "write all" or user_promt == "wa":
-# 			fanled_fw_upgrade.DownloadFirmware(FW_PATH)
-# 		elif user_promt == "checksum" or user_promt == "ck":
-# 			fanled_fw_upgrade.DownloadChecksum(FW_PATH)
-# 		elif user_promt == "reset" or user_promt == "r":
-# 			fw_idx = 0
-# 		elif user_promt == "up" or user_promt == "u":
-# 			fanled_fw_upgrade.UpgradeRequest()
-# 		else:
-# 			print HELP
+	APP_PROMT = u"""No application selected !!!
+To choose application:
+	./send_cmd.py -a <app-select>
+Application support:
+	basic | 1        : basic fanled api
+	upg   | 2        : fanled firmware upgrade api
+"""
+	if options.app_selected is None:
+		print APP_PROMT
+		sys.exit(1)
+
+	string_function_parse(options.app_selected)

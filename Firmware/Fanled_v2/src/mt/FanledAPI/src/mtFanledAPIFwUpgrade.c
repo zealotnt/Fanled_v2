@@ -171,7 +171,7 @@ mtErrorCode_t mtFanledApiFirmwareChecksum(UInt8 *msgIn,
 
 	mtBootloaderSaveBackupCRC32Value(pCmd->CRC32);
 	mtBootloaderSaveBackupFwLenValue(pCmd->FirmwareSize);
-	mtBootloaderWriteUpgradeBKPValue(BKP_PATTERN_JUMP_TO_APP);
+	mtBootloaderWriteUpgradeBKPValue(BKP_PATTERN_OK_JUMP_TO_APP);
 	mtSerialCmdDataLinkCallbackRegister(JumpToApp);
 
 exit:

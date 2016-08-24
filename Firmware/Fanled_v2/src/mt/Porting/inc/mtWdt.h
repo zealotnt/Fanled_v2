@@ -5,20 +5,21 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : mtFanledAPIBasic.h
+** File name         : template.h
 **
-** Module name       : FanledAPI
+** Module name       : template
 **
 **
 ** Summary:
 **
 **= History ====================================================================
-** - Creation
+** @date 	Aug 24, 2016
+** @author	zealot
 ** - Development
 ==============================================================================*/
 
-#ifndef MTFANLEDAPIBASIC_H_
-#define MTFANLEDAPIBASIC_H_
+#ifndef MTWDT_H_
+#define MTWDT_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -28,7 +29,7 @@ extern "C"
 /*****************************************************************************/
 /* INCLUSIONS                                                                */
 /*****************************************************************************/
-
+#include "mtInclude.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -58,28 +59,12 @@ extern "C"
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
-        UInt16 msgInLen,
-        UInt8 *msgOut,
-        UInt16 *msgOutLen);
-
-mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
-                                      UInt16 msgInLen,
-                                      UInt8 *msgOut,
-                                      UInt16 *msgOutLen);
-
-mtErrorCode_t mtFanledApiGetSetRTC(UInt8 *msgIn,
-                                   UInt16 msgInLen,
-                                   UInt8 *msgOut,
-                                   UInt16 *msgOutLen);
-
-mtErrorCode_t mtFanledApiHardFault(UInt8 *msgIn,
-                                   UInt16 msgInLen,
-                                   UInt8 *msgOut,
-                                   UInt16 *msgOutLen);
+void mtWdtInit();
+void mtWdtFeed();
+Bool mtWdtCheckTriggered();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MTFANLEDAPIBASIC_H_ */
+#endif /* MTWDT_H_ */

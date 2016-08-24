@@ -31,6 +31,7 @@
 #include "App/tst/fanledTestApp.h"
 #include "Porting/inc/mtSPI.h"
 #include "Porting/inc/mtUart.h"
+#include "Porting/inc/mtWdt.h"
 #include "Effects/inc/image_data.h"
 #include "Effects/inc/mtIncludeEffects.h"
 #include "Bootloader/inc/driverBootloader.h"
@@ -150,6 +151,8 @@ int main(void)
 
 	while (1)
 	{
+		mtWdtFeed();
+
 		if (mainHandler != Null)
 		{
 			mainHandler(Null);
