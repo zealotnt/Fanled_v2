@@ -86,7 +86,7 @@ typedef struct
 	uint8_t NumOfItem;
 	int8_t ChoiceNow;
 	int8_t OldChoice;
-} MediaPlayer;
+} SdManager_t;
 
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */

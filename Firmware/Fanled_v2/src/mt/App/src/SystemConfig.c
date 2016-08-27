@@ -103,7 +103,7 @@ void initAll(void)
 	mtHallSensorInit();
 	stmInitRTC();
 	mtTimerFanledDisplayInit();
-	mtWdtInit();
+//	mtWdtInit();
 }
 
 void mtSysTickInit(void)
