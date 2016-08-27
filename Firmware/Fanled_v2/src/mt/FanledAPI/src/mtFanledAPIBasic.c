@@ -24,6 +24,7 @@
 #include <string.h>
 #include "mtInclude.h"
 
+#include "UartHandler/inc/mtSerialCmdParser.h"
 #include "Bootloader/inc/driverBootloader.h"
 #include "RTC/inc/mtRtc.h"
 #include "App/inc/mtVersion.h"
@@ -63,7 +64,11 @@
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
 /******************************************************************************/
-
+Void JumpToInvalidAddress(Void *param)
+{
+	DEBUG_INFO("JumpToInvalidAddress\r\n");
+	mtBootloaderJumpToApp(ADDRESS_CAUSE_HARDFAULT, FLASH_BOOTLOADER_SIZE);
+}
 
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
@@ -141,7 +146,7 @@ mtErrorCode_t mtFanledApiHardFault(UInt8 *msgIn,
                                    UInt8 *msgOut,
                                    UInt16 *msgOutLen)
 {
-	mtBootloaderJumpToApp(ADDRESS_CAUSE_HARDFAULT, FLASH_BOOTLOADER_SIZE);
+	mtSerialCmdDataLinkCallbackRegister(JumpToInvalidAddress);
 	return MT_SUCCESS;
 }
 /************************* End of File ****************************************/

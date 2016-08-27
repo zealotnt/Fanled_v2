@@ -300,12 +300,16 @@ Bool mtBootloaderCheckFwUpgardeRequest()
 		}
 	}
 
-	/* BKP_BOOTLOADER_ID not have valid value: BKP_PATTERN_OK_JUMP_TO_APP
-	 * BKP_BOOTLOADER_ID may be clear (check RTC pin...),
-	 * or have a firmware upgrade request `BKP_PATTERN_REQ_UPGRADE`
-	 * or being upgrade, and then force reset ??? `BKP_PATTERN_UPGRADING`
-	 * => Boot_loader continue running */
-	gLastErr |= ERR_BKP_CLEAR;
+	if (0x00 == BKP_ReadBackupRegister(BKP_BOOTLOADER_ID))
+	{
+		/* BKP_BOOTLOADER_ID not have valid value: BKP_PATTERN_OK_JUMP_TO_APP
+		 * BKP_BOOTLOADER_ID may be clear (check RTC pin...),
+		 * or have a firmware upgrade request `BKP_PATTERN_REQ_UPGRADE`
+		 * or being upgrade, and then force reset ??? `BKP_PATTERN_UPGRADING`
+		 * => Boot_loader continue running */
+		gLastErr |= ERR_BKP_CLEAR;
+	}
+
 exit:
 	return status;
 }

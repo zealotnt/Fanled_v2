@@ -149,3 +149,27 @@ class FanledAPIFwUpgrade():
 			return False
 
 		return True
+
+	def GetLastErr(self):
+		pkt = BluefinserialCommand()
+		cmd = pkt.Packet('\x8b', '\x20')
+
+		rsp = self._datalink.Exchange(cmd)
+		if rsp is None:
+			print_err("Get LastErr fail")
+			return
+		if rsp[1] != '\x21':
+			print_err("API GetLastErr not supported")
+			return
+		if len(rsp) != 4:
+			print_err("Response len not expected = " + str(len(rsp)) + " should be = 4")
+			return			
+		if rsp[3] == '\x00':
+			print_ok("Fanled: No error")
+			return
+		if ord(rsp[3]) & 0x01:
+			print_err("Err: ERR_WDT_RESET")
+		if ord(rsp[3]) & 0x02:
+			print_err("Err: ERR_BKP_CLEAR")
+		if ord(rsp[3]) & 0x04:
+			print_err("Err: ERR_APP_CRC32_FAIL")

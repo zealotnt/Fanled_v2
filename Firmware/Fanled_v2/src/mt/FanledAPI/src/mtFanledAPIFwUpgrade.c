@@ -82,6 +82,7 @@ mtErrorCode_t mtFanledApiBlGetLastErr(UInt8 *msgIn,
                                       UInt8 *msgOut,
                                       UInt16 *msgOutLen)
 {
+	*msgOutLen = 4;
 	msgOut[3] = gLastErr;
 	return MT_SUCCESS;
 }

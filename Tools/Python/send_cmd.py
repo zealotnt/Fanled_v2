@@ -57,6 +57,7 @@ Support comand:
 - st       : set rtc value
 - ver      : get firmware version
 - hf       : cause device to hardfault (for WDT testing)
+- le       : Get fanled bootloader last err
 """
 
 	while True:
@@ -73,6 +74,8 @@ Support comand:
 			print ver_get
 		elif user_promt == "hf":
 			fanled_basic_api.MakeFanledHardfault()
+		elif user_promt == "le":
+			fanled_fw_upgrade.GetLastErr()
 		else:
 			print HELP	
 
@@ -85,7 +88,8 @@ Support comand:
 - erase | e: erase firmware flash
 - up    | u: request app to upgrade firmware, jump back to bootloader
 - write | w: continue write firmware content to target device
-- reset | r: reset file and index sequence 
+- reset | r: reset file and index sequence
+- le       : Get fanled bootloader last err
 """
 	FW_PATH = "/home/zealot/workspace_NotCategorized/Fanled_v2/Firmware/Fanled_v2/Build-App/Fanled_v2.bin"
 	fw = open(FW_PATH, "rb")
@@ -110,6 +114,8 @@ Support comand:
 			fw_idx = 0
 		elif user_promt == "up" or user_promt == "u":
 			fanled_fw_upgrade.UpgradeRequest()
+		elif user_promt == "le":
+			fanled_fw_upgrade.GetLastErr()			
 		else:
 			print HELP
 
