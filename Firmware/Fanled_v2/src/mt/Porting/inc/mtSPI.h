@@ -72,7 +72,7 @@ void mtSPIReadMulti(SPI_TypeDef* SPIx, uint8_t *dataIn, uint8_t dummy, uint16_t 
 
 void mtFanledSPIInit(void);
 void mtFanledDMAInit(void);
-void mtSPIFanledSend(uint32_t Addr, uint32_t Size);
+void mtFanledSendDmaBuffer(uint32_t Addr, uint32_t Size);
 
 #ifdef __cplusplus
 }

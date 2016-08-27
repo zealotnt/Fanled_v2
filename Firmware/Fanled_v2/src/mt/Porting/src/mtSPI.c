@@ -21,7 +21,7 @@
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
 #include "../inc/mtSPI.h"
-#include "drivers/fatfs_sd.h"
+//#include "drivers/fatfs_sd.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -180,7 +180,7 @@ void mtFanledDMAInit(void)
 	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
 }
 
-void mtSPIFanledSend(uint32_t Addr, uint32_t Size)
+void mtFanledSendDmaBuffer(uint32_t Addr, uint32_t Size)
 {
 	/* Configure the buffer address and size */
 	g_DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)Addr;

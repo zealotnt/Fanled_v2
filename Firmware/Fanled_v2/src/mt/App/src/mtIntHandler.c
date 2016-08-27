@@ -60,6 +60,7 @@
 #if (FANLED_APP)
 extern Display_Type Fanled_Display;
 #endif
+extern void disk_timerproc (void);
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -121,8 +122,8 @@ void mtSystickHandler(void)
 		Fanled_Display.misc_count += MISC_CHANGE_SPEED;
 	}
 #endif
-	TimingDelay_Decrement();
 	mtDelayClockTick();
+	disk_timerproc();
 }
 
 /******************************************************************************/

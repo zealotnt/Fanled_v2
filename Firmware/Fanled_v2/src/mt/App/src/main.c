@@ -61,7 +61,7 @@
 FATFS gFatFs;
 DIR mydir;
 FILINFO myfno;
-MediaPlayer MyPlayer;
+SdManager_t sdFileInfo;
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -71,23 +71,23 @@ static pMainHandler mainHandler = Null;
 /******************************************************************************/
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
 /******************************************************************************/
-void sd_first_step(void);
+void InitializeSdCard(void);
 
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
 /******************************************************************************/
-void sd_first_step(void)
+void InitializeSdCard(void)
 {
 	FRESULT res = FR_DISK_ERR;
 	uint8_t count = 0;
 	mtDelayMS(5);
 	while ((res != FR_OK) && (count < 10))
 	{
-		res = f_mount(&gFatFs, "0:", 1);
+		res = f_mount(0, &gFatFs);
 		count++;
 	}
 
-	if (f_mount(&gFatFs, "0:", 1) == FR_OK)
+	if (f_mount(0, &gFatFs) == FR_OK)
 	{
 		do
 		{
@@ -99,11 +99,14 @@ void sd_first_step(void)
 		do
 		{
 			res = f_readdir(&mydir, &myfno);
-			if (myfno.fname[0]) { MyPlayer.NumOfItem++; }
+			if (myfno.fname[0])
+			{
+				sdFileInfo.NumOfItem++;
+			}
 		}
 		while (myfno.fname[0]);
 	}
-	MyPlayer.ChoiceNow = 0;
+	sdFileInfo.ChoiceNow = 0;
 }
 
 /******************************************************************************/
@@ -142,6 +145,7 @@ int main(void)
 	initAll();
 	uart_dbg_init();
 	DEBUG_INFO("App %s \r\n", FIRMWARE_VERSION_FULL);
+	InitializeSdCard();
 
 //	FanledTestColor();
 //	FanledTestPicture();

@@ -87,7 +87,7 @@ void LED_LATCH()
 
 void mtFanledSendLineBuffer()
 {
-	mtSPIFanledSend((uint32_t)ledPanel, 36 * 4);
+	mtFanledSendDmaBuffer((uint32_t)ledPanel, 36 * 4);
 }
 
 void blankAllLed(void)
