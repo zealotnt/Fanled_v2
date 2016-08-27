@@ -55,7 +55,7 @@ extern "C"
 /*****************************************************************************/
 /* DECLARATION OF VARIABLES (Only external global variables)                 */
 /*****************************************************************************/
-extern char FIRMWARE_VERSION_FULL[];
+extern const char FIRMWARE_VERSION_FULL[];
 
 
 /*****************************************************************************/
