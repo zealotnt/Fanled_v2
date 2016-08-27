@@ -32,6 +32,7 @@
 #include "UartHandler/inc/mtProtocolDriver.h"
 #include "RTC/inc/mtRtcDriver.h"
 #include "Bootloader/inc/driverBootloader.h"
+#include "ff.h"
 
 #include "misc.h"
 #include "stm32f10x.h"
@@ -68,6 +69,12 @@
 extern volatile uint32_t CCR1_Val;
 extern volatile uint32_t CCR2_Val;
 
+/* SD Card specific Variables */
+FATFS gFatFs;
+DIR mydir;
+FILINFO myfno;
+SdManager_t sdFileInfo;
+
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
@@ -86,6 +93,47 @@ extern volatile uint32_t CCR2_Val;
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
+void mtSdCardInit(void)
+{
+	FRESULT res = FR_DISK_ERR;
+	uint8_t count = 0;
+
+	while ((res != FR_OK) && (count < 10))
+	{
+		res = f_mount(0, &gFatFs);
+		count++;
+	}
+
+	if (f_mount(0, &gFatFs) == FR_OK)
+	{
+		do
+		{
+			res = f_opendir(&mydir, "0:\\");
+			mtDelayMS(1);
+			count ++;
+		}
+		while (res != FR_OK && (count < 10));
+
+		/* Err, return */
+		if (res != FR_OK || count >= 10)
+		{
+			return;
+		}
+
+		do
+		{
+			res = f_readdir(&mydir, &myfno);
+			if (myfno.fname[0])
+			{
+				sdFileInfo.NumOfItem++;
+			}
+		}
+		while (myfno.fname[0]);
+	}
+
+	sdFileInfo.ChoiceNow = 0;
+}
+
 void initBootloader(void)
 {
 	mtRCCInit();
@@ -103,7 +151,8 @@ void initAll(void)
 	mtHallSensorInit();
 	stmInitRTC();
 	mtTimerFanledDisplayInit();
-//	mtWdtInit();
+	mtSdCardInit();
+	mtWdtInit();
 }
 
 void mtSysTickInit(void)

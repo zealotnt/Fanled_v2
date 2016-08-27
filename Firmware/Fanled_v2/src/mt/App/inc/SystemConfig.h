@@ -60,6 +60,7 @@ void blankAllLed(void);
 void initBootloader();
 void initAll();
 
+void mtSdCardInit(void);
 void mtSysTickInit();
 void mtRCCInit();
 void mtDelayMS(uint32_t time_delay);

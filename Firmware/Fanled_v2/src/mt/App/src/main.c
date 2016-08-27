@@ -38,7 +38,6 @@
 #include "RTC/inc/mtRtc.h"
 #include "UartHandler/inc/mtSerialCmdParser.h"
 
-#include "ff.h"
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
@@ -57,11 +56,7 @@
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-// SD Card specific Variables
-FATFS gFatFs;
-DIR mydir;
-FILINFO myfno;
-SdManager_t sdFileInfo;
+
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -71,43 +66,12 @@ static pMainHandler mainHandler = Null;
 /******************************************************************************/
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
 /******************************************************************************/
-void InitializeSdCard(void);
+
 
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
 /******************************************************************************/
-void InitializeSdCard(void)
-{
-	FRESULT res = FR_DISK_ERR;
-	uint8_t count = 0;
-	mtDelayMS(5);
-	while ((res != FR_OK) && (count < 10))
-	{
-		res = f_mount(0, &gFatFs);
-		count++;
-	}
 
-	if (f_mount(0, &gFatFs) == FR_OK)
-	{
-		do
-		{
-			res = f_opendir(&mydir, "0:\\");
-			mtDelayMS(5);
-		}
-		while (res != FR_OK);
-
-		do
-		{
-			res = f_readdir(&mydir, &myfno);
-			if (myfno.fname[0])
-			{
-				sdFileInfo.NumOfItem++;
-			}
-		}
-		while (myfno.fname[0]);
-	}
-	sdFileInfo.ChoiceNow = 0;
-}
 
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
@@ -145,7 +109,6 @@ int main(void)
 	initAll();
 	uart_dbg_init();
 	DEBUG_INFO("App %s \r\n", FIRMWARE_VERSION_FULL);
-	InitializeSdCard();
 
 //	FanledTestColor();
 //	FanledTestPicture();
