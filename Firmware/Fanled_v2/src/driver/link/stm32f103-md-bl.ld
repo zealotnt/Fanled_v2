@@ -37,18 +37,17 @@ _estack = 0x20005000;    /* end of 20K RAM */
 
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0;      /* required amount of heap  */
-_Min_Stack_Size = 0x100; /* required amount of stack */
+_Min_Stack_Size = 0x500; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
 {
   FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 16K
-  RAM_FW (xrw)    : ORIGIN = 0x20004000, LENGTH = 16K
+  RAM_FW (xrw)    : ORIGIN = 0x20000000, LENGTH = 16K
   RAM (xrw)       : ORIGIN = 0x20004000, LENGTH = 4K
 }
 
 /* Start address of RAM firmware */
-_flash_data_start_add = 0x08000000;
 _ram_bootloader_start = 0x20000000;
 _ram_bootloader_end   = 0x20004000;
 
@@ -63,7 +62,19 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
+  .startup :
+  {
+    . = ALIGN(4);
+    *(.startup)           /* .startup sections (code) */
+    *(.startup*)          /* .startup* sections (code) */
+    KEEP (*(.startup*))
+    KEEP (*(.init))
+    KEEP (*(.fini))
+    . = ALIGN(4);
+  } >FLASH
+
   /* The program code and other data goes into FLASH */
+  _flash_data_start_add = .;
   .text :
   {
     . = ALIGN(4);
@@ -79,7 +90,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH
+  } >RAM_FW AT>FLASH
 
 
    .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
@@ -87,33 +98,34 @@ SECTIONS
     __exidx_start = .;
       *(.ARM.exidx*)
       __exidx_end = .;
-    } >FLASH
+    } >RAM_FW AT>FLASH
 
-  .ARM.attributes : { *(.ARM.attributes) } > FLASH
+  .ARM.attributes : { *(.ARM.attributes) } >RAM_FW AT>FLASH
 
   .preinit_array     :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
-  } >FLASH
+  } >RAM_FW AT>FLASH
   .init_array :
   {
     PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
-  } >FLASH
+  } >RAM_FW AT>FLASH
   .fini_array :
   {
     PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(.fini_array*))
     KEEP (*(SORT(.fini_array.*)))
     PROVIDE_HIDDEN (__fini_array_end = .);
-  } >FLASH
+  } >RAM_FW AT>FLASH
 
   /* used by the startup to initialize data */
   _sidata = .;
+  _sidata_org = . - 0x18000000;
 
   /* Initialized data sections goes into RAM, load LMA copy after code */
   .data : AT ( _sidata )

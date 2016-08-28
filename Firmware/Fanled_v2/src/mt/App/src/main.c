@@ -100,7 +100,7 @@ int main(void)
 	{
 		if (True == gQueuePayload.Done)
 		{
-			mtSerialCmdDataLinkHandlingThread(gQueuePayload);
+			mtSerialCmdDataLinkHandlingThread(&gQueuePayload);
 			gQueuePayload.Done = False;
 		}
 	}
@@ -127,7 +127,7 @@ int main(void)
 
 		if (True == gQueuePayload.Done)
 		{
-			mtSerialCmdDataLinkHandlingThread(gQueuePayload);
+			mtSerialCmdDataLinkHandlingThread(&gQueuePayload);
 			gQueuePayload.Done = False;
 		}
 	}

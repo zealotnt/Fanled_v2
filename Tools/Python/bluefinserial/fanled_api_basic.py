@@ -100,8 +100,11 @@ class FanledAPIBasic():
 		# Send to target
 		rsp = ''
 		rsp = self._datalink.Exchange(cmd)
+		if rsp is None:
+			return 0
 		if len(rsp) != 7:
 			print_err("Len response not expected")
+			return 0
 
 		if rsp[2] == '\x00':
 			return ord(rsp[3]) + (ord(rsp[4]) << 8) + (ord(rsp[5]) << 16) + (ord(rsp[6]) << 24)
@@ -117,6 +120,11 @@ class FanledAPIBasic():
 		# Send to target
 		rsp = ''
 		rsp = self._datalink.Exchange(cmd)
+		if rsp is None:
+			return False
+		if len(rsp) < 3:
+			print_err("Len response not expected")
+			return False
 		if rsp[2] == '\x00':
 			print_ok("Set time ok")
 			return True

@@ -136,7 +136,12 @@ class BluefinserialSend():
 		if ret == False or retry >= self.ACK_RETRY:
 			print_err("Receive response fail")
 			return None
-
+		if self._response[0] != packet[5]:
+			print_err("Response's Command code not match, refuse response packet")
+			return None
+		if ord(self._response[1]) != (ord(packet[6]) + 1):
+			print_err("Response's Control code not match, the command may not be supported, refuse response packet")
+			return None			
 		return self._response
 
 	def GetACK(self):

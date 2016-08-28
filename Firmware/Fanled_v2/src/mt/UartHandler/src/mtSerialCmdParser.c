@@ -475,47 +475,47 @@ Void mtSerialCmdDataLinkCallbackRegister(pCmdHandlerCallback call_back)
 /**
  * @Function: mtSerialCmdDataLinkHandlingThread
  */
-Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload)
+Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t *sQueuePayload)
 {
 	static serialRcvFrame_t sResponseFrame;
 	UInt8 sPacketType = SERIAL_PACKET_UNKNOWN;
 	UInt16 msgInLen;
 
-	if (sQueuePayload.errorFlag != RCV_SUCCESS)
+	if (sQueuePayload->errorFlag != RCV_SUCCESS)
 	{
 		mtSerialCmdDumpBufferDataRaw("Receive: ", (Void *)&gQueuePayload.serialDataFrame, gQueuePayload.lenMonitoring);
 		mtSerialCmd_ResetRcvStateMachine(&gQueuePayload);
 		goto exit;
 	}
 
-	switch (sQueuePayload.type)
+	switch (sQueuePayload->type)
 	{
 		case DATA_TYPE:
 		{
 			UInt16 msgOutLen = 0;
-			if (sQueuePayload.errorFlag != RCV_SUCCESS)
+			if (sQueuePayload->errorFlag != RCV_SUCCESS)
 			{
-				DEBUG_SERIAL_PRINT_NOTIFY_BAD("Rcv error, code: %d \r\n", sQueuePayload.errorFlag);
+				DEBUG_SERIAL_PRINT_NOTIFY_BAD("Rcv error, code: %d \r\n", sQueuePayload->errorFlag);
 				goto exit;
 			}
 
-			if (sQueuePayload.serialDataFrame.IF.FIm != OWN_FI)
+			if (sQueuePayload->serialDataFrame.IF.FIm != OWN_FI)
 			{
 				DEBUG_SERIAL_PRINT("This Cmd is not for me, just ignore it \r\n");
 				goto exit;
 			}
 
-			checkValidTerminationPacket(&sQueuePayload, &sPacketType);
+			checkValidTerminationPacket(sQueuePayload, &sPacketType);
 			switch (sPacketType)
 			{
 				case SERIAL_PACKET_DATA:
 				{
 					/* Reply ACK first */
 					mtSerialCmdSendACK(SERIAL_FI_RESP_SECONDBYTE);
-					msgInLen = sQueuePayload.serialDataFrame.Len.Lenl + (sQueuePayload.serialDataFrame.Len.Lenm << 8);
+					msgInLen = sQueuePayload->serialDataFrame.Len.Lenl + (sQueuePayload->serialDataFrame.Len.Lenm << 8);
 
 					/* Process cmd */
-					mtSerialProcessCmdPacket((UInt8 *)&sQueuePayload.serialDataFrame.Data,
+					mtSerialProcessCmdPacket((UInt8 *)&sQueuePayload->serialDataFrame.Data,
 					                         msgInLen,
 					                         (UInt8 *)&sResponseFrame.Data,
 					                         &msgOutLen);

@@ -58,16 +58,14 @@ defined in linker script */
 /**
  * @brief  This is the code that gets called when the processor first
  *          starts execution following a reset event. Only the absolutely
- *          necessary set is performed, after which the application
- *          supplied main() routine is called. 
+ *          necessary set is performed.
  * @param  None
  * @retval : None
 */
-
-    .section	.text.Reset_Handler
+    .section	.startup
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
-Reset_Handler:	
+Reset_Handler:
 	/* Copy the bootloader firmware from FLASH to RAM */
 	movs  r1, #0
 	b     LoopCopyFlashToRam
@@ -88,10 +86,10 @@ LoopCopyFlashToRam:
 	/* Done copying firmware from FLASH to RAM,
 	 * Copy the data segment initializers from flash to SRAM */
 	movs	r1, #0
-	b		LoopCopyDataInit
+	b		FillZerobss
 
 CopyDataInit:
-	ldr	r3, =_sidata
+	ldr	r3, =_sidata_org
 	ldr	r3, [r3, r1]
 	str	r3, [r0, r1]
 	adds	r1, r1, #4
@@ -113,13 +111,29 @@ LoopFillZerobss:
 	ldr	r3, = _ebss
 	cmp	r2, r3
 	bcc	FillZerobss
-/* Call the clock system intitialization function.*/
+
+	/* Jump to main code */
+	ldr r3, =RAMStartUpApp
+	bx r3
+.size	Reset_Handler, .-Reset_Handler
+
+/**
+ * @brief  This is code reside in RAM, where
+ * the application supplied main() routine is called.
+ * @param  None
+ * @retval : None
+*/
+    .section	.text.RAMStartUpApp
+	.weak	RAMStartUpApp
+	.type	RAMStartUpApp, %function
+RAMStartUpApp:
+	/* Call the clock system intitialization function.*/
 	bl  SystemInit
 	bl  core_enable_isr
-/* Call the application's entry point.*/
+	/* Call the application's entry point.*/
 	bl	main
-	bx	lr    
-.size	Reset_Handler, .-Reset_Handler
+	bx	lr
+.size	RAMStartUpApp, .-RAMStartUpApp
 
 /**
  * @brief  This is the code that gets called when the processor receives an 
