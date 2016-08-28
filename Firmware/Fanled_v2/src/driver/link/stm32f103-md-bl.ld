@@ -43,8 +43,14 @@ _Min_Stack_Size = 0x100; /* required amount of stack */
 MEMORY
 {
   FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 16K
+  RAM_FW (xrw)    : ORIGIN = 0x20004000, LENGTH = 16K
   RAM (xrw)       : ORIGIN = 0x20004000, LENGTH = 4K
 }
+
+/* Start address of RAM firmware */
+_flash_data_start_add = 0x08000000;
+_ram_bootloader_start = 0x20000000;
+_ram_bootloader_end   = 0x20004000;
 
 /* Define output sections */
 SECTIONS

@@ -68,10 +68,27 @@ defined in linker script */
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
 Reset_Handler:	
+	/* Copy the bootloader firmware from FLASH to RAM */
+	movs  r1, #0
+	b     LoopCopyFlashToRam
 
-/* Copy the data segment initializers from flash to SRAM */  
-  movs	r1, #0
-  b	LoopCopyDataInit
+CopyFlashToRam:
+	ldr	r3, =_flash_data_start_add
+	ldr	r3, [r3, r1]
+	str	r3, [r0, r1]
+	adds	r1, r1, #4
+
+LoopCopyFlashToRam:
+	ldr	r0, =_ram_bootloader_start
+	ldr	r3, =_ram_bootloader_end
+	adds	r2, r0, r1
+	cmp	r2, r3
+	bcc	CopyFlashToRam
+
+	/* Done copying firmware from FLASH to RAM,
+	 * Copy the data segment initializers from flash to SRAM */
+	movs	r1, #0
+	b		LoopCopyDataInit
 
 CopyDataInit:
 	ldr	r3, =_sidata
