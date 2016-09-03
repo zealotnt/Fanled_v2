@@ -17,7 +17,11 @@
 #endif
 
 #ifndef DEBUG
-#	define DEBUG						0
+#	if(FANLED_BOOTLOADER)
+#		define DEBUG						0
+#	elif(FANLED_APP)
+#		define DEBUG						1
+#	endif
 #endif
 
 #endif /* MTCOMPILESWITCH_H_ */

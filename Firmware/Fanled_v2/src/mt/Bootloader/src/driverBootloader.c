@@ -31,6 +31,7 @@
 #include "mtInclude.h"
 #include "Porting/inc/mtWdt.h"
 #include "../inc/driverBootloader.h"
+#include "App/inc/SystemConfig.h"
 
 #pragma GCC optimize("O0")
 /******************************************************************************/
@@ -326,6 +327,7 @@ void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset)
 	uint32_t JumpAddress;
 
 	/* Disable all IRQ */
+	mtNvicDisableAll();
 	core_disable_isr();
 
 	/* Set system control register SCR->VTOR  */

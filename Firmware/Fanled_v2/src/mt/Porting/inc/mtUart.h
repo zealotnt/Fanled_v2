@@ -28,7 +28,15 @@ extern "C"
 /*****************************************************************************/
 /* INCLUSIONS                                                                */
 /*****************************************************************************/
-
+#include "misc.h"
+#include "stm32f10x.h"
+#include "stm32f10x_it.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x_dma.h"
+#include "stm32f10x_tim.h"
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_usart.h"
+#include "stm32f10x_exti.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -38,7 +46,11 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
+#define USART_CMD							USART1
+#define USART_CMD_RX_PRIORITY				0
+#define USART_DBG							USART2
 
+#define FANLED_UART_IRQN					USART1_IRQn
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */

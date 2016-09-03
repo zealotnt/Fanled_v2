@@ -48,8 +48,9 @@ MEMORY
 }
 
 /* Start address of RAM firmware */
-_ram_bootloader_start = 0x20000000;
-_ram_bootloader_end   = 0x20004000;
+_ram_bootloader_start = ORIGIN(RAM_FW);
+_ram_bootloader_end   = ORIGIN(RAM_FW) + LENGTH(RAM_FW);
+_different_between_load_and_run_add = ORIGIN(RAM_FW) - ORIGIN(FLASH);
 
 /* Define output sections */
 SECTIONS
@@ -75,6 +76,7 @@ SECTIONS
 
   /* The program code and other data goes into FLASH */
   _flash_data_start_add = .;
+  _flash_data_start_add_offset = . - ORIGIN(FLASH);
   .text :
   {
     . = ALIGN(4);
@@ -124,11 +126,10 @@ SECTIONS
   } >RAM_FW AT>FLASH
 
   /* used by the startup to initialize data */
-  _sidata = .;
-  _sidata_org = . - 0x18000000;
+  _sidata_org = . - _different_between_load_and_run_add + _flash_data_start_add_offset;
 
   /* Initialized data sections goes into RAM, load LMA copy after code */
-  .data : AT ( _sidata )
+  .data :
   {
     . = ALIGN(4);
     _sdata = .;        /* create a global symbol at data start */
@@ -137,7 +138,7 @@ SECTIONS
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >RAM
+  } >RAM AT >FLASH
 
   /* Uninitialized data section */
   . = ALIGN(4);

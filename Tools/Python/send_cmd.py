@@ -58,6 +58,7 @@ Support comand:
 - ver      : get firmware version
 - hf       : cause device to hardfault (for WDT testing)
 - le       : Get fanled bootloader last err
+- e_bl     : Jump back from application to bootloader
 """
 
 	while True:
@@ -76,6 +77,8 @@ Support comand:
 			fanled_basic_api.MakeFanledHardfault()
 		elif user_promt == "le":
 			fanled_fw_upgrade.GetLastErr()
+		elif user_promt == "e_bl":
+			fanled_fw_upgrade.UpgradeRequest()
 		else:
 			print HELP	
 

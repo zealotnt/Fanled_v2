@@ -86,7 +86,7 @@ LoopCopyFlashToRam:
 	/* Done copying firmware from FLASH to RAM,
 	 * Copy the data segment initializers from flash to SRAM */
 	movs	r1, #0
-	b		FillZerobss
+	b		LoopCopyDataInit
 
 CopyDataInit:
 	ldr	r3, =_sidata_org

@@ -64,7 +64,7 @@ extern mtLastError_t gLastErr;
 /******************************************************************************/
 Void ResetHandler(Void *param)
 {
-	DEBUG_INFO("Jump back to Bootloader\r\n");
+	DEBUG_INFO("Jump back to Bootloader \r\n\r\n");
 	mtBootloaderCoreReset();
 }
 

@@ -140,7 +140,12 @@ class BluefinserialSend():
 			print_err("Response's Command code not match, refuse response packet")
 			return None
 		if ord(self._response[1]) != (ord(packet[6]) + 1):
-			print_err("Response's Control code not match, the command may not be supported, refuse response packet")
+			if (self._response[0] == '\xFF'):
+				print_err("Response's Command code not match, the command may is not supported, refuse response packet")
+			elif (self._response[1] == '\x7F'):
+				print_err("Response's Command code not match, the command may is not supported, refuse response packet")
+			else:
+				print_err("Not regconize response, refuse response packet")
 			return None			
 		return self._response
 
