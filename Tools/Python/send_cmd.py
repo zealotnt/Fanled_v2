@@ -71,8 +71,7 @@ Support comand:
 			value_to_set = raw_input("Value to set: ")
 			fanled_basic_api.SetFanledUnixTime(int(value_to_set))
 		elif user_promt == "ver":
-			ver_get = fanled_basic_api.GetFirmwareVersion()
-			print ver_get
+			fanled_basic_api.GetFirmwareVersion()
 		elif user_promt == "hf":
 			fanled_basic_api.MakeFanledHardfault()
 		elif user_promt == "le":

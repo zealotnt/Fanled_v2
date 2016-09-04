@@ -222,6 +222,8 @@ void mtRCCInit(void)
 #if (FANLED_APP)
 	/* Set system control register SCR->VTOR  */
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, FLASH_BOOTLOADER_SIZE);
+#elif (FANLED_BOOTLOADER)
+	NVIC_SetVectorTable(NVIC_VectTab_RAM, 0);
 #endif
 }
 

@@ -48,8 +48,10 @@ MEMORY
 }
 
 /* Start address of RAM firmware */
-_ram_bootloader_start = ORIGIN(RAM_FW);
-_ram_bootloader_end   = ORIGIN(RAM_FW) + LENGTH(RAM_FW);
+_ram_bootloader_isr_start = ORIGIN(RAM_FW);
+_ram_bootloader_fw_end = ORIGIN(RAM_FW) + LENGTH(RAM_FW);
+
+  _flash_isr_start_add = ORIGIN(FLASH);
 _different_between_load_and_run_add = ORIGIN(RAM_FW) - ORIGIN(FLASH);
 
 /* Define output sections */
@@ -59,10 +61,14 @@ SECTIONS
   .isr_vector :
   {
     . = ALIGN(4);
-    KEEP(*(.isr_vector)) /* Startup code */
+    KEEP(*(.isr_vector)) /* ISR Vector Table */
     . = ALIGN(4);
-  } >FLASH
 
+    _ram_bootloader_isr_end = .;
+    _ram_bootloader_isr_end_offset = . - 0x20000000;
+  } >RAM_FW AT>FLASH
+
+  _flash_startup_add_offset = . - ORIGIN(FLASH);
   .startup :
   {
     . = ALIGN(4);
@@ -80,6 +86,7 @@ SECTIONS
   .text :
   {
     . = ALIGN(4);
+    _ram_bootloader_fw_start = .;
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
@@ -126,7 +133,7 @@ SECTIONS
   } >RAM_FW AT>FLASH
 
   /* used by the startup to initialize data */
-  _sidata_org = . - _different_between_load_and_run_add + _flash_data_start_add_offset;
+  _sidata_org = . - _different_between_load_and_run_add + _flash_data_start_add_offset - _ram_bootloader_isr_end_offset;
 
   /* Initialized data sections goes into RAM, load LMA copy after code */
   .data :

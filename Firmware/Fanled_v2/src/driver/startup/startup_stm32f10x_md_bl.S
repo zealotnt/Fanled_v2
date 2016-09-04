@@ -66,9 +66,25 @@ defined in linker script */
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
 Reset_Handler:
-	/* Copy the bootloader firmware from FLASH to RAM */
+	/* Copy the ISR Table from FLASH to RAM */
 	movs  r1, #0
-	b     LoopCopyFlashToRam
+	b     LoopCopyIsrTableToRam
+
+CopyIsrTableToRam:
+	ldr	r3, =_flash_isr_start_add
+	ldr	r3, [r3, r1]
+	str	r3, [r0, r1]
+	adds	r1, r1, #4
+LoopCopyIsrTableToRam:
+	ldr	r0, =_ram_bootloader_isr_start
+	ldr	r3, =_ram_bootloader_isr_end
+	adds	r2, r0, r1
+	cmp	r2, r3
+	bcc	CopyIsrTableToRam
+	/* Done copying ISR Table from FLASH to RAM,
+	 * Copy the bootloader firmware from FLASH to RAM */
+	movs	r1, #0
+	b		LoopCopyFlashToRam
 
 CopyFlashToRam:
 	ldr	r3, =_flash_data_start_add
@@ -77,8 +93,8 @@ CopyFlashToRam:
 	adds	r1, r1, #4
 
 LoopCopyFlashToRam:
-	ldr	r0, =_ram_bootloader_start
-	ldr	r3, =_ram_bootloader_end
+	ldr	r0, =_ram_bootloader_fw_start
+	ldr	r3, =_ram_bootloader_fw_end
 	adds	r2, r0, r1
 	cmp	r2, r3
 	bcc	CopyFlashToRam
