@@ -26,6 +26,9 @@
 #include "UartHandler/inc/mtSerialPorting.h"
 #include "../inc/mtFanledHandler.h"
 #include "../inc/mtFanledAPICode.h"
+#include "../inc/mtFanledAPISdCard.h"
+#include "../inc/mtFanledAPIBasic.h"
+#include "../inc/mtFanledAPIFwUpgrade.h"
 
 #include <string.h>
 
@@ -69,6 +72,12 @@ const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 	{CMD_CODE_BASIC,	CTR_CODE_UPGRADEFW,			mtFanledApiRequestFirmwareUpgrade},
 	{CMD_CODE_BASIC,	CTR_CODE_GETSET_RTC,		mtFanledApiGetSetRTC},
 	{CMD_CODE_BASIC,	CTR_CODE_HARDFAULT,			mtFanledApiHardFault},
+
+	{CMD_CODE_SD,	CTR_CODE_LIST_FILE,				mtFanledApiSdListFile},
+	{CMD_CODE_SD,	CTR_CODE_INSPECT_FILE,			mtFanledApiSdInspect},
+	{CMD_CODE_SD,	CTR_CODE_READ_FILE,				mtFanledApiSdReadFile},
+	{CMD_CODE_SD,	CTR_CODE_DELETE_FILE,			mtFanledApiSdDeleleFile},
+	{CMD_CODE_SD,	CTR_CODE_WRITE_FILE,			mtFanledApiSdWriteFile},
 
 #endif
 	/* Common API for both Bootloader and Application */

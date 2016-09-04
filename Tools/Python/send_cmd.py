@@ -126,7 +126,7 @@ Support comand:
 		elif user_promt == "up" or user_promt == "u":
 			fanled_fw_upgrade.UpgradeRequest()
 		elif user_promt == "le":
-			fanled_fw_upgrade.GetLastErr()			
+			fanled_fw_upgrade.GetLastErr()
 		else:
 			print HELP
 
@@ -138,22 +138,22 @@ if __name__ == "__main__":
 
 	parser = OptionParser()
 
-	parser.add_option(  "-s", "--serial", 
-						dest="serial", 
-						type="string", 
+	parser.add_option(  "-s", "--serial",
+						dest="serial",
+						type="string",
 						help="define the serial port to use")
-	parser.add_option(  "-v", "--verbose", 
-						action="count", 
-						dest="verbose", 
+	parser.add_option(  "-v", "--verbose",
+						action="count",
+						dest="verbose",
 						help="enable verbose mode")
-	parser.add_option(  "-l", "--list-serial", 
-						action="store_true", 
-						dest="list_serial", 
-						default=False, 
+	parser.add_option(  "-l", "--list-serial",
+						action="store_true",
+						dest="list_serial",
+						default=False,
 						help="display available serial ports")
-	parser.add_option(  "-a", "--app-select", 
+	parser.add_option(  "-a", "--app-select",
 						dest="app_selected",
-						type="string", 
+						type="string",
 						help="application to select")
 
 	(options, args) = parser.parse_args()

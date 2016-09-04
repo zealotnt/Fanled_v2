@@ -61,7 +61,7 @@ class FanledAPIBasic():
 
 		FirmwareVersion = ord(rsp[3]) + (ord(rsp[4]) << 8) + (ord(rsp[5]) << 16)
 		FirmwareVersionRev = FirmwareVersion % 100
-		FirmwareVersionMinor = ((FirmwareVersion - FirmwareVersionRev) % 10000) / 100 
+		FirmwareVersionMinor = ((FirmwareVersion - FirmwareVersionRev) % 10000) / 100
 		FirmwareVersionMajor = (FirmwareVersion - FirmwareVersionRev - FirmwareVersionMinor) / 10000
 		FirmwareVersionStr = str(FirmwareVersionMajor) + "." + str(FirmwareVersionMinor) + "." + str(FirmwareVersionRev)
 
