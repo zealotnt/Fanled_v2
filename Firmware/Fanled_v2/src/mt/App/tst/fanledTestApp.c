@@ -27,6 +27,7 @@
 #include "Effects/inc/mtIncludeEffects.h"
 #include "Effects/inc/mtFanledDisplay.h"
 #include "Bluetooth/inc/bluetooth.h"
+#include "Porting/inc/mtWdt.h"
 
 #include <stdint.h>
 #include <stdio.h>

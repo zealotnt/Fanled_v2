@@ -315,6 +315,7 @@ void mtNvicDisableAll()
 	NVIC_DisableIRQ(SPI_DISPLAY_Tx_DMA_IRQ);
 	NVIC_DisableIRQ(FANLED_UART_IRQN);
 	NVIC_DisableIRQ(FANLED_INTER_BYTE_TIMER_IRQN);
+	mtWdtDisable();
 }
 
 /************************* End of File ****************************************/

@@ -37,7 +37,7 @@
 /* LOCAL TYPE DEFINITION SECTION                                              */
 /******************************************************************************/
 #define WDT_RELOAD_VALUE			0x7F
-#define WDT_COUNT_MAX_VALUE			50
+#define WDT_COUNT_MAX_VALUE			500
 
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
@@ -87,6 +87,13 @@ void mtWdtInit()
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
+}
+
+void mtWdtDisable()
+{
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_WWDG, DISABLE);
+	WWDG_DeInit();
+	NVIC_DisableIRQ(WWDG_IRQn);
 }
 
 void mtWdtFeed()
