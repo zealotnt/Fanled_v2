@@ -58,6 +58,7 @@ Support comand:
 - ver      : get firmware version
 - hf       : cause device to hardfault (for WDT testing)
 - le       : Get fanled bootloader last err
+- e_bl     : Jump back from application to bootloader
 """
 
 	while True:
@@ -70,12 +71,13 @@ Support comand:
 			value_to_set = raw_input("Value to set: ")
 			fanled_basic_api.SetFanledUnixTime(int(value_to_set))
 		elif user_promt == "ver":
-			ver_get = fanled_basic_api.GetFirmwareVersion()
-			print ver_get
+			fanled_basic_api.GetFirmwareVersion()
 		elif user_promt == "hf":
 			fanled_basic_api.MakeFanledHardfault()
 		elif user_promt == "le":
 			fanled_fw_upgrade.GetLastErr()
+		elif user_promt == "e_bl":
+			fanled_fw_upgrade.UpgradeRequest()
 		else:
 			print HELP	
 

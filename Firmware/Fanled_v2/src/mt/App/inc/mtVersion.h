@@ -38,9 +38,15 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
+#if (FANLED_APP)
 #define	FIRMWARE_VERSION_MAJOR	0
 #define FIRMWARE_VERSION_MINOR	0
 #define FIRMWARE_REVISION		2
+#elif (FANLED_BOOTLOADER)
+#define	FIRMWARE_VERSION_MAJOR	0
+#define FIRMWARE_VERSION_MINOR	1
+#define FIRMWARE_REVISION		1
+#endif
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
@@ -55,7 +61,7 @@ extern "C"
 /*****************************************************************************/
 /* DECLARATION OF VARIABLES (Only external global variables)                 */
 /*****************************************************************************/
-extern char FIRMWARE_VERSION_FULL[];
+extern const char FIRMWARE_VERSION_FULL[];
 
 
 /*****************************************************************************/

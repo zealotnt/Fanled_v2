@@ -21,16 +21,6 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "misc.h"
-#include "stm32f10x.h"
-#include "stm32f10x_it.h"
-#include "stm32f10x_rcc.h"
-#include "stm32f10x_dma.h"
-#include "stm32f10x_tim.h"
-#include "stm32f10x_gpio.h"
-#include "stm32f10x_usart.h"
-#include "stm32f10x_exti.h"
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -115,7 +105,7 @@ void mtInterByteTimer_Init(void)
 	TIM_Cmd(TIM3, DISABLE);
 
 	/* Enable the TIM3 global Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannel = FANLED_INTER_BYTE_TIMER_IRQN;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = INTER_BYTE_TIMER_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = INTER_BYTE_TIMER_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;

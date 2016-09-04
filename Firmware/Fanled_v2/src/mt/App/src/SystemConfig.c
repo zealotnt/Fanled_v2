@@ -32,18 +32,7 @@
 #include "UartHandler/inc/mtProtocolDriver.h"
 #include "RTC/inc/mtRtcDriver.h"
 #include "Bootloader/inc/driverBootloader.h"
-
-#include "misc.h"
-#include "stm32f10x.h"
-#include "stm32f10x_it.h"
-#include "stm32f10x_rcc.h"
-#include "stm32f10x_dma.h"
-#include "stm32f10x_tim.h"
-#include "stm32f10x_gpio.h"
-#include "stm32f10x_usart.h"
-#include "stm32f10x_exti.h"
-#include "stm32f10x_pwr.h"
-#include "stm32f10x_bkp.h"
+#include "ff.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -68,6 +57,12 @@
 extern volatile uint32_t CCR1_Val;
 extern volatile uint32_t CCR2_Val;
 
+/* SD Card specific Variables */
+FATFS gFatFs;
+DIR mydir;
+FILINFO myfno;
+SdManager_t sdFileInfo;
+
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
@@ -86,10 +81,52 @@ extern volatile uint32_t CCR2_Val;
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
+void mtSdCardInit(void)
+{
+	FRESULT res = FR_DISK_ERR;
+	uint8_t count = 0;
+
+	while ((res != FR_OK) && (count < 10))
+	{
+		res = f_mount(0, &gFatFs);
+		count++;
+	}
+
+	if (f_mount(0, &gFatFs) == FR_OK)
+	{
+		do
+		{
+			res = f_opendir(&mydir, "0:\\");
+			mtDelayMS(1);
+			count ++;
+		}
+		while (res != FR_OK && (count < 10));
+
+		/* Err, return */
+		if (res != FR_OK || count >= 10)
+		{
+			return;
+		}
+
+		do
+		{
+			res = f_readdir(&mydir, &myfno);
+			if (myfno.fname[0])
+			{
+				sdFileInfo.NumOfItem++;
+			}
+		}
+		while (myfno.fname[0]);
+	}
+
+	sdFileInfo.ChoiceNow = 0;
+}
+
 void initBootloader(void)
 {
 	mtRCCInit();
 	mtSysTickInit();
+	core_enable_isr();
 	mtFanledSPIInit();
 	bltInitModule(false);
 	mtInterByteTimer_Init();
@@ -103,7 +140,8 @@ void initAll(void)
 	mtHallSensorInit();
 	stmInitRTC();
 	mtTimerFanledDisplayInit();
-//	mtWdtInit();
+	mtSdCardInit();
+	mtWdtInit();
 }
 
 void mtSysTickInit(void)
@@ -122,10 +160,10 @@ void mtHallSensorInit(void)
 	NVIC_InitTypeDef NVIC_InitStructure;
 
 	/* Config GPIO */
-	GPIOInitStructure.GPIO_Pin = GPIO_Pin_3;
+	GPIOInitStructure.GPIO_Pin = FANLED_HALLSENSOR_PIN;
 	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_Init(GPIOB, &GPIOInitStructure);
+	GPIO_Init(FANLED_HALLSENSOR_PORT, &GPIOInitStructure);
 
 	/* Config EXTI */
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource3);
@@ -136,7 +174,7 @@ void mtHallSensorInit(void)
 	EXTI_Init(&EXTI_InitStructure);
 
 	/* Config NVIC */
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannel = FANLED_HALLSENSOR_NVIC_IRQ;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = ISR_HALLSENSOR_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = ISR_HALLSENSOR_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -184,6 +222,8 @@ void mtRCCInit(void)
 #if (FANLED_APP)
 	/* Set system control register SCR->VTOR  */
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, FLASH_BOOTLOADER_SIZE);
+#elif (FANLED_BOOTLOADER)
+	NVIC_SetVectorTable(NVIC_VectTab_RAM, 0);
 #endif
 }
 
@@ -204,7 +244,7 @@ void mtHC05KeyPinInit(void)
 	GPIOInitStructure.GPIO_Pin = GPIO_Pin_11;
 	GPIOInitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOA, &GPIOInitStructure);
+	GPIO_Init(FANLED_HC05_KEY_PORT, &GPIOInitStructure);
 }
 
 /* Timer2 used for controlling Fanled display timing */
@@ -215,7 +255,7 @@ void mtTimerFanledDisplayInit(void)
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
+	FANLED_RCC_CLOCK_CMD(FANLED_RCC_PERIPH , ENABLE);
 
 	/* Compute the prescaler value */
 	PrescalerValue = (uint16_t) (SystemCoreClock / 36000000) - 1;
@@ -225,10 +265,10 @@ void mtTimerFanledDisplayInit(void)
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
-	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(FANLED_TIMER_ID, &TIM_TimeBaseStructure);
 
 	/* Prescaler configuration */
-	TIM_PrescalerConfig(TIM2, PrescalerValue, TIM_PSCReloadMode_Immediate);
+	TIM_PrescalerConfig(FANLED_TIMER_ID, PrescalerValue, TIM_PSCReloadMode_Immediate);
 
 	/* Output Compare Timing Mode configuration: Channel1 */
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
@@ -236,26 +276,26 @@ void mtTimerFanledDisplayInit(void)
 	TIM_OCInitStructure.TIM_Pulse = CCR1_Val;
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
-	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
+	TIM_OC1Init(FANLED_TIMER_ID, &TIM_OCInitStructure);
 
-	TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Disable);
+	TIM_OC1PreloadConfig(FANLED_TIMER_ID, TIM_OCPreload_Disable);
 
 	/* Output Compare Timing Mode configuration: Channel2 */
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 	TIM_OCInitStructure.TIM_Pulse = CCR2_Val;
 
-	TIM_OC2Init(TIM2, &TIM_OCInitStructure);
+	TIM_OC2Init(FANLED_TIMER_ID, &TIM_OCInitStructure);
 
-	TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Disable);
+	TIM_OC2PreloadConfig(FANLED_TIMER_ID, TIM_OCPreload_Disable);
 
 	/* TIM IT enable */
-	TIM_ITConfig(TIM2, TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_Update, ENABLE);
+	TIM_ITConfig(FANLED_TIMER_ID, TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_Update, ENABLE);
 
-	/* TIM2 enable counter */
-	TIM_Cmd(TIM2, ENABLE);
+	/* FANLED_TIMER_ID enable counter */
+	TIM_Cmd(FANLED_TIMER_ID, ENABLE);
 
-	/* Enable the TIM2 global Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+	/* Enable the FANLED_TIMER_ID global Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel = FANLED_TIMER_NVIC_IRQ;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = ISR_TIMER_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = ISR_TIMER_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -265,7 +305,16 @@ void mtTimerFanledDisplayInit(void)
 
 void mtTimerFanledDisplayDisable()
 {
-	TIM_Cmd(TIM2, DISABLE);
+	TIM_Cmd(FANLED_TIMER_ID, DISABLE);
+}
+
+void mtNvicDisableAll()
+{
+	NVIC_DisableIRQ(FANLED_TIMER_NVIC_IRQ);
+	NVIC_DisableIRQ(FANLED_HALLSENSOR_NVIC_IRQ);
+	NVIC_DisableIRQ(SPI_DISPLAY_Tx_DMA_IRQ);
+	NVIC_DisableIRQ(FANLED_UART_IRQN);
+	NVIC_DisableIRQ(FANLED_INTER_BYTE_TIMER_IRQN);
 }
 
 /************************* End of File ****************************************/

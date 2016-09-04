@@ -58,23 +58,54 @@ defined in linker script */
 /**
  * @brief  This is the code that gets called when the processor first
  *          starts execution following a reset event. Only the absolutely
- *          necessary set is performed, after which the application
- *          supplied main() routine is called. 
+ *          necessary set is performed.
  * @param  None
  * @retval : None
 */
-
-    .section	.text.Reset_Handler
+    .section	.startup
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
-Reset_Handler:	
+Reset_Handler:
+	/* Copy the ISR Table from FLASH to RAM */
+	movs  r1, #0
+	b     LoopCopyIsrTableToRam
 
-/* Copy the data segment initializers from flash to SRAM */  
-  movs	r1, #0
-  b	LoopCopyDataInit
+CopyIsrTableToRam:
+	ldr	r3, =_flash_isr_start_add
+	ldr	r3, [r3, r1]
+	str	r3, [r0, r1]
+	adds	r1, r1, #4
+LoopCopyIsrTableToRam:
+	ldr	r0, =_ram_bootloader_isr_start
+	ldr	r3, =_ram_bootloader_isr_end
+	adds	r2, r0, r1
+	cmp	r2, r3
+	bcc	CopyIsrTableToRam
+	/* Done copying ISR Table from FLASH to RAM,
+	 * Copy the bootloader firmware from FLASH to RAM */
+	movs	r1, #0
+	b		LoopCopyFlashToRam
+
+CopyFlashToRam:
+	ldr	r3, =_flash_data_start_add
+	ldr	r3, [r3, r1]
+	str	r3, [r0, r1]
+	adds	r1, r1, #4
+
+LoopCopyFlashToRam:
+	ldr	r0, =_ram_bootloader_fw_start
+	ldr	r3, =_ram_bootloader_fw_end
+	adds	r2, r0, r1
+	cmp	r2, r3
+	bcc	CopyFlashToRam
+
+	/* Done copying firmware from FLASH to RAM,
+	 * Copy the data segment initializers from flash to SRAM */
+	movs	r1, #0
+	b		LoopCopyDataInit
 
 CopyDataInit:
-	ldr	r3, =_sidata
+	ldr	r3, =_sidata_org
 	ldr	r3, [r3, r1]
 	str	r3, [r0, r1]
 	adds	r1, r1, #4
@@ -96,13 +127,29 @@ LoopFillZerobss:
 	ldr	r3, = _ebss
 	cmp	r2, r3
 	bcc	FillZerobss
-/* Call the clock system intitialization function.*/
+
+	/* Jump to main code */
+	ldr r3, =RAMStartUpApp
+	bx r3
+.size	Reset_Handler, .-Reset_Handler
+
+/**
+ * @brief  This is code reside in RAM, where
+ * the application supplied main() routine is called.
+ * @param  None
+ * @retval : None
+*/
+    .section	.text.RAMStartUpApp
+	.weak	RAMStartUpApp
+	.type	RAMStartUpApp, %function
+RAMStartUpApp:
+	/* Call the clock system intitialization function.*/
 	bl  SystemInit
 	bl  core_enable_isr
-/* Call the application's entry point.*/
+	/* Call the application's entry point.*/
 	bl	main
-	bx	lr    
-.size	Reset_Handler, .-Reset_Handler
+	bx	lr
+.size	RAMStartUpApp, .-RAMStartUpApp
 
 /**
  * @brief  This is the code that gets called when the processor receives an 

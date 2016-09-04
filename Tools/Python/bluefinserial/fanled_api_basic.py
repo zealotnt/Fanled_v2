@@ -54,8 +54,23 @@ class FanledAPIBasic():
 		rsp = self._datalink.Exchange(cmd)
 		if rsp is None:
 			print_err("Get version fail")
-			return None
-		return rsp
+			return
+		if len(rsp) != 7:
+			print_err("Not recognize response version packet")
+			return
+
+		FirmwareVersion = ord(rsp[3]) + (ord(rsp[4]) << 8) + (ord(rsp[5]) << 16)
+		FirmwareVersionRev = FirmwareVersion % 100
+		FirmwareVersionMinor = ((FirmwareVersion - FirmwareVersionRev) % 10000) / 100 
+		FirmwareVersionMajor = (FirmwareVersion - FirmwareVersionRev - FirmwareVersionMinor) / 10000
+		FirmwareVersionStr = str(FirmwareVersionMajor) + "." + str(FirmwareVersionMinor) + "." + str(FirmwareVersionRev)
+
+		if rsp[6] == '\x03':
+			print_ok("Fanled Application version = " + FirmwareVersionStr)
+		elif rsp[6] == '\x02':
+			print_ok("Fanled Bootloader version = " + FirmwareVersionStr)
+		else:
+			print_err("Firmware version returned not recognizable")
 
 	def ProtocolTest(self, packet_id, cmd_len, rsp_len):
 		# Check input params
@@ -100,8 +115,11 @@ class FanledAPIBasic():
 		# Send to target
 		rsp = ''
 		rsp = self._datalink.Exchange(cmd)
+		if rsp is None:
+			return 0
 		if len(rsp) != 7:
 			print_err("Len response not expected")
+			return 0
 
 		if rsp[2] == '\x00':
 			return ord(rsp[3]) + (ord(rsp[4]) << 8) + (ord(rsp[5]) << 16) + (ord(rsp[6]) << 24)
@@ -117,6 +135,11 @@ class FanledAPIBasic():
 		# Send to target
 		rsp = ''
 		rsp = self._datalink.Exchange(cmd)
+		if rsp is None:
+			return False
+		if len(rsp) < 3:
+			print_err("Len response not expected")
+			return False
 		if rsp[2] == '\x00':
 			print_ok("Set time ok")
 			return True

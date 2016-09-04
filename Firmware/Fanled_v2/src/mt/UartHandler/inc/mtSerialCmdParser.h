@@ -249,7 +249,7 @@ extern volatile serialQueuePayload_t gQueuePayload;
  * \param param (not use)
  *
  */
-Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload);
+Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t *sQueuePayload);
 
 Void mtSerialCmdDataLinkCallbackRegister(pCmdHandlerCallback call_back);
 

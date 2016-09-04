@@ -74,7 +74,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="src/third_party/fatfs/drivers/fatfs_sd_sdio.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/driver/startup/startup_stm32f10x_md_bl.S|src/third_party/fatfs/drivers/fatfs_sd_sdio.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -152,7 +152,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="src/third_party/fatfs/drivers/fatfs_sd_sdio.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/driver/startup/startup_stm32f10x_md_app.S|src/third_party/fatfs/drivers/fatfs_sd_sdio.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
