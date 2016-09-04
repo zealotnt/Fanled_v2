@@ -110,6 +110,7 @@ int main(void)
 	uart_dbg_init();
 	DEBUG_INFO("App %s \r\n", FIRMWARE_VERSION_FULL);
 
+//	FanledTestCurve();
 //	FanledTestColor();
 //	FanledTestPicture();
 //	FanledAppDeveloping();

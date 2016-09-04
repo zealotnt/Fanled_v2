@@ -42,6 +42,7 @@ extern "C"
 #define FANLED_RESOLUTION			240
 #define DISPLAY_SIZE				FANLED_RESOLUTION
 
+#define COLOR_BLACK					0x00
 #define COLOR_RED_MAX				0xf800
 #define COLOR_BLUE_MAX				0x1f
 #define COLOR_GREEN_MAX				0x7e0

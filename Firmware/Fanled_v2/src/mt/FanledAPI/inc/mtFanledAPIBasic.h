@@ -58,6 +58,8 @@ extern "C"
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
+void mtDbgVarRegister(UInt32 *VarAdd);
+
 mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
         UInt16 msgInLen,
         UInt8 *msgOut,
@@ -77,6 +79,13 @@ mtErrorCode_t mtFanledApiHardFault(UInt8 *msgIn,
                                    UInt16 msgInLen,
                                    UInt8 *msgOut,
                                    UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiGetDbgVar(UInt8 *msgIn,
+                                   UInt16 msgInLen,
+                                   UInt8 *msgOut,
+                                   UInt16 *msgOutLen);
+
+
 
 #ifdef __cplusplus
 }

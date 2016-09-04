@@ -49,7 +49,7 @@
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-
+UInt32 *pDbgVar = Null;
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -73,6 +73,11 @@ Void JumpToInvalidAddress(Void *param)
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
+void mtDbgVarRegister(UInt32 *VarAdd)
+{
+	pDbgVar = VarAdd;
+}
+
 mtErrorCode_t mtFanledApiGetFirmwareVersion(UInt8 *msgIn,
                                             UInt16 msgInLen,
                                             UInt8 *msgOut,
@@ -149,4 +154,23 @@ mtErrorCode_t mtFanledApiHardFault(UInt8 *msgIn,
 	mtSerialCmdDataLinkCallbackRegister(JumpToInvalidAddress);
 	return MT_SUCCESS;
 }
+
+mtErrorCode_t mtFanledApiGetDbgVar(UInt8 *msgIn,
+                                   UInt16 msgInLen,
+                                   UInt8 *msgOut,
+                                   UInt16 *msgOutLen)
+{
+	if (pDbgVar != Null)
+	{
+		memcpy(&msgOut[3], pDbgVar, 4);
+	}
+	else
+	{
+		memset(&msgOut[3], 0xff, 4);
+	}
+
+	*msgOutLen = 7;
+	return MT_SUCCESS;
+}
+
 /************************* End of File ****************************************/

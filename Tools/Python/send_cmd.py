@@ -59,10 +59,15 @@ Support comand:
 - hf       : cause device to hardfault (for WDT testing)
 - le       : Get fanled bootloader last err
 - e_bl     : Jump back from application to bootloader
+- dbg      : Get debug var from Fanled
 """
-
+	last_valid_key = ""
 	while True:
 		user_promt = raw_input(PROMT)
+		# If user use up arrow, re-issue last command
+		if user_promt == '\x1b[A':
+			user_promt = last_valid_key
+
 		if user_promt == "gt":
 			rtc_get_val = fanled_basic_api.GetFanledUnixTime()
 			print "rtc return from fanled: " + str(rtc_get_val)
@@ -78,8 +83,12 @@ Support comand:
 			fanled_fw_upgrade.GetLastErr()
 		elif user_promt == "e_bl":
 			fanled_fw_upgrade.UpgradeRequest()
+		elif user_promt == "dbg":
+			fanled_basic_api.GetDbgVar()
 		else:
-			print HELP	
+			print HELP
+			continue
+		last_valid_key = user_promt
 
 def fw_upg_api():
 	# Fw upgrade test suite

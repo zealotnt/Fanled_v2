@@ -28,6 +28,7 @@
 #include "Effects/inc/mtFanledDisplay.h"
 #include "Bluetooth/inc/bluetooth.h"
 #include "Porting/inc/mtWdt.h"
+#include "FanledAPI/inc/mtFanledAPIBasic.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -76,6 +77,39 @@ void test_color_cb(void *param);
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
 /******************************************************************************/
+void test_curve_cb(void *param)
+{
+#define CURVE_START_POS			100
+#define CURVE_END_POS			120
+#define CURVE_ENABLE_POS		10
+#define CURVE_COLOR				COLOR_ORANGE_MAX
+	UInt16 buff_color[32] = {COLOR_BLACK};
+
+	if(gDisplayEnable == 1)
+	{
+		if(gCurrent_point < FANLED_RESOLUTION)
+		{
+			if (gCurrent_point >= CURVE_START_POS &&
+					gCurrent_point <= CURVE_END_POS)
+			{
+				buff_color[CURVE_ENABLE_POS] = CURVE_COLOR;
+				LED_LATCH();
+				LED_UNBLANK();
+				updatePanel16b(buff_color, true);
+				mtFanledSendLineBuffer();
+			}
+			else
+			{
+				LED_LATCH();
+				LED_UNBLANK();
+				updatePanel16b(buff_color, true);
+				mtFanledSendLineBuffer();
+			}
+		}
+		gDisplayEnable = 0;
+	}
+}
+
 void test_color_cb(void *param)
 {
 	uint16_t i;
@@ -251,6 +285,11 @@ int mainTestRTC(void)
 		}
 	}
 	return 0;
+}
+
+void FanledTestCurve()
+{
+	mainCallBackRegister(test_curve_cb);
 }
 
 void FanledTestColor(void)

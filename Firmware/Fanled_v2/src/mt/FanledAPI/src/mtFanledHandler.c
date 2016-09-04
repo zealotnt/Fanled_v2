@@ -74,6 +74,7 @@ const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 	/* Common API for both Bootloader and Application */
 	{CMD_CODE_BASIC,	CTR_CODE_GETVERSION,		mtFanledApiGetFirmwareVersion},
 	{CMD_CODE_BASIC, 	CTR_CODE_PROTOCOL_TEST, 	mtFanledApiProtocolTest},
+	{CMD_CODE_BASIC, 	CTR_CODE_GET_DBG_VAR, 		mtFanledApiGetDbgVar},
 	{0, 0, Null},
 };
 #define SERIAL_APP_API_TABLE_LEN		MT_ARRAY_SIZE(gSerialReaderHandlerTable)

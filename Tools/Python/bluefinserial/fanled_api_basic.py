@@ -152,3 +152,15 @@ class FanledAPIBasic():
 		cmd = pkt.Packet('\x8b', '\x72')
 		rsp = self._datalink.Exchange(cmd)
 
+	def GetDbgVar(self):
+		pkt = BluefinserialCommand()
+		cmd = pkt.Packet('\x8b', '\x74')
+		rsp = self._datalink.Exchange(cmd)
+		if rsp is None:
+			return
+		if len(rsp) != 7:
+			return
+
+		dbg_value = ord(rsp[3]) + (ord(rsp[4]) << 8) + (ord(rsp[5]) << 16) + (ord(rsp[6]) << 24)
+		print "Debug value = " + str(dbg_value)
+		return dbg_value

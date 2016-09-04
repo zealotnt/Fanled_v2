@@ -60,6 +60,7 @@ extern "C"
 /* free to add */
 #define CTR_CODE_PROTOCOL_TEST		0x70
 #define CTR_CODE_HARDFAULT			0x72
+#define CTR_CODE_GET_DBG_VAR		0x74
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
