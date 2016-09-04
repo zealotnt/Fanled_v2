@@ -45,7 +45,7 @@ extern "C"
 #elif (FANLED_BOOTLOADER)
 #define	FIRMWARE_VERSION_MAJOR	0
 #define FIRMWARE_VERSION_MINOR	1
-#define FIRMWARE_REVISION		0
+#define FIRMWARE_REVISION		1
 #endif
 
 /*****************************************************************************/

@@ -33,13 +33,15 @@
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-/* User provided definition */
-#define FLASH_START_ADDRESS		0x08000000
-#define FLASH_TOTAL_SIZE		(0x10000)		/* 64KB flash size */
-#define FLASH_BOOTLOADER_SIZE	(0x4000)		/* 16KB Bootloader */
+#define FLASH_START_ADDRESS					0x08000000
+#define FLASH_TOTAL_SIZE					(0x10000)		/* 64KB flash size */
+#define FLASH_BOOTLOADER_SIZE				(0x4000)		/* 16KB Bootloader */
 
-#define FLASH_APP_START_ADDRESS	(FLASH_START_ADDRESS + FLASH_BOOTLOADER_SIZE)
-#define FLASH_APP_END_ADDRESS	(FLASH_APP_START_ADDRESS + FLASH_TOTAL_SIZE - FLASH_BOOTLOADER_SIZE)
+#define FLASH_APP_START_ADDRESS				(FLASH_START_ADDRESS + FLASH_BOOTLOADER_SIZE)
+#define FLASH_APP_END_ADDRESS				(FLASH_APP_START_ADDRESS + FLASH_TOTAL_SIZE - FLASH_BOOTLOADER_SIZE)
+
+#define FLASH_BOOTLOADER_START_ADDRESS		(FLASH_START_ADDRESS)
+#define FLASH_BOOTLOADER_END_ADDRESS		(FLASH_BOOTLOADER_START_ADDRESS + FLASH_BOOTLOADER_SIZE)
 
 #define BKP_PATTERN_OK_JUMP_TO_APP		0xff00
 #define BKP_PATTERN_UPGRADING			0x5678
@@ -82,5 +84,6 @@ void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset);
 UInt32 mtBootloaderFlashCalculateCRC32(UInt8 *start_add, UInt16 len);
 void mtBootloaderEraseAppFw(void);
 
+void mtBootloaderEraseBlFw();
 
 #endif /* TEMPLATE_H_ */

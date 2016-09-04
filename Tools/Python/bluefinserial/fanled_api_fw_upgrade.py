@@ -52,18 +52,23 @@ class FanledAPIFwUpgrade():
 			return None
 		return rsp
 
-	def EraseAppFwRequest(self):
+	def EraseFirmwareRequest(self, firmware_type):
 		pkt = BluefinserialCommand()
-		cmd = pkt.Packet('\x8b', '\x36')
-		rsp = ''
+		if firmware_type == "app":
+			cmd = pkt.Packet('\x8b', '\x36')
+		elif firmware_type == "bl":
+			cmd = pkt.Packet('\x8b', '\x46')
+		else:
+			print_err("Invalid firmware_type")		
 
+		rsp = ''
 		rsp = self._datalink.Exchange(cmd)
 		if rsp is None:
 			print_err("Firmware erase request fail")
 			return None
 		return rsp
 
-	def WriteFirmwarePacket(self, packet_number, packet_len, packet_data):
+	def WriteFirmwarePacket(self, firmware_type, packet_number, packet_len, packet_data):
 		if packet_len > PACKET_MAX_SIZE:
 			raise Exception("Packet len should be less than " + str(PACKET_MAX_SIZE))
 		if len(packet_data) > (PACKET_MAX_SIZE * 2):
@@ -72,17 +77,22 @@ class FanledAPIFwUpgrade():
 		# Build download_packet
 		download_packet = struct.pack('<HH', packet_number, packet_len) + packet_data
 		pkt = BluefinserialCommand()
-		cmd = pkt.Packet('\x8b', '\x32', download_packet)
+		if firmware_type == "app":
+			cmd = pkt.Packet('\x8b', '\x32', download_packet)
+		elif firmware_type == "bl":
+			cmd = pkt.Packet('\x8b', '\x42', download_packet)
+		else:
+			print_err("Invalid firmware_type")
 		rsp = ''
 
 		rsp = self._datalink.Exchange(cmd)
 		if rsp is None:
 			print_err("Firmware write request fail")
 			return None
-		print_ok("Firmware write packet num " + str(packet_number) + " successfully")
+		print_ok("Firmware " + firmware_type + " write packet num " + str(packet_number) + " successfully")
 		return rsp
 
-	def DownloadFirmware(self, file_path):
+	def DownloadFirmware(self, firmware_type, file_path):
 		fw = open(file_path, "rb")
 		fw_max_packet = GetNumOfPacket(file_path)
 		fw_contents = GetFileContent(file_path)
@@ -92,10 +102,10 @@ class FanledAPIFwUpgrade():
 			if fw_idx != fw_max_packet:
 				first_idx = fw_idx * PACKET_MAX_SIZE
 				end_idx = ((fw_idx + 1) * PACKET_MAX_SIZE)
-				ret = self.WriteFirmwarePacket(fw_idx, PACKET_MAX_SIZE, fw_contents[first_idx:end_idx])
+				ret = self.WriteFirmwarePacket(firmware_type, fw_idx, PACKET_MAX_SIZE, fw_contents[first_idx:end_idx])
 			else:
 				first_idx = fw_idx * PACKET_MAX_SIZE
-				ret = self.WriteFirmwarePacket(fw_idx, PACKET_MAX_SIZE, fw_contents[first_idx:])
+				ret = self.WriteFirmwarePacket(firmware_type, fw_idx, PACKET_MAX_SIZE, fw_contents[first_idx:])
 			if ret is None:
 				print_err("Firmware donwload error")
 				return False
@@ -105,7 +115,7 @@ class FanledAPIFwUpgrade():
 		print_ok("Firmware download successfully")
 		return True
 
-	def DownloadChecksum(self, file_path):
+	def DownloadChecksum(self, firmware_type, file_path):
 		fw = open(file_path, "rb")
 		fw_size = GetFileSize(file_path)
 		fw_contents = GetFileContent(file_path)
@@ -115,36 +125,41 @@ class FanledAPIFwUpgrade():
 		# Build checksum_packet
 		checksum_packet = struct.pack('<HL', fw_size, crc32)
 		pkt = BluefinserialCommand()
-		cmd = pkt.Packet('\x8b', '\x34', checksum_packet)
-		rsp = ''
+		if firmware_type == "app":
+			cmd = pkt.Packet('\x8b', '\x34', checksum_packet)
+		elif firmware_type == "bl":
+			cmd = pkt.Packet('\x8b', '\x44', checksum_packet)
+		else:
+			print_err("Invalid firmware_type")
 
+		rsp = ''
 		rsp = self._datalink.Exchange(cmd)
 		if rsp is None:
-			print_err("Firmware checksum request fail")
+			print_err("Firmware " + firmware_type + " checksum request fail")
 			return False
 		if len(rsp) < 3:
-			print_err("Checksum: response packet not expected")
+			print_err("Checksum: " + firmware_type + " response packet not expected")
 			return False			
 		if rsp[2] == '\x00':
-			print_ok("Firmware checksum passed")
+			print_ok("Firmware " + firmware_type + " checksum passed")
 		else:
-			print_err("Firmware checksum mismatch")
+			print_err("Firmware " + firmware_type + " checksum mismatch")
 		return True
 
-	def UpgradeFirmware(self, file_path):
+	def UpgradeFirmware(self, firmware_type, file_path):
 		ret = self.UpgradeRequest()
 		if ret is None:
 			return False
 
-		ret = self.EraseAppFwRequest()
+		ret = self.EraseFirmwareRequest(firmware_type)
 		if ret is None:
 			return False
 
-		ret = self.DownloadFirmware(file_path)
+		ret = self.DownloadFirmware(firmware_type, file_path)
 		if ret is False:
 			return False
 
-		ret = self.DownloadChecksum(file_path)
+		ret = self.DownloadChecksum(firmware_type, file_path)
 		if ret is False:
 			return False
 

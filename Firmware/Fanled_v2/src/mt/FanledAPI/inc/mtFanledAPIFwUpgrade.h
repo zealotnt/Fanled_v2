@@ -100,20 +100,35 @@ mtErrorCode_t mtFanledApiRequestFirmwareUpgrade(UInt8 *msgIn,
                                                 UInt8 *msgOut,
                                                 UInt16 *msgOutLen);
 
+mtErrorCode_t mtFanledApiFirmwareEraseBl(UInt8 *msgIn,
+                                         UInt16 msgInLen,
+                                         UInt8 *msgOut,
+                                         UInt16 *msgOutLen);
+
 mtErrorCode_t mtFanledApiFirmwareEraseApp(UInt8 *msgIn,
                                           UInt16 msgInLen,
                                           UInt8 *msgOut,
                                           UInt16 *msgOutLen);
 
-mtErrorCode_t mtFanledApiFirmwareDownload(UInt8 *msgIn,
-                                          UInt16 msgInLen,
-                                          UInt8 *msgOut,
-                                          UInt16 *msgOutLen);
+mtErrorCode_t mtFanledApiFirmwareDownloadBl(UInt8 *msgIn,
+                                            UInt16 msgInLen,
+                                            UInt8 *msgOut,
+                                            UInt16 *msgOutLen);
 
-mtErrorCode_t mtFanledApiFirmwareChecksum(UInt8 *msgIn,
-                                          UInt16 msgInLen,
-                                          UInt8 *msgOut,
-                                          UInt16 *msgOutLen);
+mtErrorCode_t mtFanledApiFirmwareDownloadApp(UInt8 *msgIn,
+                                             UInt16 msgInLen,
+                                             UInt8 *msgOut,
+                                             UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiFirmwareChecksumBl(UInt8 *msgIn,
+                                            UInt16 msgInLen,
+                                            UInt8 *msgOut,
+                                            UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiFirmwareChecksumApp(UInt8 *msgIn,
+                                             UInt16 msgInLen,
+                                             UInt8 *msgOut,
+                                             UInt16 *msgOutLen);
 
 #ifdef __cplusplus
 }

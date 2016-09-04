@@ -367,5 +367,28 @@ void mtBootloaderEraseAppFw(void)
 	DEBUG_INFO("Done erasing\r\n");
 }
 
+void mtBootloaderEraseBlFw()
+{
+	volatile FLASH_Status FLASHStatus = FLASH_COMPLETE;
+	uint32_t EraseCounter = 0x00;
+	uint32_t NbrOfPage = 0x00;
+
+	/* Define the number of page to be erased */
+	NbrOfPage = (FLASH_BOOTLOADER_END_ADDRESS - FLASH_BOOTLOADER_START_ADDRESS) / FLASH_PAGE_SIZE;
+
+	/* Erase the FLASH pages */
+	DEBUG_INFO("Erasing page from address: 0x%x\r\n", FLASH_BOOTLOADER_START_ADDRESS);
+	for (EraseCounter = 0; (EraseCounter < NbrOfPage); EraseCounter++)
+	{
+		FLASHStatus = FLASH_ErasePage(FLASH_BOOTLOADER_START_ADDRESS + (FLASH_PAGE_SIZE * EraseCounter));
+		if (FLASHStatus != FLASH_COMPLETE)
+		{
+			DEBUG_INFO("Err when erasing, status=%d\r\n", FLASHStatus);
+			return;
+		}
+	}
+	DEBUG_INFO("Done erasing\r\n");
+}
+
 #pragma GCC reset_options
 /************************* End of File ****************************************/
