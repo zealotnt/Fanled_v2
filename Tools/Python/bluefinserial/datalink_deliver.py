@@ -19,6 +19,10 @@ import time
 from crc8 import crc8
 from utils import *
 
+#---- CONSTANT
+BLUEFINSERIAL_BAUDRATE = 115200
+BLUEFINSERIAL_DEFAULT_SERIAL_PORT = "/dev/ttyUSB0"
+
 #---- CLASSES
 
 class BluefinserialCommand():
@@ -132,7 +136,17 @@ class BluefinserialSend():
 		if ret == False or retry >= self.ACK_RETRY:
 			print_err("Receive response fail")
 			return None
-
+		if self._response[0] != packet[5]:
+			print_err("Response's Command code not match, refuse response packet")
+			return None
+		if ord(self._response[1]) != (ord(packet[6]) + 1):
+			if (self._response[0] == '\xFF'):
+				print_err("Response's Command code not match, the command may is not supported, refuse response packet")
+			elif (self._response[1] == '\x7F'):
+				print_err("Response's Command code not match, the command may is not supported, refuse response packet")
+			else:
+				print_err("Not regconize response, refuse response packet")
+			return None			
 		return self._response
 
 	def GetACK(self):

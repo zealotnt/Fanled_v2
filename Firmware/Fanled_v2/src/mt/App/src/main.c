@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : main.c
 **
-** Module name       : template
+** Module name       : App
 **
 **
 ** Summary:
@@ -25,18 +25,19 @@
 #include <math.h>
 
 #include "mtInclude.h"
+#include "../inc/main.h"
 #include "../inc/mtVersion.h"
 #include "App/inc/SystemConfig.h"
 #include "App/tst/fanledTestApp.h"
 #include "Porting/inc/mtSPI.h"
 #include "Porting/inc/mtUart.h"
+#include "Porting/inc/mtWdt.h"
 #include "Effects/inc/image_data.h"
 #include "Effects/inc/mtIncludeEffects.h"
 #include "Bootloader/inc/driverBootloader.h"
 #include "RTC/inc/mtRtc.h"
 #include "UartHandler/inc/mtSerialCmdParser.h"
 
-#include "ff.h"
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
@@ -55,54 +56,22 @@
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-// SD Card specific Variables
-FATFS gFatFs;
-DIR mydir;
-FILINFO myfno;
-MediaPlayer MyPlayer;
+
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-
+static pMainHandler mainHandler = Null;
 
 /******************************************************************************/
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
 /******************************************************************************/
-void sd_first_step(void);
+
 
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
 /******************************************************************************/
-void sd_first_step(void)
-{
-	FRESULT res = FR_DISK_ERR;
-	uint8_t count = 0;
-	mtDelayMS(5);
-	while ((res != FR_OK) && (count < 10))
-	{
-		res = f_mount(&gFatFs, "0:", 1);
-		count++;
-	}
 
-	if (f_mount(&gFatFs, "0:", 1) == FR_OK)
-	{
-		do
-		{
-			res = f_opendir(&mydir, "0:\\");
-			mtDelayMS(5);
-		}
-		while (res != FR_OK);
-
-		do
-		{
-			res = f_readdir(&mydir, &myfno);
-			if (myfno.fname[0]) { MyPlayer.NumOfItem++; }
-		}
-		while (myfno.fname[0]);
-	}
-	MyPlayer.ChoiceNow = 0;
-}
 
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
@@ -131,36 +100,47 @@ int main(void)
 	{
 		if (True == gQueuePayload.Done)
 		{
-			mtSerialCmdDataLinkHandlingThread(gQueuePayload);
+			mtSerialCmdDataLinkHandlingThread(&gQueuePayload);
 			gQueuePayload.Done = False;
 		}
 	}
 
 #elif (FANLED_APP)
-	initBootloader();
+	initAll();
 	uart_dbg_init();
 	DEBUG_INFO("App %s \r\n", FIRMWARE_VERSION_FULL);
+
+//	FanledTestColor();
+//	FanledTestPicture();
+//	FanledAppDeveloping();
+//	FanledTestHSVCircle();
+//	FanledTestNarutoEffect();
+
 	while (1)
 	{
+		mtWdtFeed();
+
+		if (mainHandler != Null)
+		{
+			mainHandler(Null);
+		}
+
 		if (True == gQueuePayload.Done)
 		{
-			mtSerialCmdDataLinkHandlingThread(gQueuePayload);
+			mtSerialCmdDataLinkHandlingThread(&gQueuePayload);
 			gQueuePayload.Done = False;
 		}
 	}
-//	mainTestColor();
+
 //	mainTestHC05();
 //	mainTestRTC();
-//	mainPicture();
-//	mainAppDeveloping();
-//	mainTestHSVCircle();
-//	mainTestNarutoEffect();
 
 #endif
-
-	DEBUG_INFO("Application !!!\r\n");
-	while (1);
 	return 0;
 }
 
+Void mainCallBackRegister(pMainHandler call_back)
+{
+	mainHandler = call_back;
+}
 /************************* End of File ****************************************/

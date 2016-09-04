@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtRtcDriver.c
 **
-** Module name       : template
+** Module name       : mtRtc
 **
 **
 ** Summary:
@@ -259,8 +259,6 @@ bool stmInitRTC(void)
 		else
 		{
 			uint32_t nRTCdel;
-			/* Enable PWR and BKP clocks */
-			RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 			nRTCdel = 1000000;
 			/* Enable the LSI OSC */
 			RCC_LSICmd(ENABLE);
@@ -324,8 +322,9 @@ bool stmInitRTC(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void stmUpdate(void)
+void stmRtcUpdate(void)
 {
+#if (FANLED_APP)
 	time_t acttime;
 	struct tm *pLocalTime;
 
@@ -342,6 +341,7 @@ void stmUpdate(void)
 		/* Clear the RTC Second interrupt */
 		RTC_ClearITPendingBit(RTC_IT_SEC);
 	}
+#endif
 }
 
 /************************* End of File ****************************************/

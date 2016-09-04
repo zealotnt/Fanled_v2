@@ -34,7 +34,7 @@ cmd_len = int(sys.argv[1])
 rsp_len = int(sys.argv[2])
 
 # Open port
-comm = BluefinserialSend("/dev/ttyUSB0", 460800)
+comm = BluefinserialSend(BLUEFINSERIAL_DEFAULT_SERIAL_PORT, BLUEFINSERIAL_BAUDRATE)
 fanled_basic_api = FanledAPIBasic(comm)
 
 # Begin test

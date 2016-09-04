@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtAppDef.h
 **
-** Module name       : template
+** Module name       : App
 **
 **
 ** Summary:
@@ -86,7 +86,7 @@ typedef struct
 	uint8_t NumOfItem;
 	int8_t ChoiceNow;
 	int8_t OldChoice;
-} MediaPlayer;
+} SdManager_t;
 
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */

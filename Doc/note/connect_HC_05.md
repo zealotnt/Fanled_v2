@@ -20,7 +20,7 @@ bluetooth-agent --adapter hci0 1234&
 ```
 + Connect using rfcomm
 ```
-sudo rfcomm connect 0
+sudo rfcomm -i hci0 connect 0
 ```
 + Freely open device and communicate
 ```

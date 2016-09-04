@@ -18,8 +18,8 @@ if [ $TARGET -eq 1 ]; then
 	echo "Flashing Fanled Bootloader"
 	HEX_OUT=$DIR/../Build-Bl/Fanled_v2.hex
 	$OPENOCD 	-s {$OPENOCD_DIR}\
-			   	-f /home/zealot/bin/openocd-gnu-arm-eclipse/0.10.0-201601101000-dev/scripts/interface/jlink_swd.cfg\
-				-f /home/zealot/bin/openocd-gnu-arm-eclipse/0.10.0-201601101000-dev/scripts/target/stm32f1x.cfg\
+			   	-f $OPENOCD_DIR/scripts/interface/jlink_swd.cfg\
+				-f $OPENOCD_DIR/scripts/target/stm32f1x.cfg\
 		        -c init -c targets -c "reset halt" \
 		        -c "flash write_image erase $HEX_OUT" \
 		        -c "verify_image $HEX_OUT" \
@@ -29,8 +29,8 @@ else
 	echo "Flashing Fanled App"
 	HEX_OUT=$DIR/../Build-App/Fanled_v2.hex
 	$OPENOCD 	-s {$OPENOCD_DIR}\
-			   	-f /home/zealot/bin/openocd-gnu-arm-eclipse/0.10.0-201601101000-dev/scripts/interface/jlink_swd.cfg\
-				-f /home/zealot/bin/openocd-gnu-arm-eclipse/0.10.0-201601101000-dev/scripts/target/stm32f1x.cfg\
+			   	-f $OPENOCD_DIR/scripts/interface/jlink_swd.cfg\
+				-f $OPENOCD_DIR/scripts/target/stm32f1x.cfg\
 		        -c init -c targets -c "reset halt" \
 		        -c "flash write_image erase unlock $HEX_OUT" \
 		        -c "verify_image $HEX_OUT" \

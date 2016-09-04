@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtUart.c
 **
-** Module name       : template
+** Module name       : Porting
 **
 **
 ** Summary:
@@ -21,25 +21,15 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
-#include "misc.h"
-#include "stm32f10x.h"
-#include "stm32f10x_it.h"
-#include "stm32f10x_rcc.h"
-#include "stm32f10x_dma.h"
-#include "stm32f10x_tim.h"
-#include "stm32f10x_gpio.h"
-#include "stm32f10x_usart.h"
-#include "stm32f10x_exti.h"
-
+#include "mtInclude.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include "../inc/mtUart.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
-#define USART_CMD							USART1
-#define USART_CMD_RX_PRIORITY				0
-#define USART_DBG							USART2
+
 
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
@@ -100,7 +90,7 @@ void uart_cmd_init(bool config)
 	}
 	else
 	{
-		USARTInitStructure.USART_BaudRate = 460800;
+		USARTInitStructure.USART_BaudRate = 115200;
 	}
 	USARTInitStructure.USART_WordLength = USART_WordLength_8b;
 	USARTInitStructure.USART_StopBits = USART_StopBits_1;
@@ -112,7 +102,7 @@ void uart_cmd_init(bool config)
 	USART_Cmd(USART_CMD, ENABLE);
 
 	/* Configure UART ISR parameters */
-	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannel = FANLED_UART_IRQN;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = USART_CMD_RX_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = USART_CMD_RX_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -152,6 +142,7 @@ void uart_cmd_write_str(char *str)
 
 void uart_dbg_init()
 {
+#if (DEBUG)
 	USART_InitTypeDef USARTInitStructure;
 	GPIO_InitTypeDef GPIOInitStructure;
 
@@ -177,25 +168,31 @@ void uart_dbg_init()
 	USARTInitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
 	USART_Init(USART_DBG, &USARTInitStructure);
 	USART_Cmd(USART_DBG, ENABLE);
+#endif
 }
 
 void uart_dbg_write_buff(uint8_t *p_data, uint16_t p_len)
 {
+#if (DEBUG)
 	for (int i = 0; i < p_len; ++i)
 	{
 		/* Transmit Data */
 		while (USART_GetFlagStatus(USART_DBG, USART_FLAG_TXE) == RESET);
 		USART_SendData(USART_DBG, *(p_data++));
+		while (USART_GetFlagStatus(USART_CMD, USART_FLAG_TC) != SET);
 	}
+#endif
 }
 
 void uart_dbg_read_buff(uint8_t *p_data, uint16_t p_len)
 {
+#if (DEBUG)
 	for (int i = 0; i < p_len; ++i)
 	{
 		while (USART_GetFlagStatus(USART_DBG, USART_FLAG_RXNE) == RESET);
 		*(p_data++) = USART_ReceiveData(USART_DBG);
 	}
+#endif
 }
 
 /*
@@ -203,7 +200,9 @@ void uart_dbg_read_buff(uint8_t *p_data, uint16_t p_len)
  */
 int _write(int file, char *ptr, int len)
 {
+#if (DEBUG)
 	uart_dbg_write_buff((uint8_t *)ptr, len);
+#endif
 	return len;
 }
 
@@ -213,6 +212,7 @@ int _write(int file, char *ptr, int len)
  */
 int _read(int file, char *ptr, int len)
 {
+#if (DEBUG)
 	int n;
 	int num = 0;
 	for (n = 0; n < len; n++)
@@ -229,6 +229,9 @@ int _read(int file, char *ptr, int len)
 
 	}
 	return num;
+#else
+	return 0;
+#endif
 }
 
 /************************* End of File ****************************************/

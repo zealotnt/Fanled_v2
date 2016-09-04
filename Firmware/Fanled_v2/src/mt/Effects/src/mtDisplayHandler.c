@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtDisplayHandler.c
 **
-** Module name       : template
+** Module name       : Effects
 **
 **
 ** Summary:
@@ -86,14 +86,12 @@ static uint8_t gTimer_Overload_Count = 0;
 /******************************************************************************/
 void mtFanledSpiTxCmplt(void)
 {
-#if (FANLED_APP)
 	if (DMA_GetFlagStatus(DMA1_FLAG_TC3) != RESET)
 	{
 		g_SPI_DMA_Flag = 1;
 		DMA_ClearFlag(DMA1_FLAG_TC3);
 		DMA_Cmd(DMA1_Channel3, DISABLE);
 	}
-#endif
 }
 
 void mtHallSensorHandler(void)
@@ -126,37 +124,37 @@ void mtFanledTimerHandler(void)
 #if (FANLED_APP)
 	if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
 	{
-		//	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+		// TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
 		TIM2->SR = (uint16_t)~TIM_IT_CC1;
 		if (gCurrent_point < FANLED_RESOLUTION)
 		{
-			//	capture = TIM_GetCapture1(TIM2);
+			// capture = TIM_GetCapture1(TIM2);
 			gtime_capture = TIM2->CCR1;
 
-			//	TIM_SetCompare1(TIM2, capture + CCR1_Val);
+			// TIM_SetCompare1(TIM2, capture + CCR1_Val);
 			TIM2->CCR1 = gtime_capture + CCR1_Val;
 
-			//	TIM_SetCompare2(TIM2, capture + CCR2_Val);
+			// TIM_SetCompare2(TIM2, capture + CCR2_Val);
 			TIM2->CCR2 = gtime_capture + CCR2_Val;
 
-			//	TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
+			// TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
 			TIM2->DIER |= TIM_IT_CC2;
 			gDisplayEnable = 1;
 			gCurrent_point++;
 		}
 		else
 		{
-			//	TIM_ITConfig(TIM2, TIM_IT_CC1 | TIM_IT_CC2, DISABLE);
+			// TIM_ITConfig(TIM2, TIM_IT_CC1 | TIM_IT_CC2, DISABLE);
 			TIM2->DIER &= (uint16_t)~(TIM_IT_CC1 | TIM_IT_CC2);
 		}
 	}
-	//It's time to turn off leds
+	// It's time to turn off leds
 	else if (TIM_GetITStatus(TIM2, TIM_IT_CC2) != RESET)
 	{
-		//	TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
+		// TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
 		TIM2->SR = (uint16_t)~TIM_IT_CC2;
 
-		//	TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
+		// TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
 		TIM2->DIER &= (uint16_t)~TIM_IT_CC2;
 		LED_BLANK();
 	}
@@ -169,4 +167,3 @@ void mtFanledTimerHandler(void)
 	}
 #endif
 }
-

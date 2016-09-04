@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtFanledAPICode.h
 **
-** Module name       : template
+** Module name       : FanledAPI
 **
 **
 ** Summary:
@@ -45,13 +45,21 @@ extern "C"
 #define CMD_CODE_BASIC				0x8B
 
 #define CTR_CODE_GETVERSION			0x00
+#define CTR_CODE_GETSET_RTC			0x02
 /* free to add */
+#define CTR_CODE_BL_GET_LAST_ERR	0x20
 #define CTR_CODE_UPGRADEFW			0x30
 #define CTR_CODE_FW_DOWNLOAD		0x32
 #define CTR_CODE_FW_CHECKSUM		0x34
 #define CTR_CODE_ERASE_APP			0x36
+
+#define CTR_CODE_FW_DOWNLOAD_BL		0x42
+#define CTR_CODE_FW_CHECKSUM_BL		0x44
+#define CTR_CODE_ERASE_BL			0x46
+
 /* free to add */
 #define CTR_CODE_PROTOCOL_TEST		0x70
+#define CTR_CODE_HARDFAULT			0x72
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */

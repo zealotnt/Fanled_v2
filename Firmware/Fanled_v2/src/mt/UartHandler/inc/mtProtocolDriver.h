@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtProtocolDriver.h
 **
-** Module name       : template
+** Module name       : UartHandler
 **
 **
 ** Summary:
@@ -34,6 +34,16 @@ extern "C"
 #include <stdio.h>
 #include <string.h>
 
+#include "misc.h"
+#include "stm32f10x.h"
+#include "stm32f10x_it.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x_dma.h"
+#include "stm32f10x_tim.h"
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_usart.h"
+#include "stm32f10x_exti.h"
+
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
 /*****************************************************************************/
@@ -42,7 +52,7 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-
+#define FANLED_INTER_BYTE_TIMER_IRQN			TIM3_IRQn
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */

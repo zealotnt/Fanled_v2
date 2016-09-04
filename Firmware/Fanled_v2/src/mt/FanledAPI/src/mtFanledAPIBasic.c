@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtFanledAPIBasic.c
 **
-** Module name       : template
+** Module name       : FanledAPI
 **
 **
 ** Summary:
@@ -21,15 +21,20 @@
 /******************************************************************************/
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
+#include <string.h>
 #include "mtInclude.h"
+
+#include "UartHandler/inc/mtSerialCmdParser.h"
+#include "Bootloader/inc/driverBootloader.h"
+#include "RTC/inc/mtRtc.h"
 #include "App/inc/mtVersion.h"
 #include "../inc/mtFanledAPICode.h"
-#include <string.h>
+
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
-
+#define ADDRESS_CAUSE_HARDFAULT			0x09008000
 
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
@@ -59,7 +64,11 @@
 /******************************************************************************/
 /* LOCAL FUNCTION DEFINITION SECTION                                          */
 /******************************************************************************/
-
+Void JumpToInvalidAddress(Void *param)
+{
+	DEBUG_INFO("JumpToInvalidAddress\r\n");
+	mtBootloaderJumpToApp(ADDRESS_CAUSE_HARDFAULT, FLASH_BOOTLOADER_SIZE);
+}
 
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
@@ -101,13 +110,43 @@ mtErrorCode_t mtFanledApiProtocolTest(UInt8 *msgIn,
 	/* Copy packet_id value */
 	memcpy(&msgOut[6], &msgIn[8], 2);
 
-	API_INFO("Get packet num %d\r\n", (UInt16)*((UInt16 *)&msgIn[8]));
+	API_INFO("Get packet num %d\r\n", (UInt16) * ((UInt16 *)&msgIn[8]));
 
 	for (i = 8; i < *msgOutLen; i++)
 	{
 		msgOut[i] = i;
 	}
 
+	return MT_SUCCESS;
+}
+
+mtErrorCode_t mtFanledApiGetSetRTC(UInt8 *msgIn,
+                                   UInt16 msgInLen,
+                                   UInt8 *msgOut,
+                                   UInt16 *msgOutLen)
+{
+	/* Get RTC */
+	if (msgIn[2] == 0)
+	{
+		UInt32 cur_rtc_value = mtRtcGetUnixTime();
+		memcpy(&msgOut[3], &cur_rtc_value, 4);
+		*msgOutLen = 7;
+	}
+	/* Set RTC */
+	else
+	{
+		mtRtcSetUnixTime((UInt32)*(UInt32 *)(&msgIn[3]));
+	}
+
+	return MT_SUCCESS;
+}
+
+mtErrorCode_t mtFanledApiHardFault(UInt8 *msgIn,
+                                   UInt16 msgInLen,
+                                   UInt8 *msgOut,
+                                   UInt16 *msgOutLen)
+{
+	mtSerialCmdDataLinkCallbackRegister(JumpToInvalidAddress);
 	return MT_SUCCESS;
 }
 /************************* End of File ****************************************/

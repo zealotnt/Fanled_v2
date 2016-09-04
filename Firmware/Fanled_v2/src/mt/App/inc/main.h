@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : main.h
 **
-** Module name       : template
+** Module name       : App
 **
 **
 ** Summary:
@@ -38,7 +38,7 @@
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
 /*****************************************************************************/
-
+typedef void (*pMainHandler)(void *param);
 
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
@@ -53,6 +53,6 @@
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-
+void mainCallBackRegister(pMainHandler call_back);
 
 #endif /* _MAIN_H_ */

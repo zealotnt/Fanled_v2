@@ -25,6 +25,8 @@ AT+RESET$0D$0A                  //Reset module
 AT+ORGL$0D$0A                   //Restore default status
 
 AT+NAME="ZEALOT-HC"$0D$0A       //Set name to module
+41 54 2b 4e 41 4d 45 3d 22 5a 45 41 4c 4f 54 2d 48 43 22 0d 0a
+                           Z  E  A  L  O  T  -  H  C
 
 AT+UART=460800,1,0$0D$0A
 41 54 2b 55 41 52 54 3d 34 36 30 38 30 30 2c 31 2c 30 0d 0a

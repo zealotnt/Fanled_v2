@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : driverBootloader.h
 **
-** Module name       : template
+** Module name       : Bootloader
 **
 **
 ** Summary:
@@ -33,18 +33,30 @@
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-/* User provided definition */
-#define FLASH_START_ADDRESS		0x08000000
-#define FLASH_TOTAL_SIZE		(0x10000)		/* 64KB flash size */
-#define FLASH_BOOTLOADER_SIZE	(0x8000)		/* 20KB Bootloader */
+#define FLASH_START_ADDRESS					0x08000000
+#define FLASH_TOTAL_SIZE					(0x10000)		/* 64KB flash size */
+#define FLASH_BOOTLOADER_SIZE				(0x4000)		/* 16KB Bootloader */
 
-#define FLASH_APP_START_ADDRESS	(FLASH_START_ADDRESS + FLASH_BOOTLOADER_SIZE)
-#define FLASH_APP_END_ADDRESS	(FLASH_APP_START_ADDRESS + FLASH_TOTAL_SIZE - FLASH_BOOTLOADER_SIZE)
+#define FLASH_APP_START_ADDRESS				(FLASH_START_ADDRESS + FLASH_BOOTLOADER_SIZE)
+#define FLASH_APP_END_ADDRESS				(FLASH_APP_START_ADDRESS + FLASH_TOTAL_SIZE - FLASH_BOOTLOADER_SIZE)
+
+#define FLASH_BOOTLOADER_START_ADDRESS		(FLASH_START_ADDRESS)
+#define FLASH_BOOTLOADER_END_ADDRESS		(FLASH_BOOTLOADER_START_ADDRESS + FLASH_BOOTLOADER_SIZE)
+
+#define BKP_PATTERN_OK_JUMP_TO_APP		0xff00
+#define BKP_PATTERN_UPGRADING			0x5678
+#define BKP_PATTERN_REQ_UPGRADE			0x0000
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
 /*****************************************************************************/
-
+typedef enum
+{
+	ERR_NONE				= 0x00,
+	ERR_WDT_RESET 			= 0x01,
+	ERR_BKP_CLEAR			= 0x02,
+	ERR_APP_CRC32_FAIL 		= 0x04,
+} mtLastError_t;
 
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
@@ -64,11 +76,14 @@ mtErrorCode_t mtBootloaderFlashWrite(uint32_t address, uint32_t data);
 mtErrorCode_t mtBootloaderFlashWriteBuff(uint32_t address, uint32_t buff[], uint32_t len);
 Void mtBootloaderCoreReset();
 Void mtBootloaderRequestUpgrade();
+Void mtBootloaderWriteUpgradeBKPValue(UInt16 value);
+Void mtBootloaderSaveBackupCRC32Value(UInt32 crc32);
+Void mtBootloaderSaveBackupFwLenValue(UInt16 len);
 Bool mtBootloaderCheckFwUpgardeRequest();
 void mtBootloaderJumpToApp(uint32_t appOffset, uint32_t vtorOffset);
 UInt32 mtBootloaderFlashCalculateCRC32(UInt8 *start_add, UInt16 len);
 void mtBootloaderEraseAppFw(void);
-uint32_t retAppPage(uint32_t relativePage);
 
+void mtBootloaderEraseBlFw();
 
 #endif /* TEMPLATE_H_ */

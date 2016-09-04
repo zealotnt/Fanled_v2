@@ -4,7 +4,7 @@
  */
 
 /**
- * @file mlsError.h
+ * @file mtErrors.h
  * @brief	Error code definitions
  *
  * This file contains error code definitions which are used by all function that

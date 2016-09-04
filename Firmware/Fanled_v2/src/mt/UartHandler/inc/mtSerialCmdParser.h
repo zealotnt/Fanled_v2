@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtSerialCmdParser.h
 **
-** Module name       : template
+** Module name       : UartHandler
 **
 **
 ** Summary:
@@ -98,6 +98,8 @@ extern "C"
 	Size of BluefinSerial frame
 */
 #define MAX_SERIAL_DATAPAYLOAD_IN_PACKET_SIZE		sizeof(serialRcvFrame_t) /* 2FI + 3LEN + 512DATA + 1CRC = 518 */
+
+#define UART_QUEUE_MAX_COUNT						200
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
@@ -220,6 +222,10 @@ typedef struct
 	UInt32					lenMonitoring;		/*!< counter for receive length (always monitoring - even failed, reset when begin new packet) */
 	receiveRoutineState_t	rcvState;			/*!< receive state (feed to mtSerialRcvStateHandling) */
 	Bool					Done;
+	Bool					InitHC;
+	UInt8					BufHead;
+	UInt8					BufTail;
+	UInt8					BufCount;
 } volatile serialQueuePayload_t;
 #pragma pack()
 
@@ -243,7 +249,7 @@ extern volatile serialQueuePayload_t gQueuePayload;
  * \param param (not use)
  *
  */
-Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload);
+Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t *sQueuePayload);
 
 Void mtSerialCmdDataLinkCallbackRegister(pCmdHandlerCallback call_back);
 
@@ -257,11 +263,14 @@ Void mtSerialCmdDataLinkCallbackRegister(pCmdHandlerCallback call_back);
  * \return ROUTINE_RET_PUSH_DATA (state machine output a result).
  */
 mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData,
-                                                         volatile serialQueuePayload_t *qBuff,
-                                                         UInt32 *pdwTotalDataLen);
+        volatile serialQueuePayload_t *qBuff,
+        UInt32 *pdwTotalDataLen);
 
 Void mtSerialCmd_InterByteTimeOutHandling(volatile Void *pParam);
 
+Void mtSerialQueueInit(serialQueuePayload_t *q);
+mtErrorCode_t mtSerialUartEnqueue(serialQueuePayload_t *q, uint8_t value);
+mtErrorCode_t mlsSerialUartDequeue(serialQueuePayload_t *q, uint8_t *dataOut);
 
 #ifdef __cplusplus
 }

@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtSerialCmdParser.c
 **
-** Module name       : template
+** Module name       : UartHandler
 **
 **
 ** Summary:
@@ -45,7 +45,10 @@
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-volatile serialQueuePayload_t gQueuePayload;
+volatile serialQueuePayload_t gQueuePayload =
+{
+	.InitHC = False,
+};
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -277,8 +280,8 @@ static mtErrorCode_t mtSerialCmdSendACK(UInt8 bTarget)
  * @Function: mtSerialCmdRcvStateHandling
  */
 mtSerialRcvRoutineDecision_t mtSerialCmdRcvStateHandling(UInt8 bData,
-                                                         volatile serialQueuePayload_t *qBuff,
-                                                         UInt32 *pdwTotalDataLen)
+        volatile serialQueuePayload_t *qBuff,
+        UInt32 *pdwTotalDataLen)
 {
 	mtSerialRcvRoutineDecision_t retVal = ROUTINE_RET_NO_CHANGE;
 	UInt8 *pDat = (UInt8 *)&qBuff->serialDataFrame;
@@ -472,47 +475,47 @@ Void mtSerialCmdDataLinkCallbackRegister(pCmdHandlerCallback call_back)
 /**
  * @Function: mtSerialCmdDataLinkHandlingThread
  */
-Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t sQueuePayload)
+Void mtSerialCmdDataLinkHandlingThread(serialQueuePayload_t *sQueuePayload)
 {
 	static serialRcvFrame_t sResponseFrame;
 	UInt8 sPacketType = SERIAL_PACKET_UNKNOWN;
 	UInt16 msgInLen;
 
-	if (sQueuePayload.errorFlag != RCV_SUCCESS)
+	if (sQueuePayload->errorFlag != RCV_SUCCESS)
 	{
 		mtSerialCmdDumpBufferDataRaw("Receive: ", (Void *)&gQueuePayload.serialDataFrame, gQueuePayload.lenMonitoring);
 		mtSerialCmd_ResetRcvStateMachine(&gQueuePayload);
 		goto exit;
 	}
 
-	switch (sQueuePayload.type)
+	switch (sQueuePayload->type)
 	{
 		case DATA_TYPE:
 		{
 			UInt16 msgOutLen = 0;
-			if (sQueuePayload.errorFlag != RCV_SUCCESS)
+			if (sQueuePayload->errorFlag != RCV_SUCCESS)
 			{
-				DEBUG_SERIAL_PRINT_NOTIFY_BAD("Rcv error, code: %d \r\n", sQueuePayload.errorFlag);
+				DEBUG_SERIAL_PRINT_NOTIFY_BAD("Rcv error, code: %d \r\n", sQueuePayload->errorFlag);
 				goto exit;
 			}
 
-			if (sQueuePayload.serialDataFrame.IF.FIm != OWN_FI)
+			if (sQueuePayload->serialDataFrame.IF.FIm != OWN_FI)
 			{
 				DEBUG_SERIAL_PRINT("This Cmd is not for me, just ignore it \r\n");
 				goto exit;
 			}
 
-			checkValidTerminationPacket(&sQueuePayload, &sPacketType);
+			checkValidTerminationPacket(sQueuePayload, &sPacketType);
 			switch (sPacketType)
 			{
 				case SERIAL_PACKET_DATA:
 				{
 					/* Reply ACK first */
 					mtSerialCmdSendACK(SERIAL_FI_RESP_SECONDBYTE);
-					msgInLen = sQueuePayload.serialDataFrame.Len.Lenl + (sQueuePayload.serialDataFrame.Len.Lenm << 8);
+					msgInLen = sQueuePayload->serialDataFrame.Len.Lenl + (sQueuePayload->serialDataFrame.Len.Lenm << 8);
 
 					/* Process cmd */
-					mtSerialProcessCmdPacket((UInt8 *)&sQueuePayload.serialDataFrame.Data,
+					mtSerialProcessCmdPacket((UInt8 *)&sQueuePayload->serialDataFrame.Data,
 					                         msgInLen,
 					                         (UInt8 *)&sResponseFrame.Data,
 					                         &msgOutLen);
@@ -597,6 +600,49 @@ Void mtSerialCmd_InterByteTimeOutHandling(volatile Void *pParam)
 		}
 	}
 	mtMutexUnlock(&gRcvVarChangeMutex);
+}
+
+Void mtSerialQueueInit(serialQueuePayload_t *q)
+{
+	q->BufCount = 0;
+	q->BufTail = 0;
+	q->BufHead = UART_QUEUE_MAX_COUNT - 1;
+}
+
+mtErrorCode_t mtSerialUartEnqueue(serialQueuePayload_t *q, uint8_t value)
+{
+	mtErrorCode_t errCode = MT_SUCCESS;
+	UInt8 *pBuf = (UInt8 *)&q->serialDataFrame;
+
+	if (q->BufCount >= UART_QUEUE_MAX_COUNT)
+	{
+		return MT_ERROR;
+	}
+	else
+	{
+		q->BufHead = (q->BufHead + 1) % UART_QUEUE_MAX_COUNT;
+		pBuf[ q->BufHead ] = value;
+		q->BufCount = q->BufCount + 1;
+	}
+	return errCode;
+}
+
+mtErrorCode_t mlsSerialUartDequeue(serialQueuePayload_t *q, uint8_t *dataOut)
+{
+	mtErrorCode_t errCode = MT_SUCCESS;
+	UInt8 *pBuf = (UInt8 *)&q->serialDataFrame;
+
+	if (q->BufCount <= 0)
+	{
+		return MT_ERROR;
+	}
+	else
+	{
+		*dataOut = pBuf[ q->BufTail ];
+		q->BufTail = (q->BufTail+1) % UART_QUEUE_MAX_COUNT;
+		q->BufCount = q->BufCount - 1;
+	}
+	return (errCode);
 }
 
 /************************* End of File ****************************************/

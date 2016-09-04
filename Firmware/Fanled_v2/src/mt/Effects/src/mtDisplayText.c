@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtDisplayText.c
 **
-** Module name       : template
+** Module name       : Effects
 **
 **
 ** Summary:
@@ -44,6 +44,8 @@
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
 extern uint8_t ledPanel[36 * 4];
+
+
 //*****************************************************************************
 // ASCII table
 //*****************************************************************************
@@ -152,7 +154,7 @@ const char ASCII[][6] =
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-
+unsigned int pos_now = 0;
 
 /******************************************************************************/
 /* LOCAL (STATIC) FUNCTION DECLARATION SECTION                                */
@@ -167,7 +169,7 @@ const char ASCII[][6] =
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
-//modified for 16bit rgb color
+/* modified for 16bit rgb color */
 void updatePanel16b(uint16_t *input_color, bool blank)
 {
 	uint8_t i;
@@ -178,7 +180,7 @@ void updatePanel16b(uint16_t *input_color, bool blank)
 			assignLed16b(0, i);
 		}
 	}
-	else if ( (*input_color != 0) && (blank == true) )
+	else if ( (input_color != 0) && (blank == true) )
 	{
 		for (i = 0; i < 32; i++)
 		{
@@ -194,7 +196,8 @@ void updatePanel16b(uint16_t *input_color, bool blank)
 	}
 }
 
-void assignLed16b(uint16_t input, uint8_t num)			//modified for 16bit rgb color
+/* modified for 16bit rgb color */
+void assignLed16b(uint16_t input, uint8_t num)
 {
 	uint16_t pos;
 	rgb_t rgb;
@@ -224,7 +227,11 @@ void assignLed16b(uint16_t input, uint8_t num)			//modified for 16bit rgb color
 //******************************************************************************
 //basic in - out function
 //******************************************************************************
-void fanled_write_onecolor(uint32_t value, uint16_t color, uint16_t pos_to_write, Display_Type *display)	//non overlap
+/* non overlap */
+void fanled_write_onecolor(uint32_t value,
+                           uint16_t color,
+                           uint16_t pos_to_write,
+                           Display_Type *display)
 {
 	uint8_t i;
 	for (i = 0; i < 32; i++)
@@ -236,7 +243,10 @@ void fanled_write_onecolor(uint32_t value, uint16_t color, uint16_t pos_to_write
 	}
 }
 
-void fanled_write_onecolor_overlap(uint32_t value, uint16_t color, uint16_t pos_to_write, Display_Type *display)
+void fanled_write_onecolor_overlap(uint32_t value,
+                                   uint16_t color,
+                                   uint16_t pos_to_write,
+                                   Display_Type *display)
 {
 	uint8_t i;
 	for (i = 0; i < 32; i++)
@@ -252,7 +262,10 @@ void fanled_write_onecolor_overlap(uint32_t value, uint16_t color, uint16_t pos_
 	}
 }
 
-void fanled_write_date(uint32_t value, uint16_t color, uint16_t pos_to_write, Display_Type *display)
+void fanled_write_date(uint32_t value,
+                       uint16_t color,
+                       uint16_t pos_to_write,
+                       Display_Type *display)
 {
 	uint8_t i;
 	for (i = 6; i < 14; i++)
@@ -268,7 +281,8 @@ void fanled_write_date(uint32_t value, uint16_t color, uint16_t pos_to_write, Di
 	}
 }
 
-uint32_t fanled_read_onecolor(uint16_t pos_to_read, Display_Type *display)
+uint32_t fanled_read_onecolor(uint16_t pos_to_read,
+                              Display_Type *display)
 {
 	uint8_t i;
 	uint32_t temp_val = 0;
@@ -285,7 +299,12 @@ uint32_t fanled_read_onecolor(uint16_t pos_to_read, Display_Type *display)
 //******************************************************************************
 //dual printing function
 //******************************************************************************
-void fanled_write_dual(char byte, uint16_t color, uint16_t position_to_write, uint16_t position_of_char, Display_Type *display, uint8_t row)
+void fanled_write_dual(char byte,
+                       uint16_t color,
+                       uint16_t position_to_write,
+                       uint16_t position_of_char,
+                       Display_Type *display,
+                       uint8_t row)
 {
 	if (row == OUTER_CIRCLE)
 	{
@@ -297,7 +316,10 @@ void fanled_write_dual(char byte, uint16_t color, uint16_t position_to_write, ui
 	}
 }
 
-void fanled_putc_dual(char c, uint16_t color, Display_Type *display, unsigned char row)
+void fanled_putc_dual(char c,
+                      uint16_t color,
+                      Display_Type *display,
+                      unsigned char row)
 {
 	if (row == OUTER_CIRCLE)
 	{
@@ -338,31 +360,41 @@ void fanled_putc_dual(char c, uint16_t color, Display_Type *display, unsigned ch
 //******************************************************************************
 //basic interface function
 //******************************************************************************
-unsigned int pos_now = 0;
-void fanled_write(char byte, uint16_t color, uint16_t position_to_write, uint16_t position_of_char, Display_Type *display)
+void fanled_write(char byte,
+                  uint16_t color,
+                  uint16_t position_to_write,
+                  uint16_t position_of_char,
+                  Display_Type *display)
 {
 	uint16_t 	temp = 0x0000;
 	temp = fanled_read_onecolor(DISPLAY_SIZE - position_to_write * 6 - position_of_char - 2, display) & 0x00ffffff;
 	fanled_write_onecolor((byte << 24) | temp, color, DISPLAY_SIZE - position_to_write * 6 - position_of_char - 2, display);
 }
 
-void fanled_putc(char c, uint16_t color, Display_Type *display)
+void fanled_putc(char c,
+                 uint16_t color,
+                 Display_Type *display)
 {
 	if ((c >= 0x20) && (c <= 0x7f))
 	{
 		unsigned char i;
 		c -= 0x20;
 		for (i = 0; i < 6; i++)
+		{
 			fanled_write(ASCII[(unsigned char)c][i],
 			             color,
 			             pos_now,
 			             i,
 			             display);
+		}
+
 		pos_now++;
 	}
 }
 
-void fanled_puts(char *s, uint16_t color, Display_Type *display)
+void fanled_puts(char *s,
+                 uint16_t color,
+                 Display_Type *display)
 {
 	while (*s)
 	{
@@ -370,7 +402,10 @@ void fanled_puts(char *s, uint16_t color, Display_Type *display)
 	}
 }
 
-void fanled_puts_dual(char *s, uint16_t color, Display_Type *display, unsigned char row)
+void fanled_puts_dual(char *s,
+                      uint16_t color,
+                      Display_Type *display,
+                      unsigned char row)
 {
 	while (*s)
 	{
@@ -378,29 +413,39 @@ void fanled_puts_dual(char *s, uint16_t color, Display_Type *display, unsigned c
 	}
 }
 
-void fanled_goto_pos (uint16_t val, uint8_t row, Display_Type *display)
+void fanled_goto_pos (uint16_t val,
+                      uint8_t row,
+                      Display_Type *display)
 {
-	if (row == INNER_CIRCLE)		//inner circle 14section per character
+	/* inner circle 14section per character */
+	if (row == INNER_CIRCLE)
 	{
 		if (val < DISPLAY_SIZE / 7) { (*display).pos_now_inner = val; }
 	}
-	if (row == OUTER_CIRCLE)		//outer circle 6section per character	//character available for each display buffer
+	/* outer circle 6section per character */
+	/* character available for each display buffer */
+	if (row == OUTER_CIRCLE)
 	{
 		if (val < DISPLAY_SIZE / 3) { (*display).pos_now_outer = val; }
 	}
 }
 
-void fanled_puts_scroll(char *s, uint16_t color, Display_Type *display, uint32_t speed)
+void fanled_puts_scroll(char *s,
+                        uint16_t color,
+                        Display_Type *display,
+                        uint32_t speed)
 {
 	char i;
 	int32_t j;
 	char *s_temp;
 	s_temp = s;
+
 	if (display->enable_flag > JUST_RESET)
 	{
 		display->pos = 0;
 		display->enable_flag = SCROLL_ENABLE_COUNTING;
 	}
+
 	if (display->enable_flag == SCROLL_ENABLE_COUNTING)
 	{
 		display->numOfchar = 0;
@@ -415,69 +460,79 @@ void fanled_puts_scroll(char *s, uint16_t color, Display_Type *display, uint32_t
 		s = s_temp;
 		display->scroll_times = speed;
 	}
-	if (display->enable_flag == SCROLL_ENABLE_DISPLAY)
+
+	if (display->enable_flag != SCROLL_ENABLE_DISPLAY)
 	{
-		if (display->move_flag == 1)
+		return;
+	}
+
+	if (display->move_flag != 1)
+	{
+		return;
+	}
+
+	if (display->pos_char < display->numOfchar)
+	{
+		if (display->section_of_char <= 6)
 		{
-			if (display->pos_char < display->numOfchar)
+			for (j = DISPLAY_SIZE - 2; j >= 0; j--)
 			{
-				if (display->section_of_char <= 6)
-				{
-					for (j = DISPLAY_SIZE - 2; j >= 0; j--)
-					{
-						fanled_write_onecolor_overlap(fanled_read_onecolor(j, display), color, j + 1, display);
-					}
-					//temp = fanled_read_onecolor(0, display) & 0x00ffffff;
-					i = ASCII[*(s + display->pos_char) - 0x20][display->section_of_char];
-					//fanled_write_onecolor((i) << 24 | temp, color, 0, display);
-					fanled_write_onecolor_overlap( (uint32_t)(i << 24), color, 0, display);
-					display->section_of_char++;
-				}
-				else
-				{
-					display->section_of_char = 0;
-					display->pos_char++;
-				}
+				fanled_write_onecolor_overlap(fanled_read_onecolor(j, display), color, j + 1, display);
 			}
-			else if (display->pos_char < DISPLAY_SIZE / 6 + display->numOfchar)
+			//temp = fanled_read_onecolor(0, display) & 0x00ffffff;
+			i = ASCII[*(s + display->pos_char) - 0x20][display->section_of_char];
+			//fanled_write_onecolor((i) << 24 | temp, color, 0, display);
+			fanled_write_onecolor_overlap( (uint32_t)(i << 24), color, 0, display);
+			display->section_of_char++;
+		}
+		else
+		{
+			display->section_of_char = 0;
+			display->pos_char++;
+		}
+	}
+	else if (display->pos_char < DISPLAY_SIZE / 6 + display->numOfchar)
+	{
+		if (display->section_of_char <= 6)
+		{
+			for (j = DISPLAY_SIZE - 2; j >= 0; j--)
 			{
-				if (display->section_of_char <= 6)
-				{
-					for (j = DISPLAY_SIZE - 2; j >= 0; j--)
-					{
-						fanled_write_onecolor_overlap(fanled_read_onecolor(j, display), color, j + 1, display);
-					}
-					i = ASCII[0][0];
-					fanled_write_onecolor_overlap( (uint32_t)(i << 24), color, 0, display);
-					display->section_of_char++;
-				}
-				else
-				{
-					display->section_of_char = 0;
-					display->pos_char++;
-				}
+				fanled_write_onecolor_overlap(fanled_read_onecolor(j, display), color, j + 1, display);
 			}
-			else
-			{
-				display->enable_flag = SCROLL_DISABLE_FINISH;
-			}
-			display->move_flag = 0;
-		}//end of if((*display).move_flag == 1)
-	}//end of if((*display).enable_flag == SCROLL_ENABLE_DISPLAY)
+			i = ASCII[0][0];
+			fanled_write_onecolor_overlap( (uint32_t)(i << 24), color, 0, display);
+			display->section_of_char++;
+		}
+		else
+		{
+			display->section_of_char = 0;
+			display->pos_char++;
+		}
+	}
+	else
+	{
+		display->enable_flag = SCROLL_DISABLE_FINISH;
+	}
+	display->move_flag = 0;
 }
 
-void fanled_date_scroll(char *s, uint16_t color, Display_Type *display, uint32_t speed)
+void fanled_date_scroll(char *s,
+                        uint16_t color,
+                        Display_Type *display,
+                        uint32_t speed)
 {
 	char i;
 	uint32_t temp = 0x00;
 	int32_t j;
 	char *s_temp;
 	s_temp = s;
+
 	if (display->enable_flag > JUST_RESET)
 	{
 		display->pos = 0;
 		display->enable_flag = SCROLL_ENABLE_COUNTING;
 	}
+
 	if (display->enable_flag == SCROLL_ENABLE_COUNTING)
 	{
 		display->numOfchar = 0;
@@ -492,50 +547,56 @@ void fanled_date_scroll(char *s, uint16_t color, Display_Type *display, uint32_t
 		s = s_temp;
 		display->scroll_times = speed;
 	}
-	if (display->enable_flag == SCROLL_ENABLE_DISPLAY)
+
+	if (display->enable_flag != SCROLL_ENABLE_DISPLAY)
 	{
-		if (display->move_flag == 1)
+		return;
+	}
+
+	if (display->move_flag != 1)
+	{
+		return;
+	}
+
+	if (display->pos_char < display->numOfchar)
+	{
+		if (display->section_of_char <= 6)
 		{
-			if (display->pos_char < display->numOfchar)
+			for (j = DISPLAY_SIZE - 2; j >= 0; j--)
 			{
-				if (display->section_of_char <= 6)
-				{
-					for (j = DISPLAY_SIZE - 2; j >= 0; j--)
-					{
-						fanled_write_date(fanled_read_onecolor(j, display), color, j + 1, display);
-					}
-					i = ASCII[*(s + display->pos_char) - 0x20][display->section_of_char];
-					fanled_write_date( (uint32_t)(i << 18), color, 0, display);
-					display->section_of_char++;
-				}
-				else
-				{
-					display->section_of_char = 0;
-					display->pos_char++;
-				}
+				fanled_write_date(fanled_read_onecolor(j, display), color, j + 1, display);
 			}
-			else if (display->pos_char < DISPLAY_SIZE / 6 + display->numOfchar)
-			{
-				temp = fanled_read_onecolor(DISPLAY_SIZE - 1, display);
-				for (j = DISPLAY_SIZE - 2; j >= 0; j--)
-				{
-					fanled_write_date(fanled_read_onecolor(j, display), color, j + 1, display);
-				}
-				fanled_write_date( temp, color, 0, display);
-				display->section_of_char++;
-			}
-			else
-			{
-				display->enable_flag = SCROLL_DISABLE_FINISH;
-			}
-			display->move_flag = 0;
-		}//end of if((*display).move_flag == 1)
-	}//end of if((*display).enable_flag == SCROLL_ENABLE_DISPLAY)
+			i = ASCII[*(s + display->pos_char) - 0x20][display->section_of_char];
+			fanled_write_date( (uint32_t)(i << 18), color, 0, display);
+			display->section_of_char++;
+		}
+		else
+		{
+			display->section_of_char = 0;
+			display->pos_char++;
+		}
+	}
+	else if (display->pos_char < DISPLAY_SIZE / 6 + display->numOfchar)
+	{
+		temp = fanled_read_onecolor(DISPLAY_SIZE - 1, display);
+		for (j = DISPLAY_SIZE - 2; j >= 0; j--)
+		{
+			fanled_write_date(fanled_read_onecolor(j, display), color, j + 1, display);
+		}
+		fanled_write_date( temp, color, 0, display);
+		display->section_of_char++;
+	}
+	else
+	{
+		display->enable_flag = SCROLL_DISABLE_FINISH;
+	}
+	display->move_flag = 0;
 }
 
 void clear_screen_buffer(Display_Type *fanleddata)
 {
 	uint16_t i, j;
+
 	for (i = 0; i < FANLED_RESOLUTION; i++)
 	{
 		for (j = 0; j < 32; j++)

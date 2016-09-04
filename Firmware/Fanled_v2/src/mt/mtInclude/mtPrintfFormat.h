@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : mtPrintfFormat.h
 **
-** Module name       : template
+** Module name       : mtInclude
 **
 **
 ** Summary:
@@ -29,6 +29,7 @@ extern "C"
 /* INCLUSIONS                                                                */
 /*****************************************************************************/
 #include <stdio.h>
+#include "mtCompileSwitch.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */

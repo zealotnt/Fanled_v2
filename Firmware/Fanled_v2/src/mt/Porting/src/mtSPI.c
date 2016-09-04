@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtSPI.c
 **
-** Module name       : template
+** Module name       : Porting
 **
 **
 ** Summary:
@@ -21,14 +21,11 @@
 /* INCLUSIONS                                                                 */
 /******************************************************************************/
 #include "../inc/mtSPI.h"
-#include "drivers/fatfs_sd.h"
+//#include "drivers/fatfs_sd.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
-#define SPI_MASTER_DR_Base						0x4001300C
-#define SPI_MASTER_Tx_DMA_Channel				DMA1_Channel3
-#define SPI_Tx_DMA_IRQ							DMA1_Channel3_IRQn
 
 
 /******************************************************************************/
@@ -67,15 +64,15 @@ DMA_InitTypeDef	g_DMA_InitStructure;
 /******************************************************************************/
 uint8_t mtSPISend(SPI_TypeDef* SPIx, uint8_t data)
 {
-	//Fill output buffer with data
+	/* Fill output buffer with data */
 	SPIx->DR = data;
-	//Wait for transmission to complete
+	/* Wait for transmission to complete */
 	while (!SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE));
-	//Wait for received data to complete
+	/* Wait for received data to complete */
 	while (!SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE));
-	//Wait for SPI to be ready
+	/* Wait for SPI to be ready */
 	while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_BSY));
-	//Return data from buffer
+	/* Return data from buffer */
 	return SPIx->DR;
 }
 
@@ -112,25 +109,25 @@ void mtFanledSPIInit(void)
 	SPI_InitTypeDef SPI_InitStruct;
 
 	/* Enable DMA, clock for SPI1 */
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
+	FANLED_DISPLAY_SPI_RCC_DMA_CMD(FANLED_DISPLAY_SPI_RCC_DMA, ENABLE);
+	FANLED_DISPLAY_SPI_RCC_PORT_CMD(FANLED_DISPLAY_SPI_RCC_PORT, ENABLE);
+	FANLED_DISPLAY_SPI_RCC_SPI_CMD(FANLED_DISPLAY_SPI_RCC_SPI, ENABLE);
 
-	//Common settings for all pins
+	/* Common settings for all pins */
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-	//Config Output for 		BLANK			LATCH
+	/* Config Output for 		BLANK			LATCH */
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_6;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOA, &GPIO_InitStruct);
+	GPIO_Init(FANLED_DISPLAY_SPI_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
-	//Pinspack					 MOSI			SCK
+	/* Pinspack					 MOSI			SCK */
 	GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_7 | GPIO_Pin_5;
-	GPIO_Init(GPIOA, &GPIO_InitStruct);
-	GPIO_WriteBit(GPIOA, GPIO_Pin_6, (BitAction)0);
-	GPIO_WriteBit(GPIOA, GPIO_Pin_6, (BitAction)0);
+	GPIO_Init(FANLED_DISPLAY_SPI_PORT, &GPIO_InitStruct);
+	GPIO_WriteBit(FANLED_DISPLAY_SPI_PORT, GPIO_Pin_6, (BitAction)0);
+	GPIO_WriteBit(FANLED_DISPLAY_SPI_PORT, GPIO_Pin_6, (BitAction)0);
 
-	SPI_I2S_DeInit(SPI1);
+	SPI_I2S_DeInit(FANLED_DISPLAY_SPI_NUM);
 	SPI_StructInit(&SPI_InitStruct);
 	SPI_InitStruct.SPI_Direction = SPI_Direction_1Line_Tx;
 	SPI_InitStruct.SPI_Mode = SPI_Mode_Master;
@@ -140,8 +137,8 @@ void mtFanledSPIInit(void)
 	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft;
 	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;
-	SPI_Init(SPI1, &SPI_InitStruct);
-	SPI_Cmd(SPI1, ENABLE);
+	SPI_Init(FANLED_DISPLAY_SPI_NUM, &SPI_InitStruct);
+	SPI_Cmd(FANLED_DISPLAY_SPI_NUM, ENABLE);
 	mtFanledDMAInit();
 }
 
@@ -153,10 +150,10 @@ void mtFanledDMAInit(void)
 	DMA_DeInit(SPI_MASTER_Tx_DMA_Channel);
 	g_DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&SPI1->DR;
 
-	//This field will be configured in transmit function
+	/* This field will be configured in transmit function */
 	g_DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)0;
-	//This field will be configured in transmit function
-	g_DMA_InitStructure.DMA_BufferSize = (uint32_t)0;
+	/* This field will be configured in transmit function */
+	g_DMA_InitStructure.DMA_BufferSize = (uint32_t)1;
 
 	g_DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
 	g_DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
@@ -166,10 +163,9 @@ void mtFanledDMAInit(void)
 	g_DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
 	g_DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
 	g_DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-	g_DMA_InitStructure.DMA_BufferSize = 1;
 	DMA_Init(SPI_MASTER_Tx_DMA_Channel, &g_DMA_InitStructure);
 	DMA_ITConfig(SPI_MASTER_Tx_DMA_Channel, DMA_IT_TC, ENABLE);
-	NVIC_InitStructure.NVIC_IRQChannel = SPI_Tx_DMA_IRQ;
+	NVIC_InitStructure.NVIC_IRQChannel = SPI_DISPLAY_Tx_DMA_IRQ;
 	// 0 is the highest
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
@@ -181,14 +177,15 @@ void mtFanledDMAInit(void)
 	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
 }
 
-void mtSPIFanledSend(uint32_t Addr, uint32_t Size)
+void mtFanledSendDmaBuffer(uint32_t Addr, uint32_t Size)
 {
 	/* Configure the buffer address and size */
 	g_DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)Addr;
-	g_DMA_InitStructure.DMA_BufferSize = (uint32_t)Size;		//one package is 8 bit
+	/* one package is 8 bit */
+	g_DMA_InitStructure.DMA_BufferSize = (uint32_t)Size;
 	/* Configure the DMA Stream with the new parameters */
 	DMA_Init(SPI_MASTER_Tx_DMA_Channel, &g_DMA_InitStructure);
-	/* Enable the I2S DMA Stream*/
+	/* Enable the I2S DMA Stream */
 	DMA_Cmd(SPI_MASTER_Tx_DMA_Channel, ENABLE);
 	SPI_Cmd(SPI1, ENABLE);
 	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);

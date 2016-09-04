@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.h
+** File name         : bluetooth.h
 **
-** Module name       : template
+** Module name       : bluetooth
 **
 **
 ** Summary:
@@ -55,6 +55,7 @@
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
+void bltPrintStr(char *str);
 void bltSendCharUart(char data);
 void bltSendMultiChar(char *data, uint32_t length);
 void bltPrintf(const char * __restrict format, ...);

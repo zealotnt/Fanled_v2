@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtIntHandler.c
 **
-** Module name       : template
+** Module name       : App
 **
 **
 ** Summary:
@@ -60,6 +60,7 @@
 #if (FANLED_APP)
 extern Display_Type Fanled_Display;
 #endif
+extern void disk_timerproc (void);
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -84,8 +85,6 @@ void mtSystickHandler(void)
 #if (FANLED_APP)
 	static volatile uint32_t Timing_Count = 0;
 	static volatile uint32_t Scroll_Count = 0;
-
-	TimingDelay_Decrement();
 
 	if (Scroll_Count > Fanled_Display.scroll_times && Fanled_Display.enable_flag == SCROLL_ENABLE_DISPLAY)
 	{
@@ -124,6 +123,7 @@ void mtSystickHandler(void)
 	}
 #endif
 	mtDelayClockTick();
+	disk_timerproc();
 }
 
 /******************************************************************************/

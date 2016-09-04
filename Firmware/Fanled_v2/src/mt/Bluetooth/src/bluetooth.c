@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : bluetooth.c
 **
-** Module name       : template
+** Module name       : Bluetooth
 **
 **
 ** Summary:
@@ -30,6 +30,7 @@
 #include "App/inc/SystemConfig.h"
 #include "Porting/inc/mtUart.h"
 #include "UartHandler/inc/mtProtocolDriver.h"
+#include "UartHandler/inc/mtSerialCmdParser.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -49,12 +50,12 @@
 /******************************************************************************/
 #define BLUETOOTH_KEYPIN_RESET()		GPIO_ResetBits(GPIOA, GPIO_Pin_11);
 #define BLUETOOTH_KEYPIN_SET()			GPIO_SetBits(GPIOA, GPIO_Pin_11);
-#define bltPrintf(...)					printf(__VA_ARGS__)
+#define bltPrintf(...)					bltPrintStr(__VA_ARGS__)
 
 /******************************************************************************/
 /* MODULE'S LOCAL VARIABLE DEFINITION SECTION                                 */
 /******************************************************************************/
-
+extern volatile serialQueuePayload_t gQueuePayload;
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -74,14 +75,57 @@
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
+mtErrorCode_t checkUartString(const char* strToCheck, serialQueuePayload_t *buffer)
+{
+	uint8_t compare_buffer[UART_QUEUE_MAX_COUNT];
+	uint8_t *ptr = compare_buffer, buff_length = 0;
+	uint8_t i, cnt = 0;
+
+	while( mlsSerialUartDequeue(buffer, ptr) == MT_SUCCESS )
+	{
+		ptr++;
+		buff_length++;
+	}
+	for(i = 0; i < buff_length; i++)
+	{
+		if(compare_buffer[i] == '\r')
+		{
+			cnt++;
+		}
+	}
+	if(cnt > 1)
+	{
+		/* More than "new line" character received */
+		return MT_ERROR;
+	}
+	else
+	{
+		if( !strcmp(strToCheck, (const char *)compare_buffer) )
+		{
+			return MT_SUCCESS;
+		}
+		else
+		{
+			return MT_ERROR;
+		}
+	}
+}
+
 void checkResponseOK(void)
 {
-#if ABC
-	if ( checkUartString("OK\r\n", &uart_buffer) )
+	if ( checkUartString("OK\r\n", &gQueuePayload) )
 	{
 		while (1);
 	}
-#endif
+}
+
+void bltPrintStr(char *str)
+{
+	while (*str)
+	{
+		uart_cmd_write_char(*str);
+		str++;
+	}
 }
 
 void bltSendMultiChar(char *data, uint32_t length)
@@ -94,11 +138,11 @@ void bltChangeBaud(uint32_t baurate)
 	mtBluetoothUSARTChangeBaud(baurate);
 }
 
-// True for first time config HC-05 module
-// False for instant usage
+/* True for first time config HC-05 module */
+/* False for instant usage */
 void bltInitModule(bool config)
 {
-	// Initialize peripheral for HC05 module
+	/* Initialize peripheral for HC05 module */
 	mtBluetoothUSARTInit(config);
 	mtHC05KeyPinInit();
 	if (config == true)
@@ -113,9 +157,15 @@ void bltInitModule(bool config)
 
 void bltInitStandardBluetoothMode(void)
 {
+	mtSerialQueueInit(&gQueuePayload);
+
 	BLUETOOTH_KEYPIN_SET();
 	mtDelayMS(200);
 	bltPrintf("AT\r\n");
+	mtDelayMS(300);
+	checkResponseOK();
+
+	bltPrintf("AT+CMODE=1\r\n");
 	mtDelayMS(300);
 	checkResponseOK();
 

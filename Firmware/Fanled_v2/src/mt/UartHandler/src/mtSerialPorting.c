@@ -5,9 +5,9 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : template.c
+** File name         : mtSerialPorting.c
 **
-** Module name       : template
+** Module name       : UartHandler
 **
 **
 ** Summary:
@@ -173,6 +173,12 @@ void mtBluetoothRcvHandler(void)
 	{
 		bCharRev = USART_ReceiveData(USART1);
 		USART_ClearFlag(USART1, USART_FLAG_RXNE);
+
+		if (gQueuePayload.InitHC)
+		{
+			mtSerialUartEnqueue(&gQueuePayload, bCharRev);
+			return;
+		}
 
 		if (mtSerialCmdRcvStateHandling((UInt8)bCharRev, &gQueuePayload, &dwTotalDataLen) != ROUTINE_RET_NO_CHANGE)
 		{

@@ -4,7 +4,7 @@
  */
 
 /**
- * @file mlsTypes.h
+ * @file mtTypes.h
  * @brief	Common type definitions
  *
  * This file contains common type definition which are used a lot of time in project
