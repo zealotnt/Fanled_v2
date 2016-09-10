@@ -17,6 +17,7 @@ from optparse import OptionParser, OptionGroup
 sys.path.insert(0, 'bluefinserial')
 from fanled_api_basic import *
 from fanled_api_fw_upgrade import *
+from fanled_api_sd import *
 from datalink_deliver import *
 from scan import scan
 from utils import *
@@ -41,6 +42,8 @@ def string_function_parse(argument):
 		"1"    : basic_api,
 		"upg"  : fw_upg_api,
 		"2"    : fw_upg_api,
+		"sd"   : fw_sd_api,
+		"3"    : fw_sd_api,
 	}
 	# Get the function from switcher dictionary
 	func = switcher.get(argument, lambda: "not found")
@@ -130,10 +133,48 @@ Support comand:
 		else:
 			print HELP
 
+def fw_sd_api():
+	# Fw sd test suite
+	print_ok("Sd card application selected")
+	PROMT = u"Input your command:"
+	HELP = u"""
+Support comand:
+- ver      : Get firmware version
+- le       : Get fanled bootloader last err
+- ls       : List file
+- ins      : Inspect file
+- r        : Read file's value
+- w        : Write value to file
+- d        : Delete file
+"""
+	last_valid_key = ""
+	while True:
+		user_promt = raw_input(PROMT)
+		# If user use up arrow, re-issue last command
+		if user_promt == '\x1b[A':
+			user_promt = last_valid_key
+
+		if user_promt == "ver":
+			fanled_basic_api.GetFirmwareVersion()
+		elif user_promt == "le":
+			fanled_fw_upgrade.GetLastErr()
+		elif user_promt == "ls":
+			fanled_sd_api.Ls()
+		elif user_promt == "ins":
+			fanled_sd_api.Inspect("abc")
+		elif user_promt == "r":
+			fanled_sd_api.Read("abc")
+		elif user_promt == "w":
+			fanled_sd_api.Delete("abc")
+		elif user_promt == "d":
+			fanled_sd_api.Write("abc")
+		else:
+			print "Wrong command, try again:"
+			print HELP
+			continue
+		last_valid_key = user_promt
 # ---- MAIN
-
 if __name__ == "__main__":
-
 	return_code = 0
 
 	parser = OptionParser()
@@ -178,6 +219,7 @@ if __name__ == "__main__":
 
 	fanled_basic_api = FanledAPIBasic(comm)
 	fanled_fw_upgrade = FanledAPIFwUpgrade(comm)
+	fanled_sd_api = FanledAPISd(comm)
 
 	APP_PROMT = u"""No application selected !!!
 To choose application:
@@ -185,6 +227,7 @@ To choose application:
 Application support:
 	basic | 1        : basic fanled api
 	upg   | 2        : fanled firmware upgrade api
+	sd    | 3        : fanled sd card api
 """
 	if options.app_selected is None:
 		print APP_PROMT
