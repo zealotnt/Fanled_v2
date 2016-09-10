@@ -20,8 +20,10 @@
 #	if(FANLED_BOOTLOADER)
 #		define DEBUG						0
 #	elif(FANLED_APP)
-#		define DEBUG						1
+#		define DEBUG						0
 #	endif
 #endif
+
+#define WDT_ENABLE							0
 
 #endif /* MTCOMPILESWITCH_H_ */

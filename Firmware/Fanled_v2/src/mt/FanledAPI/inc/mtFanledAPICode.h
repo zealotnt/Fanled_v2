@@ -86,6 +86,9 @@ typedef enum
 	API_COMMAND_EXECUTE_SUCCESS			= 0x00, /*!<  Command executed successfully */
 	API_COMMAND_EXECUTE_FAIL			= 0xFF, /*!<  Command execution failed */
 	API_PARAM_ERROR						= 0xFE, /*!<  Invalid value of a command parameter */
+
+	API_SD_DISK_ERR						= 0x20, /*!<  SD card disk error */
+
 	API_CHECK_CRC_ERROR					= 0xC1, /*!<  CRC check error */
 	API_COMMAND_NOT_SUPPORTED			= 0xBE, /*!<  Command not supported */
 } mtFanledApiResultCode;

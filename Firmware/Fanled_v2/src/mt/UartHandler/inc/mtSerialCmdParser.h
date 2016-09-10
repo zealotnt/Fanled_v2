@@ -59,10 +59,11 @@ extern "C"
 */
 #define SERIAL_NUM_OF_LENGTH_BYTE						3
 
-/*! \def MAX_SERIAL_DATA_EXCEPT_CMD
+/*! \def MAX_SERIAL_DATA_FIELD_LEN
 	Maximum value of bytes in Data field in BluefinSerial protocol
 */
-#define MAX_SERIAL_DATA_EXCEPT_CMD						512
+#define MAX_SERIAL_DATA_FIELD_LEN						512
+#define MAX_SERIAL_DATA_EXCEPT_CMD						510
 
 /*! \def MAX_SERIAL_DEBUG_MSG_LEN
 	Maximum value of bytes in Debug message from App processor send to Host at a time
@@ -185,7 +186,7 @@ typedef struct
 {
 	UInt8 CmdCode;									/*!< Command Code byte 		*/
 	UInt8 ControlCode;								/*!< Control Code byte 		*/
-	UInt8 Dt[MAX_SERIAL_DATA_EXCEPT_CMD - 2];		/*!< Data packet frame byte */
+	UInt8 Dt[MAX_SERIAL_DATA_EXCEPT_CMD];			/*!< Data packet frame byte */
 } serialCmdData_t;
 
 /*!
@@ -195,7 +196,7 @@ typedef struct
 {
 	UInt8 RspCode;									/*!< Response Command Code byte 		*/
 	UInt8 RspControlCode;							/*!< Response Control Code byte 		*/
-	UInt8 Dt[MAX_SERIAL_DATA_EXCEPT_CMD - 2];		/*!< Data packet frame byte 	 		*/
+	UInt8 Dt[MAX_SERIAL_DATA_EXCEPT_CMD];			/*!< Data packet frame byte 	 		*/
 } serialRspHeaderData_t;
 
 /*!

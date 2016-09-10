@@ -62,6 +62,7 @@ FATFS gFatFs;
 DIR mydir;
 FILINFO myfno;
 SdManager_t sdFileInfo;
+char lfn[LFN_MAX_LEN];
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -81,10 +82,14 @@ SdManager_t sdFileInfo;
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
+
 void mtSdCardInit(void)
 {
 	FRESULT res = FR_DISK_ERR;
 	uint8_t count = 0;
+
+	myfno.lfname = lfn;
+	myfno.lfsize = LFN_MAX_LEN;
 
 	while ((res != FR_OK) && (count < 10))
 	{

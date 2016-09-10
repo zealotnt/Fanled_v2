@@ -167,7 +167,7 @@ static serialErrorType_t mtSerialCmd_CheckValidLen(volatile serialQueuePayload_t
 		goto exit;
 	}
 	/* Check max value of Data bytes (512 bytes) */
-	if (*pdwDataLen > MAX_SERIAL_DATA_EXCEPT_CMD)
+	if (*pdwDataLen > MAX_SERIAL_DATA_FIELD_LEN)
 	{
 		retVal = ERROR_LEN_TOO_BIG;
 		goto exit;

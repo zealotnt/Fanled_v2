@@ -69,6 +69,7 @@ volatile UInt8 gWdtCount = 0;
 /******************************************************************************/
 void mtWdtInit()
 {
+#if (WDT_ENABLE)
 	/* Enable clock */
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_WWDG, ENABLE);
 
@@ -87,6 +88,7 @@ void mtWdtInit()
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
+#endif
 }
 
 void mtWdtDisable()
@@ -98,8 +100,10 @@ void mtWdtDisable()
 
 void mtWdtFeed()
 {
+#if (WDT_ENABLE)
 	gWdtCount = 0;
 	WWDG_Enable(WDT_RELOAD_VALUE);
+#endif
 }
 
 Bool mtWdtCheckTriggered()

@@ -159,7 +159,8 @@ Support comand:
 		elif user_promt == "le":
 			fanled_fw_upgrade.GetLastErr()
 		elif user_promt == "ls":
-			fanled_sd_api.Ls()
+			list_files = fanled_sd_api.Ls()
+			print list_files
 		elif user_promt == "ins":
 			fanled_sd_api.Inspect("abc")
 		elif user_promt == "r":
