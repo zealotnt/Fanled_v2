@@ -164,7 +164,9 @@ Support comand:
 		elif user_promt == "ins":
 			fanled_sd_api.Inspect("abc")
 		elif user_promt == "r":
-			fanled_sd_api.Read("abc")
+			file_name = raw_input("File to read: ")
+			contents = fanled_sd_api.Read(file_name)
+			print contents
 		elif user_promt == "w":
 			fanled_sd_api.Delete("abc")
 		elif user_promt == "d":

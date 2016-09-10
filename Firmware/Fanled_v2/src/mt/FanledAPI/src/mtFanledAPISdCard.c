@@ -32,8 +32,8 @@
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
 /******************************************************************************/
-#define LS_END				0x00
-#define LS_STILL			0x01
+#define SD_END				0x00
+#define SD_STILL			0x01
 
 /******************************************************************************/
 /* LOCAL TYPE DEFINITION SECTION                                              */
@@ -83,7 +83,7 @@ mtErrorCode_t mtFanledApiSdListFile(UInt8 *msgIn,
 	UInt8 i = 0;
 
 	*msgOutLen = 4;
-	msgOut[3] = LS_END;
+	msgOut[3] = SD_END;
 	from_file_num = msgIn[2];
 
 	if (f_mount(0, &gFatFs) == FR_OK)
@@ -117,9 +117,9 @@ mtErrorCode_t mtFanledApiSdListFile(UInt8 *msgIn,
 				if ((last_idx + last_file_name_len + 1) > MAX_SERIAL_DATA_EXCEPT_CMD)
 				{
 					/* We don't want the \n character in the last
-					 * this will cause the split() method of Python cause more item in list */
+					 * this will cause the split() method of Python cause 1 more null item in list */
 					*msgOutLen = last_idx - 1;
-					msgOut[3] = LS_STILL;
+					msgOut[3] = SD_STILL;
 					goto exit;
 				}
 
@@ -137,7 +137,7 @@ mtErrorCode_t mtFanledApiSdListFile(UInt8 *msgIn,
 		/* If it can go there, means the SD list has end */
 		/* Minus 1: same reason as before */
 		*msgOutLen = last_idx - 1;
-		msgOut[3] = LS_END;
+		msgOut[3] = SD_END;
 	}
 
 exit:
@@ -157,6 +157,66 @@ mtErrorCode_t mtFanledApiSdReadFile(UInt8 *msgIn,
                                    UInt8 *msgOut,
                                    UInt16 *msgOutLen)
 {
+	FIL sd_file;
+	FRESULT fr;
+	UInt32 bytes_read;
+	UInt16 file_name_len;
+	UInt32 file_offset;
+
+	/* Check input param */
+	file_name_len = strlen((char *)&msgIn[6]);
+
+	/* 2b: Cmd + Ctr code
+	 * 4b: File offset
+	 * 1b: Null of filename
+	 * */
+	if ((file_name_len + 2 + 4 + 1) != msgInLen)
+	{
+		msgOut[2] = API_PARAM_ERROR;
+		goto exit;
+	}
+
+	/* CmdCode + CtrCode + Status + isEnd */
+	file_offset = (UInt32)*((UInt32 *)&msgIn[2]);
+	*msgOutLen = 4;
+
+	/* Open file object */
+	fr = f_open(&sd_file, (char *)&msgIn[6], FA_READ);
+	if (fr != FR_OK)
+	{
+		msgOut[2] = fr;
+		goto exit;
+	}
+
+	/* Offset file */
+	fr = f_lseek(&sd_file, file_offset);
+	if (fr != FR_OK)
+	{
+		msgOut[2] = fr;
+		goto exit;
+	}
+
+	/* Read file */
+	fr = f_read(&sd_file,
+	       &msgOut[4],
+	       MAX_SERIAL_DATA_EXCEPT_CMD - 2,
+	       &bytes_read);
+	if (fr != FR_OK)
+	{
+		msgOut[2] = fr;
+		goto exit;
+	}
+
+	/* Return value to host */
+	msgOut[3] = SD_END;
+	if (bytes_read == (MAX_SERIAL_DATA_EXCEPT_CMD - 2))
+	{
+		msgOut[3] = SD_STILL;
+	}
+	*msgOutLen += bytes_read;
+
+exit:
+	f_close(&sd_file);
 	return MT_SUCCESS;
 }
 

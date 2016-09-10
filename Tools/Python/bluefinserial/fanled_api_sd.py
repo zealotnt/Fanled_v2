@@ -53,9 +53,29 @@ class FanledAPISd():
 		dump_hex(rsp, "Response of inspect: ")
 
 	def Read(self, name):
-		cmd = self.pkt.Packet('\x90', '\x14')
-		rsp = self._datalink.Exchange(cmd)
-		dump_hex(rsp, "Response of read: ")
+		name += '\x00'
+		offset = 0
+		contents = ""
+		while True:
+			argument = struct.pack('<I', offset) + name
+			cmd = self.pkt.Packet('\x90', '\x14', argument)
+			rsp = self._datalink.Exchange(cmd)
+			if rsp is None:
+				return ""
+			if len(rsp) < 3:
+				return ""
+			if rsp[2] != '\x00':
+				print_err("Error when read, code = " + str(ord(rsp[2])))
+				return ""
+
+			# Only processing the text return
+			contents += rsp[4:]
+
+			# If no more content
+			if rsp[3] == '\x00':
+				return contents
+			else:
+				offset = len(contents)
 
 	def Delete(self, name):
 		cmd = self.pkt.Packet('\x90', '\x16')
