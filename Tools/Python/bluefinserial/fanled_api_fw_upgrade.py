@@ -27,10 +27,6 @@ def GetNumOfPacket(path):
 	else:
 		return ((file_size / PACKET_MAX_SIZE) + 1)
 
-def GetFileContent(path):
-	f = open(path, 'rb')
-	return f.read()
-
 #---- CLASSES
 class FanledAPIFwUpgrade():
 	"""

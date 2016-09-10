@@ -1089,15 +1089,19 @@ FRESULT dir_register (	/* FR_OK:Successful, FR_DENIED:No free entry or too many 
 		fn[NS] = sn[NS]; dj->lfn = lfn;
 	}
 
-	if (sn[NS] & NS_LFN)  			/* When LFN is to be created, reserve reserve an SFN + LFN entries. */
-	{
-		for (ne = 0; lfn[ne]; ne++) ;
-		ne = (ne + 25) / 13;
-	}
-	else  						/* Otherwise reserve only an SFN entry. */
-	{
-		ne = 1;
-	}
+	/* zealot modify: force always create lfn entry */
+	for (ne = 0; lfn[ne]; ne++) ;
+	ne = (ne + 25) / 13;
+
+//	if (sn[NS] & NS_LFN)  			/* When LFN is to be created, reserve reserve an SFN + LFN entries. */
+//	{
+//		for (ne = 0; lfn[ne]; ne++) ;
+//		ne = (ne + 25) / 13;
+//	}
+//	else  						/* Otherwise reserve only an SFN entry. */
+//	{
+//		ne = 1;
+//	}
 
 	/* Reserve contiguous entries */
 	res = dir_seek(dj, 0);

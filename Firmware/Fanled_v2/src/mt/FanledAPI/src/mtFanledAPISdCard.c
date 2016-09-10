@@ -43,6 +43,7 @@
 /******************************************************************************/
 /* LOCAL MACRO DEFINITION SECTION                                             */
 /******************************************************************************/
+#define FAT_FS_RETURN_IF_ERR(fr, func, status) fr = func; if (fr != FR_OK) {status = fr; goto exit;}
 
 
 /******************************************************************************/
@@ -88,21 +89,11 @@ mtErrorCode_t mtFanledApiSdListFile(UInt8 *msgIn,
 
 	if (f_mount(0, &gFatFs) == FR_OK)
 	{
-		res = f_opendir(&mydir, "0:\\");
-		if (res != FR_OK)
-		{
-			msgOut[2] = res;
-			goto exit;
-		}
+		FAT_FS_RETURN_IF_ERR(res, f_opendir(&mydir, "0:\\"), msgOut[2]);
 
 		do
 		{
-			res = f_readdir(&mydir, &myfno);
-			if (res != FR_OK)
-			{
-				msgOut[2] = res;
-				goto exit;
-			}
+			FAT_FS_RETURN_IF_ERR(res, f_readdir(&mydir, &myfno), msgOut[2]);
 
 			/* Don't need to get old files */
 			if (i < from_file_num)
@@ -166,7 +157,7 @@ mtErrorCode_t mtFanledApiSdReadFile(UInt8 *msgIn,
 	/* Check input param */
 	file_name_len = strlen((char *)&msgIn[6]);
 
-	/* 2b: Cmd + Ctr code
+	/* 2b: CMD + CTR code
 	 * 4b: File offset
 	 * 1b: Null of filename
 	 * */
@@ -181,31 +172,18 @@ mtErrorCode_t mtFanledApiSdReadFile(UInt8 *msgIn,
 	*msgOutLen = 4;
 
 	/* Open file object */
-	fr = f_open(&sd_file, (char *)&msgIn[6], FA_READ);
-	if (fr != FR_OK)
-	{
-		msgOut[2] = fr;
-		goto exit;
-	}
+	FAT_FS_RETURN_IF_ERR(fr, f_open(&sd_file, (char *)&msgIn[6], FA_READ), msgOut[2]);
 
 	/* Offset file */
-	fr = f_lseek(&sd_file, file_offset);
-	if (fr != FR_OK)
-	{
-		msgOut[2] = fr;
-		goto exit;
-	}
+	FAT_FS_RETURN_IF_ERR(fr, f_lseek(&sd_file, file_offset), msgOut[2]);
 
 	/* Read file */
-	fr = f_read(&sd_file,
-	       &msgOut[4],
-	       MAX_SERIAL_DATA_EXCEPT_CMD - 2,
-	       &bytes_read);
-	if (fr != FR_OK)
-	{
-		msgOut[2] = fr;
-		goto exit;
-	}
+	FAT_FS_RETURN_IF_ERR(fr,
+	                     f_read(&sd_file,
+	                    		 &msgOut[4],
+	                    		 MAX_SERIAL_DATA_EXCEPT_CMD - 2,
+	                    		 &bytes_read),
+	                     msgOut[2]);
 
 	/* Return value to host */
 	msgOut[3] = SD_END;
@@ -225,6 +203,24 @@ mtErrorCode_t mtFanledApiSdDeleleFile(UInt8 *msgIn,
                                       UInt8 *msgOut,
                                       UInt16 *msgOutLen)
 {
+	FRESULT fr;
+	UInt16 file_name_len;
+
+	/* Check input param */
+	file_name_len = strlen((char *)&msgIn[2]);
+
+	/* 2b: CMD + CTR code
+	 * 1b: Null of filename
+	 * */
+	if ((file_name_len + 2 + 1) != msgInLen)
+	{
+		msgOut[2] = API_PARAM_ERROR;
+		goto exit;
+	}
+
+	FAT_FS_RETURN_IF_ERR(fr, f_unlink((char *)&msgIn[2]), msgOut[2]);
+
+exit:
 	return MT_SUCCESS;
 }
 
@@ -233,6 +229,75 @@ mtErrorCode_t mtFanledApiSdWriteFile(UInt8 *msgIn,
                                      UInt8 *msgOut,
                                      UInt16 *msgOutLen)
 {
+	FIL sd_file;
+	FRESULT fr;
+	UInt16 file_name_len;
+	UInt32 file_offset;
+	UInt32 file_content_length;
+	UInt32 file_written;
+
+	/* Check input param */
+	file_name_len = strlen((char *)&msgIn[10]);
+	file_content_length = (UInt32)*((UInt32 *)&msgIn[6]);
+	file_offset = (UInt32)*((UInt32 *)&msgIn[2]);
+
+	/* 2b: CMD + CTR code
+	 * 4b: file offset
+	 * 4b: file content length
+	 * xb: length of file name
+	 * 1b: Null of filename
+	 * xb; file contents
+	 * */
+	if ((2 + 4 + 4 + file_name_len + 1 + file_content_length) != msgInLen)
+	{
+		msgOut[2] = API_PARAM_ERROR;
+		goto exit;
+	}
+
+	FAT_FS_RETURN_IF_ERR(fr, f_mount(0, &gFatFs), msgOut[2]);
+
+	/* Offset = 0 -> create file */
+	if (file_offset == 0)
+	{
+try_open:
+		/* Open file object */
+		fr = f_open(&sd_file, (char *)&msgIn[10], FA_WRITE | FA_CREATE_NEW | FA_CREATE_ALWAYS);
+		if (fr == FR_EXIST)
+		{
+			FAT_FS_RETURN_IF_ERR(fr, f_unlink((char *)&msgIn[10]), msgOut[2]);
+			goto try_open;
+		}
+		if (fr != FR_OK)
+		{
+			msgOut[2] = fr;
+			goto exit;
+		}
+
+		FAT_FS_RETURN_IF_ERR(fr, f_write(&sd_file, &msgIn[11 + file_name_len], file_content_length, &file_written), msgOut[2]);
+	}
+	/* Offset != 0 -> append to file */
+	else
+	{
+		/* Open file object */
+		FAT_FS_RETURN_IF_ERR(fr, f_open(&sd_file, (char *)&msgIn[10], FA_WRITE), msgOut[2]);
+
+		FAT_FS_RETURN_IF_ERR(fr, f_lseek(&sd_file, file_offset), msgOut[2]);
+
+		FAT_FS_RETURN_IF_ERR(fr, f_write(&sd_file, &msgIn[11 + file_name_len], file_content_length, &file_written), msgOut[2]);
+	}
+
+	/* If it can go there, everything is still ok, cleanup and sync */
+	if (file_written != file_content_length)
+	{
+		msgOut[2] = API_SD_DISK_ERR;
+		goto exit;
+	}
+
+	FAT_FS_RETURN_IF_ERR(fr, f_sync(&sd_file), msgOut[2]);
+
+	FAT_FS_RETURN_IF_ERR(fr, f_close(&sd_file), msgOut[2]);
+
+exit:
 	return MT_SUCCESS;
 }
 /************************* End of File ****************************************/

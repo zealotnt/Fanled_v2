@@ -33,6 +33,8 @@ class BluefinserialCommand():
 	def __init__(self):
 		"""
 		"""
+		self.DATA_EXCEPT_CMD = 510
+		self.DATA_CMD_MAX_LEN = 512
 
 	def CheckSum(self, data):
 		crc = crc8()
@@ -49,6 +51,10 @@ class BluefinserialCommand():
 		# 0          1         2            3           4         5:x         x+1
 
 		pkt_len = len(Data) + 2
+		if pkt_len > self.DATA_CMD_MAX_LEN:
+			print_err("Packet build error, packet length too long " + str(pkt_len) + " - maximum: " + str(self.DATA_CMD_MAX_LEN))
+			return ""
+
 		self.pkt = struct.pack('<BBHB', 0x00, 0x35, pkt_len, self.LCS(pkt_len)) + CmdCode + CtrCode + Data
 
 		# Checksum is calculated from LEN TO END

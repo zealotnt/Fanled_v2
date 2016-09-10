@@ -13,6 +13,7 @@ import sys
 import serial
 import struct
 from optparse import OptionParser, OptionGroup
+import readline, glob
 
 sys.path.insert(0, 'bluefinserial')
 from fanled_api_basic import *
@@ -36,6 +37,9 @@ PROG = "send_cmd"
 COPYRIGHT = u"Copyright © 2016"
 
 # ---- GLOBALS
+def complete(text, state):
+	return (glob.glob(text+'*')+[None])[state]
+
 def string_function_parse(argument):
 	switcher = {
 		"basic": basic_api,
@@ -144,8 +148,9 @@ Support comand:
 - ls       : List file
 - ins      : Inspect file
 - r        : Read file's value
-- w        : Write value to file
-- d        : Delete file
+- wr       : Write raw value to file
+- wf       : Write a file in local system to target system
+- rm       : Delete file
 """
 	last_valid_key = ""
 	while True:
@@ -167,10 +172,17 @@ Support comand:
 			file_name = raw_input("File to read: ")
 			contents = fanled_sd_api.Read(file_name)
 			print contents
-		elif user_promt == "w":
-			fanled_sd_api.Delete("abc")
-		elif user_promt == "d":
-			fanled_sd_api.Write("abc")
+		elif user_promt == "wr":
+			file_name = raw_input("File to write: ")
+			file_content = raw_input("Content to write: ")
+			fanled_sd_api.WriteRaw(file_name, file_content)
+		elif user_promt == "wf":
+			file_name = raw_input("File to write: ")
+			file_content = raw_input("Path to local file: ")
+			fanled_sd_api.WriteFile(file_name, file_content)
+		elif user_promt == "rm":
+			file_name = raw_input("File to delete: ")
+			fanled_sd_api.Delete(file_name)
 		else:
 			print "Wrong command, try again:"
 			print HELP
@@ -235,5 +247,10 @@ Application support:
 	if options.app_selected is None:
 		print APP_PROMT
 		sys.exit(1)
+
+	# Auto complete setting for user input
+	readline.set_completer_delims(' \t\n;')
+	readline.parse_and_bind("tab: complete")
+	readline.set_completer(complete)
 
 	string_function_parse(options.app_selected)

@@ -117,3 +117,7 @@ def get_fullpath(file_dir, file_name):
 
 def dump_hex(data, desc_str = ""):
     print desc_str + binascii.hexlify(data)
+
+def GetFileContent(path):
+    f = open(path, 'rb')
+    return f.read()

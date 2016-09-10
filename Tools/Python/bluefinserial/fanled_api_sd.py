@@ -78,11 +78,62 @@ class FanledAPISd():
 				offset = len(contents)
 
 	def Delete(self, name):
-		cmd = self.pkt.Packet('\x90', '\x16')
+		name += '\x00'
+		cmd = self.pkt.Packet('\x90', '\x16', name)
 		rsp = self._datalink.Exchange(cmd)
-		dump_hex(rsp, "Response of delete: ")
+		if rsp is None:
+			return False
+		if len(rsp) < 3:
+			return False
+		if rsp[2] != '\x00':
+			print_err("Error when delete, code = " + str(ord(rsp[2])))
+			return False
 
-	def Write(self, name):
-		cmd = self.pkt.Packet('\x90', '\x18')
+		return True
+
+	def WriteRaw(self, name, content):
+		offset = 0
+		name += '\x00'
+		argument = struct.pack('<II', offset, len(content)) + name + content
+		cmd = self.pkt.Packet('\x90', '\x18', argument)
 		rsp = self._datalink.Exchange(cmd)
 		dump_hex(rsp, "Response of write: ")
+
+	def WriteFile(self, file_name, file_path):
+		# 2b: CMD + CTR code
+		# 4b: file offset
+		# 4b: file content length
+		# xb: length of file name
+		# 1b: Null of filename
+		# xb; file contents
+		MAX_CONTENT_IN_FILE = self.pkt.DATA_CMD_MAX_LEN - 2 - 4 - 4 - len(file_name) - 1
+
+		last_packet = False
+		offset = 0
+		file_name += '\x00'
+		content = GetFileContent(file_path)
+		while True:
+			if offset + MAX_CONTENT_IN_FILE > len(content):
+				content_to_send = content[offset:]
+				last_packet = True
+			else:
+				content_to_send = content[offset:offset+MAX_CONTENT_IN_FILE]
+
+			argument = struct.pack('<II', offset, len(content_to_send)) + file_name + content_to_send
+			cmd = self.pkt.Packet('\x90', '\x18', argument)
+
+			rsp = self._datalink.Exchange(cmd)
+			if rsp is None:
+				return False
+			if len(rsp) < 3:
+				return False
+			if rsp[2] != '\x00':
+				print_err("Error when write, code = " + str(ord(rsp[2])))
+				return False
+
+			# If no more content
+			if last_packet == True :
+				dump_hex(rsp, "Response of write file: ")
+				return True
+			else:
+				offset += MAX_CONTENT_IN_FILE
