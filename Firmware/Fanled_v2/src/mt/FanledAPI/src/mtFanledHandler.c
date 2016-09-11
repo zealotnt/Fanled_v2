@@ -26,6 +26,9 @@
 #include "UartHandler/inc/mtSerialPorting.h"
 #include "../inc/mtFanledHandler.h"
 #include "../inc/mtFanledAPICode.h"
+#include "../inc/mtFanledAPISdCard.h"
+#include "../inc/mtFanledAPIBasic.h"
+#include "../inc/mtFanledAPIFwUpgrade.h"
 
 #include <string.h>
 
@@ -70,10 +73,18 @@ const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 	{CMD_CODE_BASIC,	CTR_CODE_GETSET_RTC,		mtFanledApiGetSetRTC},
 	{CMD_CODE_BASIC,	CTR_CODE_HARDFAULT,			mtFanledApiHardFault},
 
+	{CMD_CODE_SD,	CTR_CODE_LIST_FILE,				mtFanledApiSdListFile},
+	{CMD_CODE_SD,	CTR_CODE_INSPECT_FILE,			mtFanledApiSdInspect},
+	{CMD_CODE_SD,	CTR_CODE_READ_FILE,				mtFanledApiSdReadFile},
+	{CMD_CODE_SD,	CTR_CODE_DELETE_FILE,			mtFanledApiSdDeleleFile},
+	{CMD_CODE_SD,	CTR_CODE_WRITE_FILE,			mtFanledApiSdWriteFile},
+	{CMD_CODE_SD,	CTR_CODE_FILE_CHECKSUM_MD5,		mtFanledApiSdCheckFileMd5},
+
 #endif
 	/* Common API for both Bootloader and Application */
 	{CMD_CODE_BASIC,	CTR_CODE_GETVERSION,		mtFanledApiGetFirmwareVersion},
 	{CMD_CODE_BASIC, 	CTR_CODE_PROTOCOL_TEST, 	mtFanledApiProtocolTest},
+	{CMD_CODE_BASIC, 	CTR_CODE_GET_DBG_VAR, 		mtFanledApiGetDbgVar},
 	{0, 0, Null},
 };
 #define SERIAL_APP_API_TABLE_LEN		MT_ARRAY_SIZE(gSerialReaderHandlerTable)

@@ -33,7 +33,9 @@ class BluefinserialCommand():
 	def __init__(self):
 		"""
 		"""
-		
+		self.DATA_EXCEPT_CMD = 510
+		self.DATA_CMD_MAX_LEN = 512
+
 	def CheckSum(self, data):
 		crc = crc8()
 		val = crc.crc(data)
@@ -49,8 +51,12 @@ class BluefinserialCommand():
 		# 0          1         2            3           4         5:x         x+1
 
 		pkt_len = len(Data) + 2
+		if pkt_len > self.DATA_CMD_MAX_LEN:
+			print_err("Packet build error, packet length too long " + str(pkt_len) + " - maximum: " + str(self.DATA_CMD_MAX_LEN))
+			return ""
+
 		self.pkt = struct.pack('<BBHB', 0x00, 0x35, pkt_len, self.LCS(pkt_len)) + CmdCode + CtrCode + Data
-		
+
 		# Checksum is calculated from LEN TO END
 		self.pkt += self.CheckSum(self.pkt[2:])
 		return self.pkt
@@ -116,7 +122,7 @@ class BluefinserialSend():
 		# Get respone packet
 		ret = self.GetResponse(self._ack_remain)
 
-		# If receive ACK, but not receive Response successfully, 
+		# If receive ACK, but not receive Response successfully,
 		# send NACK, then wait for try-again-response paket
 		if ret == False:
 			retry = 0
@@ -146,7 +152,7 @@ class BluefinserialSend():
 				print_err("Response's Command code not match, the command may is not supported, refuse response packet")
 			else:
 				print_err("Not regconize response, refuse response packet")
-			return None			
+			return None
 		return self._response
 
 	def GetACK(self):
@@ -187,7 +193,7 @@ class BluefinserialSend():
 		while True:
 			time_check = float(time.time() * 1000)
 
-			if (len(partial_packet) >= 2 and 
+			if (len(partial_packet) >= 2 and
 				STATE == 0):
 				if FI_HDR == partial_packet[:2]:
 					STATE = 1
@@ -195,7 +201,7 @@ class BluefinserialSend():
 				else:
 					print_err_dump(partial_packet, "Wrong Rsp header, return")
 					return False
-			if (len(partial_packet) >= 3 and 
+			if (len(partial_packet) >= 3 and
 				STATE == 1):
 				if ((ord(partial_packet[0]) ^ ord(partial_packet[1])) != ord(partial_packet[2])):
 					print_err_dump(partial_packet, "LCS not equal Lm ^ Ll, return")
@@ -204,20 +210,20 @@ class BluefinserialSend():
 				pkt_frame_len = partial_packet[:3]
 				partial_packet = partial_packet[3:]
 				STATE = 2
-			if (len(partial_packet) >= pkt_len and 
+			if (len(partial_packet) >= pkt_len and
 				STATE == 2):
 				pkt_frame_data = partial_packet[:pkt_len]
 				STATE = 3
-			if (len(partial_packet) == (pkt_len + 1) and 
+			if (len(partial_packet) == (pkt_len + 1) and
 				STATE == 3):
 				crc = crc8()
 				val = crc.crc(pkt_frame_len + pkt_frame_data)
 				if chr(val) != partial_packet[len(pkt_frame_data)]:
 					print_err_dump(partial_packet, "Wrong CRC8 checksum")
 					return False
-				self._response = pkt_frame_data	
+				self._response = pkt_frame_data
 				return True
-			
+
 			waiting = self._port.inWaiting()
 			read_bytes = self._port.read(1 if waiting == 0 else waiting)
 

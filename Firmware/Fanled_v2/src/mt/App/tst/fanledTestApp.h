@@ -56,6 +56,7 @@
 int mainTestHC05(void);
 int mainTestRTC(void);
 
+void FanledTestCurve();
 void FanledTestPicture(void);
 void FanledTestColor(void);
 void FanledTestHSVCircle(void);

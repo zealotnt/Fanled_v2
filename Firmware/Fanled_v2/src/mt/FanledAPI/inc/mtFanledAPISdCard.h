@@ -5,20 +5,21 @@
 ** Supported MCUs      : STM32F
 ** Supported Compilers : GCC
 **------------------------------------------------------------------------------
-** File name         : mtFanledDisplay.h
+** File name         : mtFanledAPISdCard.h
 **
-** Module name       : Effects
+** Module name       : FanledAPI
 **
 **
 ** Summary:
 **
 **= History ====================================================================
-** - Creation
+** @date 	Sep 5, 2016
+** @author	zealot
 ** - Development
 ==============================================================================*/
 
-#ifndef MTFANLEDDISPLAY_H_
-#define MTFANLEDDISPLAY_H_
+#ifndef MTFANLEDAPISDCARD_H_
+#define MTFANLEDAPISDCARD_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -28,8 +29,7 @@ extern "C"
 /*****************************************************************************/
 /* INCLUSIONS                                                                */
 /*****************************************************************************/
-#include <stdbool.h>
-#include <stdint.h>
+#include "mtInclude.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -39,63 +39,12 @@ extern "C"
 /*****************************************************************************/
 /* DEFINITION OF CONSTANTS                                                   */
 /*****************************************************************************/
-#define FANLED_RESOLUTION			240
-#define DISPLAY_SIZE				FANLED_RESOLUTION
 
-#define COLOR_BLACK					0x00
-#define COLOR_RED_MAX				0xf800
-#define COLOR_BLUE_MAX				0x1f
-#define COLOR_GREEN_MAX				0x7e0
-#define COLOR_ORANGE_MAX			0xfbe0
-#define COLOR_YELLOW_MAX			0xffe0
-#define COLOR_VIOLET_MAX			0x781f
-
-#define CALENDAR_SECOND_STICK_COLOR			COLOR_RED_MAX
-#define CALENDAR_MINUTE_STICK_COLOR			COLOR_GREEN_MAX
-#define CALENDAR_HOUR_STICK_COLOR			COLOR_BLUE_MAX
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
 /*****************************************************************************/
-typedef enum sharinganFlag
-{
-	STATE_ENABLE,
-	STATE_DISABLE
-} sharinganFlag_t;
 
-typedef struct
-{
-	uint16_t Red;
-	uint16_t Green;
-	uint16_t Blue;
-} rgb_t;
-
-typedef struct
-{
-	uint16_t	dis[FANLED_RESOLUTION][32];
-	uint16_t 	pos;
-
-	//variable of scroll
-	uint16_t 	scroll_times, pos_char;
-
-	//variable of puts, putc
-	uint8_t 	numOfchar, enable_flag, move_flag, section_of_char;
-	uint8_t 	rtc_flag;
-
-	//variable of position of dual display
-	uint8_t 	pos_now_inner, pos_now_outer;
-	uint8_t 	mode;
-
-	uint8_t 	animation;
-	uint8_t 	animation_old;
-	uint32_t 	animation_change_speed;
-
-	//using for naruto effect
-	uint32_t 		sharingan_count;
-	sharinganFlag_t sharingan_flag;
-	uint32_t 		misc_count;
-	uint8_t 		misc_flag;
-} Display_Type;
 
 /*****************************************************************************/
 /* DEFINITION OF MACROS                                                      */
@@ -110,14 +59,38 @@ typedef struct
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-void mtFanledSendLineBuffer();
-void blankAllLed(void);
-void LED_BLANK();
-void LED_UNBLANK();
-void LED_LATCH();
+mtErrorCode_t mtFanledApiSdListFile(UInt8 *msgIn,
+                                    UInt16 msgInLen,
+                                    UInt8 *msgOut,
+                                    UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiSdInspect(UInt8 *msgIn,
+                                   UInt16 msgInLen,
+                                   UInt8 *msgOut,
+                                   UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiSdReadFile(UInt8 *msgIn,
+                                    UInt16 msgInLen,
+                                    UInt8 *msgOut,
+                                    UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiSdDeleleFile(UInt8 *msgIn,
+                                      UInt16 msgInLen,
+                                      UInt8 *msgOut,
+                                      UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiSdWriteFile(UInt8 *msgIn,
+                                     UInt16 msgInLen,
+                                     UInt8 *msgOut,
+                                     UInt16 *msgOutLen);
+
+mtErrorCode_t mtFanledApiSdCheckFileMd5(UInt8 *msgIn,
+                                        UInt16 msgInLen,
+                                        UInt8 *msgOut,
+                                        UInt16 *msgOutLen);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MTFANLEDDISPLAY_H_ */
+#endif /* MTFANLEDAPISDCARD_H_ */

@@ -57,6 +57,9 @@
 #define FANLED_HALLSENSOR_PORT			GPIOB
 #define FANLED_HALLSENSOR_PIN			GPIO_Pin_3
 #define FANLED_HALLSENSOR_NVIC_IRQ		EXTI3_IRQn
+
+#define LFN_MAX_LEN						64
+
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
 /*****************************************************************************/

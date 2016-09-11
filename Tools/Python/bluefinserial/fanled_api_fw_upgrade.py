@@ -27,10 +27,6 @@ def GetNumOfPacket(path):
 	else:
 		return ((file_size / PACKET_MAX_SIZE) + 1)
 
-def GetFileContent(path):
-	f = open(path, 'rb')
-	return f.read()
-
 #---- CLASSES
 class FanledAPIFwUpgrade():
 	"""
@@ -59,7 +55,7 @@ class FanledAPIFwUpgrade():
 		elif firmware_type == "bl":
 			cmd = pkt.Packet('\x8b', '\x46')
 		else:
-			print_err("Invalid firmware_type")		
+			print_err("Invalid firmware_type")
 
 		rsp = ''
 		rsp = self._datalink.Exchange(cmd)
@@ -139,7 +135,7 @@ class FanledAPIFwUpgrade():
 			return False
 		if len(rsp) < 3:
 			print_err("Checksum: " + firmware_type + " response packet not expected")
-			return False			
+			return False
 		if rsp[2] == '\x00':
 			print_ok("Firmware " + firmware_type + " checksum passed")
 		else:
@@ -178,7 +174,7 @@ class FanledAPIFwUpgrade():
 			return
 		if len(rsp) != 4:
 			print_err("Response len not expected = " + str(len(rsp)) + " should be = 4")
-			return			
+			return
 		if rsp[3] == '\x00':
 			print_ok("Fanled: No error")
 			return

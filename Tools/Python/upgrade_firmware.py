@@ -32,17 +32,17 @@ if __name__ == "__main__":
 
 	parser = OptionParser()
 
-	parser.add_option(  "-s", "--serial", 
-						dest="serial", 
-						type="string", 
+	parser.add_option(  "-s", "--serial",
+						dest="serial",
+						type="string",
 						help="define the serial port to use")
-	parser.add_option(  "-f", "--file", 
-						dest="firmware_file", 
-						type="string", 
+	parser.add_option(  "-f", "--file",
+						dest="firmware_file",
+						type="string",
 						help="define the file path to firmware")
-	parser.add_option(  "-t", "--type", 
-						dest="firmware_type", 
-						type="string", 
+	parser.add_option(  "-t", "--type",
+						dest="firmware_type",
+						type="string",
 						help="define the firmware type to upgrade")
 	(options, args) = parser.parse_args()
 
@@ -50,10 +50,10 @@ if __name__ == "__main__":
 		serial = options.serial
 	else:
 		serial = BLUEFINSERIAL_DEFAULT_SERIAL_PORT
-		print_ok("No serial port specified, use " + 
-			BLUEFINSERIAL_DEFAULT_SERIAL_PORT + 
-			" with baudrate = " + 
-			str(BLUEFINSERIAL_BAUDRATE) + 
+		print_ok("No serial port specified, use " +
+			BLUEFINSERIAL_DEFAULT_SERIAL_PORT +
+			" with baudrate = " +
+			str(BLUEFINSERIAL_BAUDRATE) +
 			" as default")
 
 	if options.firmware_type is None:

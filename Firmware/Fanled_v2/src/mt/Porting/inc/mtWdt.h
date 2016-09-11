@@ -60,6 +60,7 @@ extern "C"
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
 void mtWdtInit();
+void mtWdtDisable();
 void mtWdtFeed();
 Bool mtWdtCheckTriggered();
 

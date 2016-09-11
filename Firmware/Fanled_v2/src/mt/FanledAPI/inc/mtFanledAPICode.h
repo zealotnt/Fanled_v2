@@ -42,6 +42,9 @@ extern "C"
 /*****************************************************************************/
 #define MT_DATA_RES_LEN_MIN				3
 
+/*********************************************/
+/*              CMD_CODE_BASIC API           */
+/*********************************************/
 #define CMD_CODE_BASIC				0x8B
 
 #define CTR_CODE_GETVERSION			0x00
@@ -60,6 +63,20 @@ extern "C"
 /* free to add */
 #define CTR_CODE_PROTOCOL_TEST		0x70
 #define CTR_CODE_HARDFAULT			0x72
+#define CTR_CODE_GET_DBG_VAR		0x74
+/*********************************************/
+
+/*********************************************/
+/*              CMD_CODE_SD API              */
+/*********************************************/
+#define CMD_CODE_SD					0x90
+
+#define CTR_CODE_LIST_FILE			0x10
+#define CTR_CODE_INSPECT_FILE		0x12
+#define CTR_CODE_READ_FILE			0x14
+#define CTR_CODE_DELETE_FILE		0x16
+#define CTR_CODE_WRITE_FILE			0x18
+#define CTR_CODE_FILE_CHECKSUM_MD5	0x20
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
@@ -70,6 +87,9 @@ typedef enum
 	API_COMMAND_EXECUTE_SUCCESS			= 0x00, /*!<  Command executed successfully */
 	API_COMMAND_EXECUTE_FAIL			= 0xFF, /*!<  Command execution failed */
 	API_PARAM_ERROR						= 0xFE, /*!<  Invalid value of a command parameter */
+
+	API_SD_DISK_ERR						= 0x20, /*!<  SD card disk error */
+
 	API_CHECK_CRC_ERROR					= 0xC1, /*!<  CRC check error */
 	API_COMMAND_NOT_SUPPORTED			= 0xBE, /*!<  Command not supported */
 } mtFanledApiResultCode;

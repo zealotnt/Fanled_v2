@@ -13,10 +13,12 @@ import sys
 import serial
 import struct
 from optparse import OptionParser, OptionGroup
+import readline, glob
 
 sys.path.insert(0, 'bluefinserial')
 from fanled_api_basic import *
 from fanled_api_fw_upgrade import *
+from fanled_api_sd import *
 from datalink_deliver import *
 from scan import scan
 from utils import *
@@ -35,12 +37,17 @@ PROG = "send_cmd"
 COPYRIGHT = u"Copyright © 2016"
 
 # ---- GLOBALS
+def complete(text, state):
+	return (glob.glob(text+'*')+[None])[state]
+
 def string_function_parse(argument):
 	switcher = {
 		"basic": basic_api,
 		"1"    : basic_api,
 		"upg"  : fw_upg_api,
 		"2"    : fw_upg_api,
+		"sd"   : fw_sd_api,
+		"3"    : fw_sd_api,
 	}
 	# Get the function from switcher dictionary
 	func = switcher.get(argument, lambda: "not found")
@@ -59,10 +66,15 @@ Support comand:
 - hf       : cause device to hardfault (for WDT testing)
 - le       : Get fanled bootloader last err
 - e_bl     : Jump back from application to bootloader
+- dbg      : Get debug var from Fanled
 """
-
+	last_valid_key = ""
 	while True:
 		user_promt = raw_input(PROMT)
+		# If user use up arrow, re-issue last command
+		if user_promt == '\x1b[A':
+			user_promt = last_valid_key
+
 		if user_promt == "gt":
 			rtc_get_val = fanled_basic_api.GetFanledUnixTime()
 			print "rtc return from fanled: " + str(rtc_get_val)
@@ -78,8 +90,12 @@ Support comand:
 			fanled_fw_upgrade.GetLastErr()
 		elif user_promt == "e_bl":
 			fanled_fw_upgrade.UpgradeRequest()
+		elif user_promt == "dbg":
+			fanled_basic_api.GetDbgVar()
 		else:
-			print HELP	
+			print HELP
+			continue
+		last_valid_key = user_promt
 
 def fw_upg_api():
 	# Fw upgrade test suite
@@ -117,34 +133,88 @@ Support comand:
 		elif user_promt == "up" or user_promt == "u":
 			fanled_fw_upgrade.UpgradeRequest()
 		elif user_promt == "le":
-			fanled_fw_upgrade.GetLastErr()			
+			fanled_fw_upgrade.GetLastErr()
 		else:
 			print HELP
 
+def fw_sd_api():
+	# Fw sd test suite
+	print_ok("Sd card application selected")
+	PROMT = u"Input your command:"
+	HELP = u"""
+Support comand:
+- ver      : Get firmware version
+- le       : Get fanled bootloader last err
+- ls       : List file
+- ins      : Inspect file
+- r        : Read file's value
+- wr       : Write raw value to file
+- wf       : Write a file in local system to target system
+- rm       : Delete file
+- md5      : Calculate md5 of file in target system
+"""
+	last_valid_key = ""
+	while True:
+		user_promt = raw_input(PROMT)
+		# If user use up arrow, re-issue last command
+		if user_promt == '\x1b[A':
+			user_promt = last_valid_key
+
+		if user_promt == "ver":
+			fanled_basic_api.GetFirmwareVersion()
+		elif user_promt == "le":
+			fanled_fw_upgrade.GetLastErr()
+		elif user_promt == "ls":
+			list_files = fanled_sd_api.Ls()
+			print list_files
+		elif user_promt == "ins":
+			fanled_sd_api.Inspect("abc")
+		elif user_promt == "r":
+			file_name = raw_input("File to read: ")
+			contents = fanled_sd_api.Read(file_name)
+			print contents
+		elif user_promt == "wr":
+			file_name = raw_input("File to write to target device: ")
+			file_content = raw_input("Content to write: ")
+			fanled_sd_api.WriteRaw(file_name, file_content)
+		elif user_promt == "wf":
+			file_name = raw_input("File to write to target device: ")
+			file_content = raw_input("Path to local file: ")
+			fanled_sd_api.WriteFile(file_name, file_content)
+		elif user_promt == "rm":
+			file_name = raw_input("File to delete: ")
+			fanled_sd_api.Delete(file_name)
+		elif user_promt == "md5":
+			file_name = raw_input("File to checksum: ")
+			checksum = fanled_sd_api.GetFileMd5(file_name)
+			dump_hex(checksum, "Checksum = ")
+		else:
+			print "Wrong command, try again:"
+			print HELP
+			continue
+		last_valid_key = user_promt
 # ---- MAIN
-
 if __name__ == "__main__":
-
 	return_code = 0
 
 	parser = OptionParser()
 
-	parser.add_option(  "-s", "--serial", 
-						dest="serial", 
-						type="string", 
+	parser.add_option(  "-s", "--serial",
+						dest="serial",
+						type="string",
 						help="define the serial port to use")
-	parser.add_option(  "-v", "--verbose", 
-						action="count", 
-						dest="verbose", 
+	parser.add_option(  "-v", "--verbose",
+						action="count",
+						dest="verbose",
 						help="enable verbose mode")
-	parser.add_option(  "-l", "--list-serial", 
-						action="store_true", 
-						dest="list_serial", 
-						default=False, 
+	parser.add_option(  "-l", "--list-serial",
+						action="store_true",
+						dest="list_serial",
+						default=False,
 						help="display available serial ports")
-	parser.add_option(  "-a", "--app-select", 
+	parser.add_option(  "-a", "--app-select",
 						dest="app_selected",
-						type="string", 
+						type="string",
 						help="application to select")
 
 	(options, args) = parser.parse_args()
@@ -169,6 +239,7 @@ if __name__ == "__main__":
 
 	fanled_basic_api = FanledAPIBasic(comm)
 	fanled_fw_upgrade = FanledAPIFwUpgrade(comm)
+	fanled_sd_api = FanledAPISd(comm)
 
 	APP_PROMT = u"""No application selected !!!
 To choose application:
@@ -176,9 +247,15 @@ To choose application:
 Application support:
 	basic | 1        : basic fanled api
 	upg   | 2        : fanled firmware upgrade api
+	sd    | 3        : fanled sd card api
 """
 	if options.app_selected is None:
 		print APP_PROMT
 		sys.exit(1)
+
+	# Auto complete setting for user input
+	readline.set_completer_delims(' \t\n;')
+	readline.parse_and_bind("tab: complete")
+	readline.set_completer(complete)
 
 	string_function_parse(options.app_selected)
