@@ -9,6 +9,7 @@ import struct
 import binascii
 import time
 import datetime
+import hashlib
 
 from crc8 import crc8
 from utils import *
@@ -103,7 +104,7 @@ class FanledAPISd():
 		# 2b: CMD + CTR code
 		# 4b: file offset
 		# 4b: file content length
-		# xb: length of file name
+		# xb: file name
 		# 1b: Null of filename
 		# xb; file contents
 		MAX_CONTENT_IN_FILE = self.pkt.DATA_CMD_MAX_LEN - 2 - 4 - 4 - len(file_name) - 1
@@ -133,7 +134,33 @@ class FanledAPISd():
 
 			# If no more content
 			if last_packet == True :
-				dump_hex(rsp, "Response of write file: ")
-				return True
+				# Check md5 of written file
+				file_without_null = file_name[:len(file_name) - 1]
+				checksum = self.GetFileMd5(file_without_null)
+				if checksum.encode("hex") == hashlib.md5(open(file_path,'rb').read()).hexdigest():
+					print_ok("File download and checksum ok")
+					return True
+				print_err("File download but checksum fail")
+				return False
 			else:
 				offset += MAX_CONTENT_IN_FILE
+
+	def GetFileMd5(self, file_name):
+		# 2b: CMD + CTR code
+		# xb: file name
+		# 1b: Null of filename
+		file_name += '\x00'
+		cmd = self.pkt.Packet('\x90', '\x20', file_name)
+		rsp = self._datalink.Exchange(cmd)
+		if rsp is None:
+			return ""
+		if len(rsp) < 3:
+			return ""
+		if rsp[2] != '\x00':
+			print_err("Error when get md5, code = " + str(ord(rsp[2])))
+			return ""
+
+		if len(rsp[3:]) != 16:
+			print_err("Wrong md5 len returned")
+			return ""
+		return rsp[3:]

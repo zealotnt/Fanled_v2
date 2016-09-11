@@ -28,6 +28,7 @@
 #include "ff.h"
 #include "App/inc/mtAppDef.h"
 #include "UartHandler/inc/mtSerialCmdParser.h"
+#include "Utility/inc/md5.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -298,6 +299,64 @@ try_open:
 	FAT_FS_RETURN_IF_ERR(fr, f_close(&sd_file), msgOut[2]);
 
 exit:
+	return MT_SUCCESS;
+}
+
+mtErrorCode_t mtFanledApiSdCheckFileMd5(UInt8 *msgIn,
+                                        UInt16 msgInLen,
+                                        UInt8 *msgOut,
+                                        UInt16 *msgOutLen)
+{
+	FIL sd_file;
+	FRESULT fr;
+	UInt16 file_name_len;
+	UInt32 bytes_read;
+	mbedtls_md5_context ctx;
+	UInt8 md5_result[16];
+
+	/* Check input param */
+	file_name_len = strlen((char *)&msgIn[2]);
+	/* 2b: CMD + CTR code
+	 * xb: length of file name
+	 * 1b: Null of filename
+	 * */
+	if ((2 + file_name_len + 1) != msgInLen)
+	{
+		msgOut[2] = API_PARAM_ERROR;
+		goto exit;
+	}
+
+	FAT_FS_RETURN_IF_ERR(fr, f_mount(0, &gFatFs), msgOut[2]);
+
+	/* Open file object */
+	FAT_FS_RETURN_IF_ERR(fr, f_open(&sd_file, (char *)&msgIn[2], FA_READ), msgOut[2]);
+
+	/* Init md5 calculation */
+	mbedtls_md5_init(&ctx);
+	mbedtls_md5_starts(&ctx);
+
+	/* Loop through file and calculate the CRC value */
+	do
+	{
+		FAT_FS_RETURN_IF_ERR(fr,
+		                     f_read(&sd_file,
+		                    		 &msgOut[2],
+		                    		 MAX_SERIAL_DATA_EXCEPT_CMD - 1,
+		                    		 &bytes_read),
+		                     msgOut[2]);
+
+		mbedtls_md5_update(&ctx, &msgOut[2], bytes_read);
+	}
+	while (bytes_read != 0);
+
+	msgOut[2] = API_COMMAND_EXECUTE_SUCCESS;
+	mbedtls_md5_finish(&ctx, md5_result);
+	memcpy(&msgOut[3], md5_result, sizeof(md5_result));
+	*msgOutLen = sizeof(md5_result) + 3;
+	mbedtls_md5_free(&ctx);
+
+exit:
+	f_close(&sd_file);
 	return MT_SUCCESS;
 }
 /************************* End of File ****************************************/

@@ -151,6 +151,7 @@ Support comand:
 - wr       : Write raw value to file
 - wf       : Write a file in local system to target system
 - rm       : Delete file
+- md5      : Calculate md5 of file in target system
 """
 	last_valid_key = ""
 	while True:
@@ -173,16 +174,20 @@ Support comand:
 			contents = fanled_sd_api.Read(file_name)
 			print contents
 		elif user_promt == "wr":
-			file_name = raw_input("File to write: ")
+			file_name = raw_input("File to write to target device: ")
 			file_content = raw_input("Content to write: ")
 			fanled_sd_api.WriteRaw(file_name, file_content)
 		elif user_promt == "wf":
-			file_name = raw_input("File to write: ")
+			file_name = raw_input("File to write to target device: ")
 			file_content = raw_input("Path to local file: ")
 			fanled_sd_api.WriteFile(file_name, file_content)
 		elif user_promt == "rm":
 			file_name = raw_input("File to delete: ")
 			fanled_sd_api.Delete(file_name)
+		elif user_promt == "md5":
+			file_name = raw_input("File to checksum: ")
+			checksum = fanled_sd_api.GetFileMd5(file_name)
+			dump_hex(checksum, "Checksum = ")
 		else:
 			print "Wrong command, try again:"
 			print HELP

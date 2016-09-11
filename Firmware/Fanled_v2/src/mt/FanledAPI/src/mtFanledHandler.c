@@ -78,6 +78,7 @@ const mtSerialAppAPIHandler gSerialReaderHandlerTable[] =
 	{CMD_CODE_SD,	CTR_CODE_READ_FILE,				mtFanledApiSdReadFile},
 	{CMD_CODE_SD,	CTR_CODE_DELETE_FILE,			mtFanledApiSdDeleleFile},
 	{CMD_CODE_SD,	CTR_CODE_WRITE_FILE,			mtFanledApiSdWriteFile},
+	{CMD_CODE_SD,	CTR_CODE_FILE_CHECKSUM_MD5,		mtFanledApiSdCheckFileMd5},
 
 #endif
 	/* Common API for both Bootloader and Application */

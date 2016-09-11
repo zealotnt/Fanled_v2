@@ -76,6 +76,7 @@ extern "C"
 #define CTR_CODE_READ_FILE			0x14
 #define CTR_CODE_DELETE_FILE		0x16
 #define CTR_CODE_WRITE_FILE			0x18
+#define CTR_CODE_FILE_CHECKSUM_MD5	0x20
 
 /*****************************************************************************/
 /* DEFINITION OF TYPES                                                       */
