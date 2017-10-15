@@ -48,7 +48,7 @@
 /*****************************************************************************/
 /* DECLARATION OF VARIABLES (Only external global variables)                 */
 /*****************************************************************************/
-extern const uint16_t rgb[240][32];
+extern const uint16_t img_rgb[240][32];
 
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */

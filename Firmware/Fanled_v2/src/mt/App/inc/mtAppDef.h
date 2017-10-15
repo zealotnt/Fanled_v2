@@ -47,10 +47,6 @@
 #define JUST_RESET				100
 #define STATE_FREST				255
 
-#define RTC_UPDATE				5
-#define RTC_WAIT				6
-#define RTC_ENBALE				7
-
 #define ANIMATION_IMAGE					ANIMATION_1
 #define ANIMATION_CALENDAR				ANIMATION_2
 #define ANIMATION_VALENTINE				ANIMATION_3
@@ -62,7 +58,7 @@
 #define ANIMATION_4				4
 #define ANIMATION_5				5
 
-#define MAX_ANIMATION			3
+#define MAX_ANIMATION			2
 #define ANIMATION_CHANGE_SPEED	15000
 
 /* These definition works for Sharingan Effect*/

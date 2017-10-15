@@ -56,6 +56,7 @@ typedef struct
 	uint8_t   weekday;
 	uint8_t   yearday;
 	uint8_t   isdst;
+	bool isUpdated;
 } sytemdate_t;
 
 /*****************************************************************************/

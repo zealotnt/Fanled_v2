@@ -80,7 +80,6 @@ typedef struct
 
 	//variable of puts, putc
 	uint8_t 	numOfchar, enable_flag, move_flag, section_of_char;
-	uint8_t 	rtc_flag;
 
 	//variable of position of dual display
 	uint8_t 	pos_now_inner, pos_now_outer;

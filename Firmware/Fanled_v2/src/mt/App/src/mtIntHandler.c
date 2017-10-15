@@ -112,13 +112,13 @@ void mtSystickHandler(void)
 
 	if (Timing_Count > Fanled_Display.sharingan_count)
 	{
-		Fanled_Display.sharingan_flag = ENABLE;
+		Fanled_Display.sharingan_flag = STATE_ENABLE;
 		Fanled_Display.sharingan_count += SHARINGAN_CHANGE_SPEED;
 	}
 
 	if (Timing_Count > Fanled_Display.misc_count)
 	{
-		Fanled_Display.misc_flag = ENABLE;
+		Fanled_Display.misc_flag = STATE_ENABLE;
 		Fanled_Display.misc_count += MISC_CHANGE_SPEED;
 	}
 #endif

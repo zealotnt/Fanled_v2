@@ -338,6 +338,7 @@ void stmRtcUpdate(void)
 		sys_date.year   = (uint16_t)pLocalTime->tm_year + 1900;	/* years since 1900                 */
 		sys_date.month  = (uint8_t)pLocalTime->tm_mon;			/* months since January (0,11)      */
 		sys_date.day    = (uint8_t)pLocalTime->tm_mday;			/* days since January 1 (0,365)     */
+		sys_date.isUpdated = true;
 		/* Clear the RTC Second interrupt */
 		RTC_ClearITPendingBit(RTC_IT_SEC);
 	}

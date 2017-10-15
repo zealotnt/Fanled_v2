@@ -25,5 +25,6 @@
 #endif
 
 #define WDT_ENABLE							0
+#define LOAD_IMAGE_TO_FLASH					0
 
 #endif /* MTCOMPILESWITCH_H_ */

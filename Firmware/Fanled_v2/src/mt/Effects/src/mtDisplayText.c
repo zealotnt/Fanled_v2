@@ -187,7 +187,7 @@ void updatePanel16b(uint16_t *input_color, bool blank)
 			assignLed16b(*input_color, i);
 		}
 	}
-	else
+	else if (input_color != 0)
 	{
 		for (i = 0; i < 32; i++)
 		{

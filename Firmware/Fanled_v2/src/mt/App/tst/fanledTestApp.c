@@ -26,6 +26,7 @@
 #include "Effects/inc/mtCalendar.h"
 #include "Effects/inc/mtIncludeEffects.h"
 #include "Effects/inc/mtFanledDisplay.h"
+#include "Effects/inc/image_data.h"
 #include "Bluetooth/inc/bluetooth.h"
 #include "Porting/inc/mtWdt.h"
 #include "FanledAPI/inc/mtFanledAPIBasic.h"
@@ -85,12 +86,12 @@ void test_curve_cb(void *param)
 #define CURVE_COLOR				COLOR_ORANGE_MAX
 	UInt16 buff_color[32] = {COLOR_BLACK};
 
-	if(gDisplayEnable == 1)
+	if (gDisplayEnable == 1)
 	{
-		if(gCurrent_point < FANLED_RESOLUTION)
+		if (gCurrent_point < FANLED_RESOLUTION)
 		{
 			if (gCurrent_point >= CURVE_START_POS &&
-					gCurrent_point <= CURVE_END_POS)
+			        gCurrent_point <= CURVE_END_POS)
 			{
 				memset(buff_color, CURVE_COLOR, sizeof(buff_color));
 				LED_LATCH();
@@ -117,7 +118,7 @@ void test_color_cb(void *param)
 	uint16_t test_color = 0;
 
 	test_color = 0x00;
-	for(i = 0; i < 0x1f; i++)
+	for (i = 0; i < 0x1f; i++)
 	{
 		updatePanel16b(&test_color, true);
 		mtFanledSendLineBuffer();
@@ -128,7 +129,7 @@ void test_color_cb(void *param)
 	}
 
 	test_color = 0x00;
-	for(i = 0; i < 0x3f; i++)
+	for (i = 0; i < 0x3f; i++)
 	{
 		updatePanel16b(&test_color, true);
 		mtFanledSendLineBuffer();
@@ -139,7 +140,7 @@ void test_color_cb(void *param)
 	}
 
 	test_color = 0x00;
-	for(i = 0; i < 0x1f; i++)
+	for (i = 0; i < 0x1f; i++)
 	{
 		updatePanel16b(&test_color, true);
 		mtFanledSendLineBuffer();
@@ -152,9 +153,9 @@ void test_color_cb(void *param)
 
 void test_image_cb(void *param)
 {
-	if(gDisplayEnable == 1)
+	if (gDisplayEnable == 1)
 	{
-		if(gCurrent_point < FANLED_RESOLUTION)
+		if (gCurrent_point < FANLED_RESOLUTION)
 		{
 			LED_LATCH();
 			LED_UNBLANK();
@@ -167,9 +168,9 @@ void test_image_cb(void *param)
 
 void test_hsv_circle(void *param)
 {
-	if(gDisplayEnable == 1)
+	if (gDisplayEnable == 1)
 	{
-		if(gCurrent_point < FANLED_RESOLUTION)
+		if (gCurrent_point < FANLED_RESOLUTION)
 		{
 			LED_LATCH();
 			LED_UNBLANK();
@@ -183,9 +184,9 @@ void test_hsv_circle(void *param)
 
 void test_naruto_effect(void *param)
 {
-	if(gDisplayEnable == 1)
+	if (gDisplayEnable == 1)
 	{
-		if(gCurrent_point < FANLED_RESOLUTION)
+		if (gCurrent_point < FANLED_RESOLUTION)
 		{
 			LED_LATCH();
 			LED_UNBLANK();
@@ -200,9 +201,9 @@ void test_naruto_effect(void *param)
 
 void app_developing(void *param)
 {
-	if(gDisplayEnable == 1)
+	if (gDisplayEnable == 1)
 	{
-		if(gCurrent_point < FANLED_RESOLUTION)
+		if (gCurrent_point < FANLED_RESOLUTION)
 		{
 			LED_LATCH();
 			LED_UNBLANK();
@@ -210,10 +211,10 @@ void app_developing(void *param)
 			mtFanledSendLineBuffer();
 
 			//Some functions here
-			switch(Fanled_Display.animation)
+			switch (Fanled_Display.animation)
 			{
 				case (ANIMATION_1):
-					if(Fanled_Display.animation_old != Fanled_Display.animation)
+					if (Fanled_Display.animation_old != Fanled_Display.animation)
 					{
 						clear_screen_buffer(&Fanled_Display);
 						Fanled_Display.animation_old = Fanled_Display.animation;
@@ -222,28 +223,28 @@ void app_developing(void *param)
 					fanled_puts_scroll("Happy New Year!!", COLOR_RED_MAX, &Fanled_Display, 50);
 					break;
 				case (ANIMATION_2):
-					if(Fanled_Display.animation_old != Fanled_Display.animation)
-					{
-						clear_screen_buffer(&Fanled_Display);
-						Fanled_Display.animation_old = Fanled_Display.animation;
-						//commend for quick flash program
-						//load_image(rgb);
-					}
-					break;
-				case (ANIMATION_3):
-					if(Fanled_Display.animation_old != Fanled_Display.animation)
+					if (Fanled_Display.animation_old != Fanled_Display.animation)
 					{
 						clear_screen_buffer(&Fanled_Display);
 						DrawCircle(&Fanled_Display);
 						Calendar_Populate(&Fanled_Display, &sys_date);
 						Fanled_Display.animation_old = Fanled_Display.animation;
 					}
-					if(Fanled_Display.rtc_flag == RTC_UPDATE)
+					if (sys_date.isUpdated == true)
 					{
+						sys_date.isUpdated = false;
 						Calendar_Populate(&Fanled_Display, &sys_date);
-						Fanled_Display.rtc_flag = RTC_WAIT;
 					}
 					break;
+				case (ANIMATION_3):
+//					if(Fanled_Display.animation_old != Fanled_Display.animation)
+//					{
+//						clear_screen_buffer(&Fanled_Display);
+//						Fanled_Display.animation_old = Fanled_Display.animation;
+//						load_image(rgb);
+//					}
+					break;
+
 				case (ANIMATION_4):
 
 					break;
@@ -276,7 +277,7 @@ int mainTestRTC(void)
 	blankAllLed();
 	/* Just use bluetooth UART to communicate to host */
 	bltInitModule(false);
-	while(1)
+	while (1)
 	{
 		mtDelayMS(1000);
 		if (memcmp(&oldDate, &sys_date, sizeof(sytemdate_t)))
@@ -303,18 +304,12 @@ void FanledTestColor(void)
 void FanledTestPicture(void)
 {
 #if defined(LOAD_IMAGE_TO_FLASH)
-	load_image(rgb);
+	load_image(img_rgb);
 #endif
-	
-	Fanled_Display.enable_flag = STATE_FREST;
-	Fanled_Display.rtc_flag = RTC_ENBALE;
-	
-	updatePanel16b(0, true);
-	mtFanledSendLineBuffer();
-	while(g_SPI_DMA_Flag == 0);
-	LED_LATCH();
-	LED_UNBLANK();
 
+	Fanled_Display.enable_flag = STATE_FREST;
+
+	blankAllLed();
 	mainCallBackRegister(test_image_cb);
 }
 
@@ -322,16 +317,10 @@ void FanledAppDeveloping(void)
 {
 	Fanled_Display.animation = ANIMATION_1;
 	Fanled_Display.animation_change_speed = ANIMATION_CHANGE_SPEED;
-	
-	Fanled_Display.enable_flag = STATE_FREST;
-	Fanled_Display.rtc_flag = RTC_ENBALE;
-	
-	updatePanel16b(0, true);
-	mtFanledSendLineBuffer();
-	while(g_SPI_DMA_Flag == 0);
-	LED_LATCH();
-	LED_UNBLANK();
 
+	Fanled_Display.enable_flag = STATE_FREST;
+
+	blankAllLed();
 	mainCallBackRegister(app_developing);
 }
 
@@ -339,15 +328,10 @@ void FanledTestHSVCircle(void)
 {
 	Fanled_Display.animation = ANIMATION_1;
 	Fanled_Display.animation_change_speed = ANIMATION_CHANGE_SPEED;
-	
+
 	Fanled_Display.enable_flag = STATE_FREST;
-	Fanled_Display.rtc_flag = RTC_ENBALE;
-	
-	updatePanel16b(0, true);
-	mtFanledSendLineBuffer();
-	while(g_SPI_DMA_Flag == 0);
-	LED_LATCH();
-	LED_UNBLANK();
+
+	blankAllLed();
 	ColorWheelPrepare(&Fanled_Display);
 
 	mainCallBackRegister(test_hsv_circle);
@@ -359,15 +343,10 @@ void FanledTestNarutoEffect(void)
 	Fanled_Display.animation_change_speed = ANIMATION_CHANGE_SPEED;
 	Fanled_Display.sharingan_count = SHARINGAN_CHANGE_SPEED;
 	Fanled_Display.misc_count = MISC_CHANGE_SPEED;
-	
+
 	Fanled_Display.enable_flag = STATE_FREST;
-	Fanled_Display.rtc_flag = RTC_ENBALE;
-	
-	updatePanel16b(0, true);
-	mtFanledSendLineBuffer();
-	while(g_SPI_DMA_Flag == 0);
-	LED_LATCH();
-	LED_UNBLANK();
+
+	blankAllLed();
 
 	mainCallBackRegister(test_naruto_effect);
 }
