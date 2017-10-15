@@ -63,3 +63,29 @@ minicom -b <baud-rate> -D /dev/rfcomm0
     Connected /dev/rfcomm1 to 00:14:03:12:34:48 on channel 1
     # => now we can talk to HC-05 through /dev/rfcomm1
     ```
+
+    ```bash
+    # For reconnect from board reset, these step should be follow
+    # + stop process RFCOMM, stop process that openining RFCOMM (our test script)
+    # + Now do these stuff with bluetoothctl
+    [ZEALOT-HC]# remove 00:14:03:12:34:48
+    Device has been removed
+    [CHG] Device 00:14:03:12:34:48 Connected: no
+    [DEL] Device 00:14:03:12:34:48 ZEALOT-HC
+    [NEW] Device 00:14:03:12:34:48 ZEALOT-HC
+    # + wait until bluetoothctl can scan our HC-05 device (like message above)
+    [bluetooth]# disconnect 00:14:03:12:34:48
+    Attempting to disconnect from 00:14:03:12:34:48
+    Successful disconnected
+    [bluetooth]# pair 00:14:03:12:34:48
+    Attempting to pair with 00:14:03:12:34:48
+    [CHG] Device 00:14:03:12:34:48 Connected: yes
+    Request PIN code
+    [agent] Enter PIN code: 1234
+    [CHG] Device 00:14:03:12:34:48 UUIDs: 00001101-0000-1000-8000-00805f9b34fb
+    [CHG] Device 00:14:03:12:34:48 Paired: yes
+    Pairing successful
+    # + now connect using RFCOMM again
+    $ sudo rfcomm connect 1 00:14:03:12:34:48
+    # => now one should be able to send bluetooth cmd to board again
+    ```

@@ -36,6 +36,7 @@ class FanledAPISd():
 			if len(rsp) < 3:
 				return []
 			if rsp[2] != '\x00':
+				print_err("Error when list file, errCode=%2x" % ord(rsp[2]))
 				return []
 
 			# Only processing the text return

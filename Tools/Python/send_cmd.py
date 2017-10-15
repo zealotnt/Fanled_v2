@@ -36,6 +36,13 @@ PROG = "send_cmd"
 
 COPYRIGHT = u"Copyright © 2016"
 
+APP_PROMT = u"""
+Application support:
+	basic | 1        : basic fanled api
+	upg   | 2        : fanled firmware upgrade api
+	sd    | 3        : fanled sd card api
+"""
+
 # ---- GLOBALS
 def complete(text, state):
 	return (glob.glob(text+'*')+[None])[state]
@@ -50,7 +57,7 @@ def string_function_parse(argument):
 		"3"    : fw_sd_api,
 	}
 	# Get the function from switcher dictionary
-	func = switcher.get(argument, lambda: "not found")
+	func = switcher.get(argument, lambda: ("%s not supported" % argument))
 	# Execute the function
 	return func()
 
@@ -92,6 +99,8 @@ Support comand:
 			fanled_fw_upgrade.UpgradeRequest()
 		elif user_promt == "dbg":
 			fanled_basic_api.GetDbgVar()
+		elif user_promt == "b" or user_promt == "back":
+			return
 		else:
 			print HELP
 			continue
@@ -103,11 +112,14 @@ def fw_upg_api():
 	PROMT = u"Input your command:"
 	HELP = u"""
 Support comand:
-- erase | e: erase firmware flash
-- up    | u: request app to upgrade firmware, jump back to bootloader
-- write | w: continue write firmware content to target device
-- reset | r: reset file and index sequence
-- le       : Get fanled bootloader last err
+- erase     | e : erase firmware flash
+- write     | w : continue write firmware content to target device
+- write all | wa: write all firmware content to target device
+- checksum  | ck: download checksum to board
+- reset     | r : reset file and index sequence
+- up        | u : request app to upgrade firmware, jump back to bootloader
+- le            : Get fanled bootloader last err
+- back      | b : return to main menu
 """
 	FW_PATH = "/home/zealot/workspace_NotCategorized/Fanled_v2/Firmware/Fanled_v2/Build-App/Fanled_v2.bin"
 	fw = open(FW_PATH, "rb")
@@ -117,23 +129,25 @@ Support comand:
 	while True:
 		user_promt = raw_input(PROMT)
 		if user_promt == "erase" or user_promt == "e":
-			fanled_fw_upgrade.EraseAppFwRequest()
+			fanled_fw_upgrade.EraseFirmwareRequest("app")
 		elif user_promt == "write" or user_promt == "w":
 			print "Writing firmware index " + str(fw_idx)
 			first_idx = fw_idx * PACKET_MAX_SIZE
 			end_idx = ((fw_idx + 1) * PACKET_MAX_SIZE)
-			fanled_fw_upgrade.WriteFirmwarePacket(fw_idx, PACKET_MAX_SIZE, fw_contents[first_idx:end_idx])
+			fanled_fw_upgrade.WriteFirmwarePacket("app", fw_idx, PACKET_MAX_SIZE, fw_contents[first_idx:end_idx])
 			fw_idx += 1
 		elif user_promt == "write all" or user_promt == "wa":
-			fanled_fw_upgrade.DownloadFirmware(FW_PATH)
+			fanled_fw_upgrade.DownloadFirmware("app", FW_PATH)
 		elif user_promt == "checksum" or user_promt == "ck":
-			fanled_fw_upgrade.DownloadChecksum(FW_PATH)
+			fanled_fw_upgrade.DownloadChecksum("app", FW_PATH)
 		elif user_promt == "reset" or user_promt == "r":
 			fw_idx = 0
 		elif user_promt == "up" or user_promt == "u":
-			fanled_fw_upgrade.UpgradeRequest()
+			fanled_fw_upgrade.UpgradeRequest("app")
 		elif user_promt == "le":
 			fanled_fw_upgrade.GetLastErr()
+		elif user_promt == "b" or user_promt == "back":
+			return
 		else:
 			print HELP
 
@@ -188,6 +202,8 @@ Support comand:
 			file_name = raw_input("File to checksum: ")
 			checksum = fanled_sd_api.GetFileMd5(file_name)
 			dump_hex(checksum, "Checksum = ")
+		elif user_promt == "b" or user_promt == "back":
+			return
 		else:
 			print "Wrong command, try again:"
 			print HELP
@@ -212,10 +228,6 @@ if __name__ == "__main__":
 						dest="list_serial",
 						default=False,
 						help="display available serial ports")
-	parser.add_option(  "-a", "--app-select",
-						dest="app_selected",
-						type="string",
-						help="application to select")
 
 	(options, args) = parser.parse_args()
 
@@ -241,21 +253,12 @@ if __name__ == "__main__":
 	fanled_fw_upgrade = FanledAPIFwUpgrade(comm)
 	fanled_sd_api = FanledAPISd(comm)
 
-	APP_PROMT = u"""No application selected !!!
-To choose application:
-	./send_cmd.py -a <app-select>
-Application support:
-	basic | 1        : basic fanled api
-	upg   | 2        : fanled firmware upgrade api
-	sd    | 3        : fanled sd card api
-"""
-	if options.app_selected is None:
-		print APP_PROMT
-		sys.exit(1)
-
 	# Auto complete setting for user input
 	readline.set_completer_delims(' \t\n;')
 	readline.parse_and_bind("tab: complete")
 	readline.set_completer(complete)
 
-	string_function_parse(options.app_selected)
+	while True:
+		print APP_PROMT
+		app_selected = raw_input("Input your application: ")
+		string_function_parse(app_selected)
