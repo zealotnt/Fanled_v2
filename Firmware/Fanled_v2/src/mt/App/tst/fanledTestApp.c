@@ -92,7 +92,7 @@ void test_curve_cb(void *param)
 			if (gCurrent_point >= CURVE_START_POS &&
 					gCurrent_point <= CURVE_END_POS)
 			{
-				buff_color[CURVE_ENABLE_POS] = CURVE_COLOR;
+				memset(buff_color, CURVE_COLOR, sizeof(buff_color));
 				LED_LATCH();
 				LED_UNBLANK();
 				updatePanel16b(buff_color, true);
@@ -100,6 +100,7 @@ void test_curve_cb(void *param)
 			}
 			else
 			{
+				memset(buff_color, COLOR_BLACK, sizeof(buff_color));
 				LED_LATCH();
 				LED_UNBLANK();
 				updatePanel16b(buff_color, true);
