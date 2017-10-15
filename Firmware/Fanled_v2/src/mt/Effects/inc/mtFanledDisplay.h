@@ -30,6 +30,7 @@ extern "C"
 /*****************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
+#include "../App/inc/mtAppDef.h"
 
 /*****************************************************************************/
 /* DEFINITION OF COMPILE SWITCH                                              */
@@ -85,9 +86,10 @@ typedef struct
 	uint8_t 	pos_now_inner, pos_now_outer;
 	uint8_t 	mode;
 
-	uint8_t 	animation;
-	uint8_t 	animation_old;
-	uint32_t 	animation_change_speed;
+	fanledAnimation_t 	animationCur;
+	fanledAnimation_t 	animationOld;
+	uint32_t			animationChangeCount;
+	uint32_t 			animationChangeSpeed;
 
 	//using for naruto effect
 	uint32_t 		sharingan_count;

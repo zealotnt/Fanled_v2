@@ -97,17 +97,17 @@ void mtSystickHandler(void)
 	}
 
 	Timing_Count++;
-	if (Timing_Count > Fanled_Display.animation_change_speed)
+	if (Timing_Count > Fanled_Display.animationChangeCount)
 	{
-		if (Fanled_Display.animation == MAX_ANIMATION)
+		if (Fanled_Display.animationCur >= MAX_ANIMATION)
 		{
-			Fanled_Display.animation = 1;
+			Fanled_Display.animationCur = ANIMATION_1;
 		}
 		else
 		{
-			Fanled_Display.animation++;
+			Fanled_Display.animationCur++;
 		}
-		Fanled_Display.animation_change_speed += ANIMATION_CHANGE_SPEED;
+		Fanled_Display.animationChangeCount += Fanled_Display.animationChangeSpeed;
 	}
 
 	if (Timing_Count > Fanled_Display.sharingan_count)

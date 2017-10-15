@@ -47,18 +47,20 @@
 #define JUST_RESET				100
 #define STATE_FREST				255
 
+typedef enum {
+	ANIMATION_1 = 0,
+	ANIMATION_2 = 1,
+	ANIMATION_3 = 2,
+	ANIMATION_4 = 3,
+	ANIMATION_5 = 4,
+	MAX_ANIMATION,
+} fanledAnimation_t;
+
 #define ANIMATION_IMAGE					ANIMATION_1
 #define ANIMATION_CALENDAR				ANIMATION_2
 #define ANIMATION_VALENTINE				ANIMATION_3
 #define ANIMATION_HAPPYNEWYEAR			ANIMATION_4
 
-#define ANIMATION_1				1
-#define ANIMATION_2				2
-#define ANIMATION_3				3
-#define ANIMATION_4				4
-#define ANIMATION_5				5
-
-#define MAX_ANIMATION			2
 #define ANIMATION_CHANGE_SPEED	15000
 
 /* These definition works for Sharingan Effect*/

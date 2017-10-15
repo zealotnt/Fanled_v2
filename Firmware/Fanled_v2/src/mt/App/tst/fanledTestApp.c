@@ -151,7 +151,7 @@ void test_color_cb(void *param)
 	}
 }
 
-void test_image_cb(void *param)
+void test_display_frame_buffer(void *param)
 {
 	if (gDisplayEnable == 1)
 	{
@@ -164,22 +164,6 @@ void test_image_cb(void *param)
 		}
 		gDisplayEnable = 0;
 	}
-}
-
-void test_hsv_circle(void *param)
-{
-	if (gDisplayEnable == 1)
-	{
-		if (gCurrent_point < FANLED_RESOLUTION)
-		{
-			LED_LATCH();
-			LED_UNBLANK();
-			updatePanel16b(Fanled_Display.dis[gCurrent_point], false);
-			mtFanledSendLineBuffer();
-			//End of functions
-		}
-		gDisplayEnable = 0;
-	}//end of if(gDisplayEnable == 1)
 }
 
 void test_naruto_effect(void *param)
@@ -211,24 +195,24 @@ void app_developing(void *param)
 			mtFanledSendLineBuffer();
 
 			//Some functions here
-			switch (Fanled_Display.animation)
+			switch (Fanled_Display.animationCur)
 			{
 				case (ANIMATION_1):
-					if (Fanled_Display.animation_old != Fanled_Display.animation)
+					if (Fanled_Display.animationOld != Fanled_Display.animationCur)
 					{
 						clear_screen_buffer(&Fanled_Display);
-						Fanled_Display.animation_old = Fanled_Display.animation;
+						Fanled_Display.animationOld = Fanled_Display.animationCur;
 						Fanled_Display.enable_flag = STATE_FREST;
 					}
 					fanled_puts_scroll("Happy New Year!!", COLOR_RED_MAX, &Fanled_Display, 50);
 					break;
 				case (ANIMATION_2):
-					if (Fanled_Display.animation_old != Fanled_Display.animation)
+					if (Fanled_Display.animationOld != Fanled_Display.animationCur)
 					{
 						clear_screen_buffer(&Fanled_Display);
 						DrawCircle(&Fanled_Display);
 						Calendar_Populate(&Fanled_Display, &sys_date);
-						Fanled_Display.animation_old = Fanled_Display.animation;
+						Fanled_Display.animationOld = Fanled_Display.animationCur;
 					}
 					if (sys_date.isUpdated == true)
 					{
@@ -237,7 +221,7 @@ void app_developing(void *param)
 					}
 					break;
 				case (ANIMATION_3):
-//					if(Fanled_Display.animation_old != Fanled_Display.animation)
+//					if(Fanled_Display.animationOld != Fanled_Display.animation)
 //					{
 //						clear_screen_buffer(&Fanled_Display);
 //						Fanled_Display.animation_old = Fanled_Display.animation;
@@ -250,6 +234,9 @@ void app_developing(void *param)
 					break;
 				case (ANIMATION_5):
 
+					break;
+
+				default :
 					break;
 			}
 			//End of functions
@@ -306,18 +293,14 @@ void FanledTestPicture(void)
 #if defined(LOAD_IMAGE_TO_FLASH)
 	load_image(img_rgb);
 #endif
-
-	Fanled_Display.enable_flag = STATE_FREST;
-
 	blankAllLed();
-	mainCallBackRegister(test_image_cb);
+	mainCallBackRegister(test_display_frame_buffer);
 }
 
 void FanledAppDeveloping(void)
 {
-	Fanled_Display.animation = ANIMATION_1;
-	Fanled_Display.animation_change_speed = ANIMATION_CHANGE_SPEED;
-
+	Fanled_Display.animationCur = ANIMATION_1;
+	Fanled_Display.animationChangeSpeed = ANIMATION_CHANGE_SPEED;
 	Fanled_Display.enable_flag = STATE_FREST;
 
 	blankAllLed();
@@ -326,28 +309,17 @@ void FanledAppDeveloping(void)
 
 void FanledTestHSVCircle(void)
 {
-	Fanled_Display.animation = ANIMATION_1;
-	Fanled_Display.animation_change_speed = ANIMATION_CHANGE_SPEED;
-
-	Fanled_Display.enable_flag = STATE_FREST;
-
 	blankAllLed();
 	ColorWheelPrepare(&Fanled_Display);
-
-	mainCallBackRegister(test_hsv_circle);
+	mainCallBackRegister(test_display_frame_buffer);
 }
 
 void FanledTestNarutoEffect(void)
 {
-	Fanled_Display.animation = ANIMATION_1;
-	Fanled_Display.animation_change_speed = ANIMATION_CHANGE_SPEED;
 	Fanled_Display.sharingan_count = SHARINGAN_CHANGE_SPEED;
 	Fanled_Display.misc_count = MISC_CHANGE_SPEED;
 
-	Fanled_Display.enable_flag = STATE_FREST;
-
 	blankAllLed();
-
 	mainCallBackRegister(test_naruto_effect);
 }
 
