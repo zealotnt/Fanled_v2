@@ -166,7 +166,7 @@ void test_display_frame_buffer(void *param)
 	}
 }
 
-void test_naruto_effect(void *param)
+void test_eightlight(void *param)
 {
 	if (gDisplayEnable == 1)
 	{
@@ -180,7 +180,24 @@ void test_naruto_effect(void *param)
 			//End of functions
 		}
 		gDisplayEnable = 0;
-	}//end of if(gDisplayEnable == 1)
+	}
+}
+
+void test_sharingan(void *param)
+{
+	if (gDisplayEnable == 1)
+	{
+		if (gCurrent_point < FANLED_RESOLUTION)
+		{
+			LED_LATCH();
+			LED_UNBLANK();
+			updatePanel16b(Fanled_Display.dis[gCurrent_point], false);
+			mtFanledSendLineBuffer();
+			Sharingan_effect();
+			//End of functions
+		}
+		gDisplayEnable = 0;
+	}
 }
 
 void app_developing(void *param)
@@ -314,13 +331,21 @@ void FanledTestHSVCircle(void)
 	mainCallBackRegister(test_display_frame_buffer);
 }
 
-void FanledTestNarutoEffect(void)
+void FanledTestSharinganEffect(void)
+{
+	Fanled_Display.misc_count = MISC_CHANGE_SPEED;
+
+	blankAllLed();
+	mainCallBackRegister(test_sharingan);
+}
+
+void FanledTestEightLight(void)
 {
 	Fanled_Display.sharingan_count = SHARINGAN_CHANGE_SPEED;
 	Fanled_Display.misc_count = MISC_CHANGE_SPEED;
 
 	blankAllLed();
-	mainCallBackRegister(test_naruto_effect);
+	mainCallBackRegister(test_eightlight);
 }
 
 /************************* End of File ****************************************/

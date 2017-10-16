@@ -115,7 +115,8 @@ int main(void)
 //	FanledTestPicture();
 //	FanledAppDeveloping();
 //	FanledTestHSVCircle();
-//	FanledTestNarutoEffect();
+//	FanledTestSharinganEffect();
+//	FanledTestEightLight();
 
 	while (1)
 	{

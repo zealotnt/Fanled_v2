@@ -130,6 +130,7 @@ void mtSdCardInit(void)
 void initBootloader(void)
 {
 	mtRCCInit();
+	mtWdtDisable();
 	mtSysTickInit();
 	core_enable_isr();
 	mtFanledSPIInit();

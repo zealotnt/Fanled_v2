@@ -62,6 +62,7 @@ void FanledTestPicture(void);
 void FanledTestColor(void);
 void FanledTestHSVCircle(void);
 void FanledAppDeveloping(void);
-void FanledTestNarutoEffect(void);
+void FanledTestSharinganEffect(void);
+void FanledTestEightLight(void);
 
 #endif /* _FANLED_TEST_APP_H_ */
