@@ -121,9 +121,10 @@ void mtSystickHandler(void)
 		Fanled_Display.misc_flag = STATE_ENABLE;
 		Fanled_Display.misc_count += MISC_CHANGE_SPEED;
 	}
+
+	disk_timerproc();
 #endif
 	mtDelayClockTick();
-	disk_timerproc();
 }
 
 /******************************************************************************/

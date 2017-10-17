@@ -83,12 +83,13 @@ mtErrorCode_t mtFanledApiSdListFile(UInt8 *msgIn,
 	UInt16 last_idx = 4;
 	UInt8 from_file_num;
 	UInt8 i = 0;
+	Bool thereIsFile = False;
 
 	*msgOutLen = 4;
 	msgOut[3] = SD_END;
 	from_file_num = msgIn[2];
 
-	if (f_mount(0, &gFatFs) == FR_OK)
+	if (f_mount(&gFatFs, "", 0) == FR_OK)
 	{
 		FAT_FS_RETURN_IF_ERR(res, f_opendir(&mydir, "0:\\"), msgOut[2]);
 
@@ -105,7 +106,8 @@ mtErrorCode_t mtFanledApiSdListFile(UInt8 *msgIn,
 
 			if (myfno.fname[0])
 			{
-				last_file_name_len = strlen(myfno.lfname);
+				thereIsFile = True;
+				last_file_name_len = strlen(myfno.fname);
 				if ((last_idx + last_file_name_len + 1) > MAX_SERIAL_DATA_EXCEPT_CMD)
 				{
 					/* We don't want the \n character in the last
@@ -115,7 +117,7 @@ mtErrorCode_t mtFanledApiSdListFile(UInt8 *msgIn,
 					goto exit;
 				}
 
-				memcpy((char *)&msgOut[last_idx], myfno.lfname, last_file_name_len);
+				memcpy((char *)&msgOut[last_idx], myfno.fname, last_file_name_len);
 
 				/* Separate other file name with null character */
 				msgOut[last_idx + last_file_name_len] = '\n';
@@ -127,8 +129,9 @@ mtErrorCode_t mtFanledApiSdListFile(UInt8 *msgIn,
 		while (myfno.fname[0]);
 
 		/* If it can go there, means the SD list has end */
-		/* Minus 1: same reason as before */
-		*msgOutLen = last_idx - 1;
+		/* Minus 1: same reason as before
+		 * Don't minus 1 if there is no file (python assume there is 4 byte return) */
+		*msgOutLen = last_idx - thereIsFile;
 		msgOut[3] = SD_END;
 	}
 
@@ -255,7 +258,7 @@ mtErrorCode_t mtFanledApiSdWriteFile(UInt8 *msgIn,
 		goto exit;
 	}
 
-	FAT_FS_RETURN_IF_ERR(fr, f_mount(0, &gFatFs), msgOut[2]);
+	FAT_FS_RETURN_IF_ERR(fr, f_mount(&gFatFs, "", 0), msgOut[2]);
 
 	/* Offset = 0 -> create file */
 	if (file_offset == 0)
@@ -326,7 +329,7 @@ mtErrorCode_t mtFanledApiSdCheckFileMd5(UInt8 *msgIn,
 		goto exit;
 	}
 
-	FAT_FS_RETURN_IF_ERR(fr, f_mount(0, &gFatFs), msgOut[2]);
+	FAT_FS_RETURN_IF_ERR(fr, f_mount(&gFatFs, "", 0), msgOut[2]);
 
 	/* Open file object */
 	FAT_FS_RETURN_IF_ERR(fr, f_open(&sd_file, (char *)&msgIn[2], FA_READ), msgOut[2]);

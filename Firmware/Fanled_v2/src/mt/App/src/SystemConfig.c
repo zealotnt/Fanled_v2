@@ -33,6 +33,7 @@
 #include "RTC/inc/mtRtcDriver.h"
 #include "Bootloader/inc/driverBootloader.h"
 #include "ff.h"
+#include "diskio.h"
 
 /******************************************************************************/
 /* LOCAL CONSTANT AND COMPILE SWITCH SECTION                                  */
@@ -62,7 +63,6 @@ FATFS gFatFs;
 DIR mydir;
 FILINFO myfno;
 SdManager_t sdFileInfo;
-char lfn[LFN_MAX_LEN];
 
 /******************************************************************************/
 /* LOCAL (STATIC) VARIABLE DEFINITION SECTION                                 */
@@ -82,22 +82,22 @@ char lfn[LFN_MAX_LEN];
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
+extern DSTATUS disk_initialize (BYTE drv);
 
 void mtSdCardInit(void)
 {
 	FRESULT res = FR_DISK_ERR;
 	uint8_t count = 0;
 
-	myfno.lfname = lfn;
-	myfno.lfsize = LFN_MAX_LEN;
+	disk_initialize(0);
 
 	while ((res != FR_OK) && (count < 10))
 	{
-		res = f_mount(0, &gFatFs);
+		res = f_mount(&gFatFs, "", 0);
 		count++;
 	}
 
-	if (f_mount(0, &gFatFs) == FR_OK)
+	if (f_mount(&gFatFs, "", 0) == FR_OK)
 	{
 		do
 		{
@@ -211,20 +211,12 @@ void mtHallSensorDeinit(void)
 
 void mtRCCInit(void)
 {
-	GPIO_InitTypeDef GPIO_InitStruct;
-
 	RCC_PCLK1Config(RCC_HCLK_Div1);
 
 	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOC |
 	                        RCC_APB2Periph_AFIO, ENABLE);
 
-	//SD Card enable
-	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
-	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
-	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOA, &GPIO_InitStruct);
-	GPIO_WriteBit(GPIOA, GPIO_Pin_8, (BitAction)1);
+	//SD Card enable later in spi_init
 #if (FANLED_APP)
 	/* Set system control register SCR->VTOR  */
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, FLASH_BOOTLOADER_SIZE);
