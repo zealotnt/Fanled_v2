@@ -300,7 +300,7 @@ Bool mtBootloaderCheckFwUpgardeRequest()
 			goto exit;
 		}
 	}
-
+#if (IS_RTC_PIN)
 	if (0x00 == BKP_ReadBackupRegister(BKP_BOOTLOADER_ID))
 	{
 		/* BKP_BOOTLOADER_ID not have valid value: BKP_PATTERN_OK_JUMP_TO_APP
@@ -310,6 +310,7 @@ Bool mtBootloaderCheckFwUpgardeRequest()
 		 * => Boot_loader continue running */
 		gLastErr |= ERR_BKP_CLEAR;
 	}
+#endif
 
 exit:
 	return status;

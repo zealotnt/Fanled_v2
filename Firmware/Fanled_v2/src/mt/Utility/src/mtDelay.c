@@ -62,6 +62,11 @@ static volatile uint32_t gtickDelay;
 /******************************************************************************/
 /* GLOBAL FUNCTION DEFINITION SECTION                                         */
 /******************************************************************************/
+void DelayRaw(volatile uint32_t nTime)
+{
+	while(nTime) nTime--;
+}
+
 void mtDelayClockTick()
 {
 	if (gtickDelay != 0)

@@ -58,7 +58,7 @@ extern "C"
 /*****************************************************************************/
 /* DECLARATION OF GLOBALES FUNCTIONS (APIs, Callbacks & MainFunctions)       */
 /*****************************************************************************/
-void Delay(volatile uint32_t nTime);
+void DelayRaw(volatile uint32_t nTime);
 void TimingDelay_Decrement(void);
 uint32_t DELAY_Time(void);
 uint32_t DELAY_Time2(void);

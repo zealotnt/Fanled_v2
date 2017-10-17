@@ -62,7 +62,6 @@
 /******************************************************************************/
 extern uint8_t gDisplayEnable;
 extern Display_Type Fanled_Display;
-extern volatile uint8_t g_SPI_DMA_Flag;
 extern uint16_t gCurrent_point;
 
 /******************************************************************************/
